@@ -52,7 +52,48 @@ End-to-end automation recipes that chain Skills and Tools together. This is wher
 
 ---
 
+## 📦 Installation
+
+See the full [Installation Guide](docs/INSTALL.md) for platform-specific instructions.
+
+**Quick start (any platform):**
+
+```bash
+git clone https://github.com/carbonshow/intent-fluid.git
+```
+
+| Platform | Command |
+|----------|---------|
+| Claude Code | `/plugin install intent-fluid@claude-plugins-official` |
+| Cursor | `/add-plugin intent-fluid` |
+| Gemini CLI | `gemini extensions install https://github.com/carbonshow/intent-fluid` |
+
+---
+
+## 🎯 Available Skills
+
+| Skill | Description |
+|-------|-------------|
+| [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
+
+---
+
 ## 🚀 Getting Started
+
+### Using Skills
+
+1. Install intent-fluid (see above)
+2. Start a new AI session
+3. Provide a PRD or detailed spec — the appropriate skill activates automatically
+
+### Creating a New Skill
+
+1. Read the [Skill Specification](docs/SKILL_SPEC.md)
+2. Copy the [Skill Template](docs/SKILL_TEMPLATE.md)
+3. Create your skill under `skills/<your-skill-name>/`
+4. Validate: `bash scripts/validate-skill.sh skills/<your-skill-name>`
+
+### Exploring Patterns
 
 Since this is a personal workshop, many tools are configured for my specific environment. However, the *patterns* are universal.
 

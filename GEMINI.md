@@ -9,11 +9,18 @@ The repository is architected around three main pillars intended to function as 
 - **Atomic Actions:** Scripts and utilities for direct execution.
 - **Synthesized Flow:** End-to-end automations connecting skills and tools.
 
+## Skill Directory Structure
+Skills live under `skills/`. Each skill is a directory containing a `SKILL.md` file with YAML frontmatter (name, description, version, author, tags, platforms) followed by the skill prompt body. The AI platform scans `skills/*/SKILL.md` to discover available skills and uses the `description` field to determine when to activate each skill.
+
+Current skills:
+- `skills/surge/` — Autonomous iterative delivery (PRD → analyze → research → design → implement → QA → retro)
+
 ## Key Files & Directories
 - `README.md`: Contains the project manifesto, core philosophy, architecture breakdown, and use cases.
-- `/skills` *(Architecture Pillar)*: A planned library of structured prompts, chain-of-thought methodologies, and agent configurations (JSON/YAML) to guide LLMs in specialized tasks.
+- `/skills` *(Architecture Pillar)*: A library of structured prompts, chain-of-thought methodologies, and agent configurations. Each skill has a `SKILL.md` manifest.
 - `/tools` *(Architecture Pillar)*: Planned CLI utilities, lightweight Python scripts, and API connectors designed to be called automatically by AI Agents for atomic operations.
 - `/workflows` *(Architecture Pillar)*: Planned end-to-end automation recipes that chain Skills and Tools together for cohesive, self-executing processes.
+- `docs/SKILL_SPEC.md`: Skill developer specification — format, naming, and validation rules.
 - `LICENSE`: MIT License file.
 
 ## Usage

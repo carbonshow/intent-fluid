@@ -1,6 +1,10 @@
 ---
 name: surge
+version: "1.0.0"
 description: "Use when a user provides a PRD, spec, or detailed requirements document and needs a full project delivered through iterative expert orchestration — multi-round analyze/research/design/implement/QA cycles with convergence detection. NOT for: single-file edits, quick prototypes, simple Q&A, or tasks without a written spec."
+author: carbonshow
+tags: [orchestration, prd, delivery, multi-agent]
+platforms: [claude, cursor, gemini]
 ---
 
 # surge

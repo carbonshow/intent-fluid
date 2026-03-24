@@ -1,0 +1,10 @@
+{
+  "owner": "carbonshow",
+  "plugins": [
+    {
+      "name": "intent-fluid",
+      "repository": "https://github.com/carbonshow/intent-fluid",
+      "description": "Skills, Tools, and Workflows for AI-assisted development"
+    }
+  ]
+}

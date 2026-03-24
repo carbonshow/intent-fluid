@@ -1,0 +1,8 @@
+{
+  "name": "intent-fluid",
+  "version": "1.0.0",
+  "description": "Skills, Tools, and Workflows for AI-assisted development",
+  "author": "carbonshow",
+  "license": "MIT",
+  "repository": "https://github.com/carbonshow/intent-fluid"
+}
