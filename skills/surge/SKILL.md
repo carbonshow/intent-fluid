@@ -18,6 +18,10 @@ You are the sole holder of global state, responsible for orchestrating a profess
 > These are the most common failure modes and take priority over all subsequent rules.
 
 - **Startup Fatigue**: The 5-step negotiation in the startup process can cause users to lose patience. If the user provides a complete PRD and their intent is clear, try to use reasonable defaults to skip unnecessary confirmations, presenting configurations all at once for the user to confirm or modify.
+  **However, the following questions MUST NEVER be skipped, even if the PRD is comprehensive—always ask the user explicitly:**
+  (1) The workspace directory `surge_root` location (Step 1)
+  (2) The deliverable type and corresponding `project_root` or `output_dir` (Step 4)
+  These path values cannot be inferred from the PRD; skipping them will cause files to be written to the wrong location.
 - **Research Scope Creep**: The research phase can easily go too deep and consume massive tokens. If analyze doesn't identify high-risk technical issues in the first round, skip research directly.
 - **QA Never Converges**: QA tends to give "Pass-Optimizable" rather than "Pass-Converged". If all acceptance criteria have passed and the quality evaluation has no "Insufficient" items, lean towards declaring convergence.
 - **Parallel Implement Missing Context**: Each subagent MUST receive `deliverables.md` + its own task package + `context.md`. None can be missing.
@@ -25,7 +29,7 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **Over-Formatting**: Phase templates list required sections, but do not demand precise markdown formatting. Let the subagent choose how to express the content.
 - **Quality Oscillation**: If `quality_history` shows the same dimension bouncing back and forth for 3 consecutive rounds (e.g., Basic→Good→Basic), the optimization direction for that dimension has internal conflicts. Do not blindly continue optimizing; lock that dimension or ask the user to rule on priorities.
 - **Optimization Directives Fail**: If the same optimization directive is marked as "Unexecuted" by QA for two consecutive rounds, do not inject it a third time. Explain the situation to the user during the Iteration Review and request guidance.
-- **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working.
+- **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working. **This is a mandatory obligation for the Director after every Phase—not optional. Violating this rule is equivalent to a process interruption.**
 
 ## Core Flow
 
@@ -49,7 +53,7 @@ flowchart LR
 4. **Deliverables Negotiation**: Confirm deliverable_type (code/document/mixed), project root, language/framework, etc., and write to `deliverables.md`.
 5. **Acceptance Criteria Negotiation**: Generate L1/L2/L3 tiered acceptance plans and write to `acceptance.md`.
 
-**Fast Startup**: If the user's intent is clear and the PRD is sufficient, steps 3-5 can be combined into a one-time display for the user to confirm at once.
+**Fast Startup**: If the user's intent is clear and the PRD is sufficient, steps 3-5 can be combined into a one-time display for the user to confirm at once. **However, `surge_root` (Step 1) and deliverable paths (`project_root` / `output_dir` in Step 4) MUST be explicitly asked—never silently use defaults.**
 
 ### Main Iteration Loop
 
@@ -68,7 +72,7 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 2. Read `topology.md` to get the customized role for this Phase, replacing the default description after `<!-- DEFAULT_ROLE -->` in the template.
 3. Read required context files and concatenate into a complete subagent prompt.
 4. Dispatch the subagent via the Agent tool.
-5. **After subagent returns, show a process summary to the user** (see "Process Output" below).
+5. **[MANDATORY] After subagent returns, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
 
 > The files under `phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
 
@@ -105,6 +109,8 @@ If obvious dead links or naming conflicts are found, dispatch an agent to fix th
   • CrewAI/AutoGen/LangGraph have no auto-topology generation (blank space confirmed).
   → Output: iter_01_research.md (xxx lines)
 ```
+
+**Director Self-Check**: If the subagent's response does not include a progress summary (the subagent may have ignored the Process Output Requirement), the Director MUST extract key information from the subagent's output files and present it to the user, rather than skipping the summary.
 
 **Cooperation Requirement in Subagent Prompt**: When the Director concatenates the subagent prompt, it MUST append the following instruction at the end:
 

@@ -16,6 +16,8 @@ Determine in the following priority:
 2. **Ask the User**: If project standards do not define it, ask the user if they want to specify a custom workspace directory.
 3. **Use Default**: If the user does not specify, use the default `.surge`.
 
+> ⚠️ **MANDATORY**: Even if the user has not defined `surge_root` in project standards, you MUST confirm the workspace directory location with the user, presenting the default value for them to accept or modify. Never silently use the default.
+
 After determining:
 - Ensure `{surge_root}/tasks/` and `{surge_root}/candidates/` directories exist (create if not).
 - Ensure `{surge_root}/rules.md` exists (copy from `templates/rules.md` if not).
@@ -146,6 +148,8 @@ Write the topology report (including role planning) to `topology.md`. Wait for u
 ## Step 4: Deliverables Negotiation
 
 **After topology confirmation and before acceptance criteria, the final format of the deliverables MUST be clarified. Do not assume the deliverable format.**
+
+> ⚠️ **MANDATORY**: Deliverable paths (`project_root` / `output_dir`) are non-skippable required questions. In Fast Startup mode, these questions may be combined with Steps 3/5, but they MUST NOT be omitted.
 
 ### Questions to Ask
 
