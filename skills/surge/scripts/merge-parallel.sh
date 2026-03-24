@@ -6,13 +6,13 @@ set -euo pipefail
 
 # --- Usage ---
 usage() {
-    echo "用法: bash scripts/merge-parallel.sh <task_dir> <iteration>"
+    echo "Usage: bash scripts/merge-parallel.sh <task_dir> <iteration>"
     echo ""
-    echo "参数:"
-    echo "  task_dir    任务目录路径 (例: .surge/tasks/20260319-abc1)"
-    echo "  iteration   迭代编号 (例: 1)"
+    echo "Arguments:"
+    echo "  task_dir    path to task directory (e.g., .surge/tasks/20260319-abc1)"
+    echo "  iteration   iteration number (e.g., 1)"
     echo ""
-    echo "示例: bash scripts/merge-parallel.sh .surge/tasks/20260319-abc1 1"
+    echo "Example: bash scripts/merge-parallel.sh .surge/tasks/20260319-abc1 1"
     exit 1
 }
 
@@ -26,13 +26,13 @@ ITER_DIR="${TASK_DIR}/iterations"
 
 # Validate task directory
 if [[ ! -d "$ITER_DIR" ]]; then
-    echo "错误: iterations 目录不存在: ${ITER_DIR}" >&2
+    echo "Error: iterations directory does not exist: ${ITER_DIR}" >&2
     exit 1
 fi
 
 # Validate iteration is a number
 if ! [[ "$ITERATION" =~ ^[0-9]+$ ]]; then
-    echo "错误: 迭代编号必须是数字: ${ITERATION}" >&2
+    echo "Error: iteration must be a number: ${ITERATION}" >&2
     exit 1
 fi
 
@@ -48,18 +48,18 @@ while IFS= read -r -d '' f; do
 done < <(find "$ITER_DIR" -maxdepth 1 -name "${PATTERN}*.md" -print0 | sort -z)
 
 if [[ ${#PART_FILES[@]} -eq 0 ]]; then
-    echo "错误: 未找到匹配文件: ${ITER_DIR}/${PATTERN}*.md" >&2
+    echo "Error: no matching files found: ${ITER_DIR}/${PATTERN}*.md" >&2
     exit 1
 fi
 
-echo "正在合并第 ${ITERATION} 轮并行实现产出..."
-echo "  找到 ${#PART_FILES[@]} 个模块文件:"
+echo "Merging parallel implementation outputs for iteration ${ITERATION}..."
+echo "  Found ${#PART_FILES[@]} module files:"
 
 # Build merged file
 {
     echo "# Iteration ${NN} - Implement (Merged)"
     echo ""
-    echo "> 由 merge-parallel.sh 自动合并，共 ${#PART_FILES[@]} 个模块。"
+    echo "> Auto-merged by merge-parallel.sh, total ${#PART_FILES[@]} modules."
     echo ""
 
     FIRST=true
@@ -94,6 +94,6 @@ for f in "${PART_FILES[@]}"; do
 done
 
 echo ""
-echo "合并完成 ✓"
-echo "  输出文件: ${OUTPUT_FILE}"
-echo "  模块数量: ${#PART_FILES[@]}"
+echo "Merge Complete ✓"
+echo "  Output file: ${OUTPUT_FILE}"
+echo "  Module count: ${#PART_FILES[@]}"

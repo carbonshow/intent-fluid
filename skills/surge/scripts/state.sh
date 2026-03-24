@@ -6,15 +6,15 @@ set -euo pipefail
 
 # --- Usage ---
 usage() {
-    echo "用法: bash scripts/state.sh <subcommand> <state_file> [field] [value]"
+    echo "Usage: bash scripts/state.sh <subcommand> <state_file> [field] [value]"
     echo ""
-    echo "子命令:"
-    echo "  get <state_file> <field>          读取字段值"
-    echo "  set <state_file> <field> <value>  设置字段值"
-    echo "  increment <state_file> <field>    数值字段 +1"
-    echo "  show <state_file>                 显示所有字段"
+    echo "Subcommands:"
+    echo "  get <state_file> <field>          read field value"
+    echo "  set <state_file> <field> <value>  set field value"
+    echo "  increment <state_file> <field>    increment numeric field by 1"
+    echo "  show <state_file>                 show all fields"
     echo ""
-    echo "示例:"
+    echo "Examples:"
     echo "  bash scripts/state.sh get ./state.md current_phase"
     echo "  bash scripts/state.sh set ./state.md current_phase design"
     echo "  bash scripts/state.sh increment ./state.md iteration"
@@ -31,7 +31,7 @@ STATE_FILE="$2"
 
 # Validate state file exists
 if [[ ! -f "$STATE_FILE" ]]; then
-    echo "错误: state 文件不存在: ${STATE_FILE}" >&2
+    echo "Error: state file does not exist: ${STATE_FILE}" >&2
     exit 1
 fi
 
@@ -51,7 +51,7 @@ const field = process.argv[3];
 let newValue = process.argv[4];
 
 if (!field) {
-    console.error("用法错误: 缺少 field 参数");
+    console.error("Usage Error: missing field argument");
     process.exit(1);
 }
 
@@ -61,7 +61,7 @@ const regex = new RegExp(`^(${field}):([ \\t]*.*(?:\\n[ \\t]+.*)*)`, "m");
 
 const match = text.match(regex);
 if (!match) {
-    console.error(`错误: 字段不存在: ${field}`);
+    console.error(`Error: field does not exist: ${field}`);
     process.exit(1);
 }
 
@@ -79,13 +79,13 @@ if (subcmd === "get") {
     if (subcmd === "increment") {
         const num = parseInt(trimmedVal, 10);
         if (isNaN(num)) {
-            console.error(`错误: 字段值不是数字: ${field} = ${trimmedVal}`);
+            console.error(`Error: field value is not a number: ${field} = ${trimmedVal}`);
             process.exit(1);
         }
         newValue = (num + 1).toString();
     } else {
         if (newValue === undefined) {
-             console.error("用法错误: 缺少 value 参数");
+             console.error("Usage Error: missing value argument");
              process.exit(1);
         }
     }
@@ -112,7 +112,7 @@ if (subcmd === "get") {
         console.log(`${field}: ${newValue}`);
     }
 } else {
-    console.error(`错误: 未知子命令: ${subcmd}`);
+    console.error(`Error: unknown subcommand: ${subcmd}`);
     process.exit(1);
 }
 ' "$SUBCMD" "$STATE_FILE" "${3:-}" "${4:-}"
