@@ -58,3 +58,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Plugin
+superpowers
