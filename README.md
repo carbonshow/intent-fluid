@@ -1,51 +1,18 @@
 # Intent-Fluid
 
-> **"Transforming pure intent into instant execution by leveraging AI to dissolve the friction of implementation."**
+> **"Transforming human intent into autonomous execution. Stop manual grinding, start directing intelligence across code, content, and strategy."**
 
 <p align="left">
+  <img src="https://img.shields.io/badge/Platform-Claude_Code_|_Cursor_|_Gemini_CLI-success?style=for-the-badge" alt="Platform Supported">
+  <img src="https://img.shields.io/badge/Paradigm-Intent_Driven-ff69b4?style=for-the-badge" alt="Paradigm: Intent-Driven">
   <img src="https://img.shields.io/badge/Focus-Flow--State-blueviolet?style=for-the-badge" alt="Focus: Flow-State">
-  <img src="https://img.shields.io/badge/Paradigm-AI--Native-A1C4FD?style=for-the-badge" alt="Paradigm: AI-Native">
-  <img src="https://img.shields.io/badge/Goal-Frictionless--Validation-ff69b4?style=for-the-badge" alt="Goal: Frictionless Validation">
 </p>
 
----
-
-## 🌊 The Manifesto
-
-As software creators and game producers, our greatest asset is our ideas. Yet, a massive chasm exists between a concept and its validation: **the friction of implementation**.
-
-We spend invaluable cognitive energy fighting boilerplate, syntax, APIs, and infrastructure configuration. This friction destroys **Flow**.
-
-**Intent-Fluid** is a curated collection of AI SKILLs designed to bridge this chasm. It embodies a new paradigm where human intention is the primary input, and AI acts as the adaptive catalyst that materializes that intention without requiring us to get bogged down in low-level code.
-
-Here, we don't just write code; we orchestrate intelligence.
-
-### The Core Philosophy
-
-1.  **Intent Over Implementation:** We focus on *what* to achieve, leveraging AI to handle the *how*.
-2.  **Flow-State Engineering:** If a workflow forces you to switch context or consult documentation for more than 30 seconds, it's broken. We build tools that maintain creative momentum.
-3.  **Rapid Verification:** The time from "What if?" to "Here's a prototype" should approach zero.
+<!-- Insert Demo GIF here: e.g., ![Intent-Fluid Demo](docs/assets/demo.gif) -->
 
 ---
 
-## 🏗️ Architecture
-
-### `/skills` — Cognitive Patterns
-
-A library of structured prompts, chain-of-thought methodologies, and agent configurations. Each skill lives in its own directory under `skills/` with a `SKILL.md` manifest that defines when and how to activate it. See the [Skill Specification](docs/SKILL_SPEC.md) for the canonical format.
-
----
-
-## 🧬 Use Cases (The Flow in Action)
-
-* **The Intent:** "I need to balance the economy for Level 10-20 in the new RPG module based on these player telemetry logs."
-    * *The Fluid Workflow:* Provide a PRD → the **surge** skill orchestrates analysis, design, implementation, and QA automatically.
-* **The Intent:** "I want to build a user authentication system from this spec document."
-    * *The Fluid Workflow:* Hand the spec to a skill → it drives multi-phase delivery with convergence detection, producing production-ready deliverables.
-
----
-
-## 📦 Installation
+## 📦 Quick Start & Installation
 
 See the full [Installation Guide](docs/INSTALL.md) for platform-specific instructions.
 
@@ -63,11 +30,53 @@ git clone https://github.com/carbonshow/intent-fluid.git
 
 ---
 
+## 🧬 General Cognitive Engine (Use Cases)
+
+Intent-Fluid is not just a code generator; it's a general-purpose methodology executor.
+
+*   🧠 **Knowledge Architecture (Research & Synthesis):**
+    *   **The Intent:** "Analyze these raw competitor documentation URLs and synthesize a comprehensive feature comparison matrix in Markdown."
+    *   **The Fluid Workflow:** Provide the intent → the **surge** skill autonomously researches, extracts key differences, and formats a professional report.
+*   💻 **Full-Stack Engineering (From Spec to Production):**
+    *   **The Intent:** "Based on this rough API draft, design the database schema, generate the Node.js endpoints, and write comprehensive integration tests."
+    *   **The Fluid Workflow:** Hand the draft to a skill → it orchestrates multi-phase delivery (design, implement, QA) with convergence detection.
+*   📝 **Content Pipeline (Creation & Repurposing):**
+    *   **The Intent:** "Deconstruct this 10-page technical whitepaper into a 5-part Twitter thread series optimized for engagement."
+    *   **The Fluid Workflow:** The agent understands the context, restructures the narrative, and delivers ready-to-publish content.
+
+---
+
 ## 🎯 Available Skills
 
 | Skill | Description |
 |-------|-------------|
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
+
+---
+
+## 🌊 The Manifesto
+
+As software creators and knowledge workers, our greatest asset is our ideas. Yet, a massive chasm exists between a concept and its realization: **the friction of execution**.
+
+We spend invaluable cognitive energy fighting boilerplate, syntax, formatting, and infrastructure configuration. This friction destroys **Flow**.
+
+**Intent-Fluid** is a curated collection of AI SKILLs designed to bridge this chasm. It embodies a new paradigm where human intention is the primary input, and AI acts as the adaptive catalyst that materializes that intention without requiring us to get bogged down in low-level details.
+
+Here, we don't just write code; we orchestrate intelligence.
+
+### The Core Philosophy
+
+1.  **Intent Over Implementation:** We focus on *what* to achieve, leveraging AI to handle the *how*.
+2.  **Flow-State Engineering:** If a workflow forces you to switch context or consult documentation for more than 30 seconds, it's broken. We build tools that maintain creative momentum.
+3.  **Rapid Verification:** The time from "What if?" to "Here's a prototype" should approach zero.
+
+---
+
+## 🏗️ Architecture
+
+### `/skills` — Cognitive Patterns
+
+A library of structured prompts, chain-of-thought methodologies, and agent configurations. Each skill lives in its own directory under `skills/` with a `SKILL.md` manifest that defines when and how to activate it. See the [Skill Specification](docs/SKILL_SPEC.md) for the canonical format.
 
 ---
 
@@ -99,4 +108,4 @@ git clone https://github.com/carbonshow/intent-fluid.git
 This project is licensed under the MIT License - see the `LICENSE` file for details. It is open for adaptation, provided credit is given to the original philosophy.
 
 ---
-<p align="center">"Stay in flow. Let the code follow your will."</p>
+<p align="center">"Stay in flow. Let the intelligence follow your will."</p>
