@@ -31,6 +31,9 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **Quality Oscillation**: If `quality_history` shows the same dimension bouncing back and forth for 3 consecutive rounds (e.g., Basic→Good→Basic), the optimization direction for that dimension has internal conflicts. Do not blindly continue optimizing; lock that dimension or ask the user to rule on priorities.
 - **Optimization Directives Fail**: If the same optimization directive is marked as "Unexecuted" by QA for two consecutive rounds, do not inject it a third time. Explain the situation to the user during the Iteration Review and request guidance.
 - **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working. **This is a mandatory obligation for the Director after every Phase—not optional. Violating this rule is equivalent to a process interruption.**
+- **Expert Panel Token Budget**: Each expert subagent receives the full review package (PRD + analyze + solution summaries). With 5 parallel experts, this is 5× the context. Always pass solution **summaries** (not full detailed solutions) to experts. The hard cap of 5 experts is both a quality and resource constraint.
+- **Expert Veto Override**: Users can override expert vetoes at Checkpoint 3, but the Director must ensure they explicitly acknowledge the flagged risks. Never silently proceed past a veto.
+- **Design Checkpoint Stale State**: `design_checkpoint` in state.md must be reset to `null` when entering the design phase. Stale checkpoint values from a previous iteration can cause the Director to skip steps.
 
 ## Core Flow
 
@@ -64,7 +67,7 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 |-------|---------------|---------------|---------|
 | analyze | Single agent | `references/phases/analyze.md` + topology role + `context.md` | — |
 | research | Single agent (skippable) | `references/phases/research.md` + `iter_{N}_analyze.md` | — |
-| design | Single agent | `references/phases/design.md` + analyze + research (if any) | — |
+| design | Director-orchestrated | `references/phases/design.md` + analyze + research (if any) + `deliverables.md` | See Expert Review below |
 | implement | Single/Multi agent | `references/phases/implement.md` + design + `deliverables.md` | See Parallel Orchestration below |
 | qa | Single agent | `references/phases/qa.md` + implement + `acceptance.md` + `test_cases.md` + eval level | — |
 
@@ -76,6 +79,10 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 5. **[MANDATORY] After subagent returns, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
 
 > The files under `references/phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
+
+**Design Phase Exception**: The design phase does NOT follow the standard single-agent dispatch above. Instead, the Director orchestrates a multi-step flow with expert subagent dispatch and 4 user checkpoints. See `references/phases/design.md` for the complete Director-orchestrated flow.
+
+**Expert Review (design phase)**: The design phase includes parallel expert review where 3-5 domain experts (selected from `references/expert-review.md` role library) independently evaluate candidate solutions. The Director assembles the panel (Checkpoint 2), dispatches experts in parallel (Step 4), synthesizes their reviews into a consolidated report (Step 5/Checkpoint 3), then proceeds to detailed design incorporating expert-flagged constraints. See `references/phases/design.md` and `references/expert-review.md` for details.
 
 **File Naming Rules**: All phase output files use `iter_{NN}_{phase}.md` (NN is a 2-digit zero-padded iteration number).
 
@@ -97,7 +104,7 @@ If obvious dead links or naming conflicts are found, dispatch an agent to fix th
 |-------|--------------------------|
 | analyze | Number of key requirements, ambiguities, and high-risk items identified (list IDs and 1-sentence descriptions). |
 | research | **Key findings from web search/fetch** (source URLs, core conclusions), and pruning decisions of the research tree. |
-| design | Selected solution name with a 1-sentence reason, core module list, key design decisions. |
+| design | Checkpoint 4 (Design Confirmation) serves as the process summary. No separate post-phase summary needed — the 4 checkpoints provide transparency throughout the phase. |
 | implement | Module name completed by each subagent, output file paths, lines of code, **edge cases discovered** (if any). |
 | qa | Number of Passed/Partial/Failed items, quality score changes, P0 issue list. |
 
@@ -191,3 +198,4 @@ After retro finishes:
 | `scripts/init.sh` | Initializes Context Package | Startup Step 2 |
 | `scripts/state.sh` | Reads/Updates state.md fields | Every state change |
 | `scripts/merge-parallel.sh` | Merges parallel implement outputs | After parallel implement |
+| `references/expert-review.md` | Expert role library, subagent prompt template, synthesis report format | Design phase Steps 3-5 |
