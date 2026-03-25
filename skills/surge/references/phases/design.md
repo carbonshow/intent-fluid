@@ -20,7 +20,8 @@ The Director will provide or have access to the following:
 
 - **Required**: `context.md` (PRD + Background knowledge)
 - **Required**: `iterations/iter_{NN}_analyze.md` (Requirements analysis)
-- **Optional**: `iterations/iter_{NN}_research.md` (Research conclusions, if any)
+- **Optional**: `iterations/iter_{NN}_research.md` (Research conclusions summary, if any)
+- **Optional**: `iterations/iter_{NN}_research/` (Raw research materials directory — consult individual files when the summary lacks detail for a specific technical question)
 - **Optional**: Previous round's `iterations/iter_{NN-1}_design.md` + Failure reason (Level 2 rollback)
 - **Optional**: `deliverables.md` (Project deliverable metadata)
 - **Required for lightweight iteration**: QA optimization directives from `state.md`

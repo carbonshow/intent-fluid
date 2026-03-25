@@ -23,6 +23,41 @@ Read the ambiguities and risk warnings in `analyze.md`, extract all issues requi
 
 Categorize each seed into a **research direction**, merging highly similar issues to form a list of root nodes.
 
+### Raw Material Persistence Protocol
+
+Every WebSearch and WebFetch call during the research MUST be persisted immediately to a local file. This ensures raw data survives beyond the subagent's context window — enabling user traceability, cross-iteration reuse, and crash recovery.
+
+**Directory**: `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research/`
+- Create this directory before the first write (use Bash `mkdir -p`).
+
+**File naming**: `{seq}_{type}_{slug}.md`
+- `seq`: 3-digit zero-padded, globally incrementing across the entire research phase (001, 002, ...).
+- `type`: `search` (WebSearch) or `fetch` (WebFetch).
+- `slug`: Derived from the search query or URL — lowercase, spaces→hyphens, strip non-alphanumeric (keep hyphens), truncate at 40 chars, no trailing hyphen.
+
+**File format** (YAML frontmatter + full raw content):
+
+```yaml
+---
+seq: 1
+type: search | fetch
+query: "the search query string or the fetched URL"
+direction: "parent research direction name"
+layer: 1
+timestamp: {ISO 8601}
+relevance: null
+importance: null
+---
+```
+
+Followed by the complete raw content returned by WebSearch/WebFetch (no truncation).
+
+**Workflow**:
+1. **Immediately** after each WebSearch/WebFetch call returns, write the result to a file with `relevance: null, importance: null`.
+2. After scoring in Step 2.2, backfill `relevance` and `importance` values in the frontmatter of each file written during that layer's expansion (use Edit tool to update the two lines).
+
+**Counter**: Maintain a running sequence counter starting at 1, incrementing for every WebSearch/WebFetch call across all layers and directions.
+
 ### Step 2: Interactive Tree-Structured Research Loop
 
 The research unfolds layer by layer in a **tree structure**, deepening after user pruning at each layer.
@@ -32,6 +67,8 @@ The research unfolds layer by layer in a **tree structure**, deepening after use
 For the current list of directions to be researched, conduct **shallow research** (1-2 WebSearch/WebFetch calls) for each direction to quickly obtain:
 - What sub-directions / candidate solutions exist under this direction.
 - The core points of each sub-direction (1-2 sentences).
+
+**After each WebSearch/WebFetch call**: Immediately persist the raw result to `iter_{NN}_research/` following the Raw Material Persistence Protocol above. Do not defer file writing to the end of the layer or phase.
 
 #### 2.2 Scoring & Display
 
@@ -66,6 +103,8 @@ Completed Depth: {Current Layer}/{Max Explored Depth}
   - 3⭐: Helps refine the solution, but its absence won't cause serious problems.
   - 2⭐: Nice to have, lower priority.
   - 1⭐: Can be ignored, almost no impact on the solution.
+
+**After scoring**: Backfill the `relevance` and `importance` fields in the frontmatter of all raw material files written during this layer's expansion.
 
 #### 2.3 User Pruning
 
@@ -105,16 +144,25 @@ End the research loop when any of the following conditions are met:
 
 ### Step 4: Summary Output
 
-After the research loop ends, summarize the conclusions of all explored paths and output a structured research report.
+After the research loop ends, summarize the conclusions of all explored paths and output a **slim structured research report** that references raw material files rather than inlining full content.
 
 ## Output Format
 
-Write to `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research.md`, which must include the following sections (format as you see fit):
+Write the summary to `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research.md`. Raw materials are already saved in `iter_{NN}_research/` during the research loop.
+
+The summary document (`iter_{NN}_research.md`) must include the following sections:
 
 - **Research Conclusion Summary**: 2-3 sentences summarizing core findings.
 - **Research Tree Overview**: The complete research tree structure, marking the status of each node (researched/pruned by user, etc.).
-- **Technical Solution Candidates**: Each solution should include source, rating, credibility, and applicable scenarios.
-- **Resolved Ambiguities**: Issue description, research conclusion, and research path.
+- **Source Materials Index**: A table listing all raw material files persisted during research:
+
+  | Seq | File | Type | Direction | Query/URL | Relevance | Importance |
+  |-----|------|------|-----------|-----------|-----------|------------|
+  | 001 | `iter_{NN}_research/001_search_xxx.md` | search | Direction A | "query..." | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+  | ... | ... | ... | ... | ... | ... | ... |
+
+- **Technical Solution Candidates**: Each solution should include a brief description, rating, credibility, applicable scenarios, and **references to source material files** (e.g., `→ 001_search_xxx.md, 003_fetch_yyy.md`) instead of inlining full research details.
+- **Resolved Ambiguities**: Issue description, research conclusion, research path, and **source file references**.
 - **Remaining Uncertainties**: Issues still unresolved after research, passed to the design phase to handle.
 - **User Decision Records**: Pruning decisions and added directions during the research process.
 
@@ -126,10 +174,12 @@ Write to `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research.md`, which 
 
 ## Output Contract
 
-- Write to file: `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research.md`
+- Write summary to file: `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research.md`
+- Write raw materials to directory: `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_research/` (one file per WebSearch/WebFetch call, persisted immediately during research)
 - memory_draft update: If important technical constraints, known pitfalls, or key technical decisions are found, append them to `{surge_root}/tasks/{task_id}/memory_draft.md`, format: `[{timestamp}] [research] {content}`
 
 ## Tools Allowed
 
 Preferred: WebSearch, WebFetch
-Allowed: Read (read local relevant docs), Bash (run local tools to query)
+Required: Write (persist raw research materials), Bash (mkdir for research directory, run local tools)
+Allowed: Read (read local relevant docs), Edit (backfill scores in raw material frontmatter)

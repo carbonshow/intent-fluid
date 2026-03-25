@@ -30,6 +30,7 @@ These rules codify stable constraints validated during surge execution, using th
 - ALWAYS incorporate expert-flagged risk constraints into the detailed design (Step 6); expert feedback that isn't acted on wastes the review.
 - ALWAYS ask the user when unable to auto-recommend 3+ expert roles from the PRD; don't proceed with fewer than 3 experts without user consent.
 - ALWAYS select the universal expert role based on `deliverable_type`, not on project type signals.
+- ALWAYS persist every WebSearch/WebFetch result to an individual file in `iter_{NN}_research/` during the research phase, with YAML frontmatter (seq, type, query, direction, layer, timestamp, relevance, importance). Raw content must be saved in full without truncation. The summary document (`iter_{NN}_research.md`) references these files instead of inlining full content.
 
 ## PREFER
 
