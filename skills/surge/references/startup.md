@@ -269,6 +269,73 @@ After confirmation, write acceptance criteria to `acceptance.md`:
 
 ---
 
+## Fast Startup Combined Template
+
+When the user's PRD is comprehensive and intent is clear, the Director MAY combine Steps 3-5 into a single confirmation message. **Steps 1-2 (workspace + init) and the mandatory path questions (surge_root, project_root/output_dir) MUST still be asked separately beforehand.**
+
+### Combined Display Format
+
+```
+surge Configuration — Please confirm or modify
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 1. Task Topology
+Task Type: [Serial / Parallel / Mixed]
+Estimated Iteration Rounds: [N-M rounds]
+Cost Config: max_iterations=[N] / parallel_agent_limit=[N]
+
+Parallelizable Nodes (if any):
+  [Stage Name]:
+    ├── [Module A] (small) (Agent-1: [Role])
+    └── [Module B] (medium) (Agent-2: [Role])
+
+Phase Roles:
+  | Phase     | Customized Role                          |
+  |-----------|------------------------------------------|
+  | analyze   | [Domain-specialized description]         |
+  | research  | [Domain-specialized description]         |
+  | design    | [Domain-specialized description]         |
+  | implement | [Domain-specialized description]         |
+  | qa        | [Domain-specialized description]         |
+  | retro     | [Domain-specialized description]         |
+
+## 2. Deliverables
+  Type: [code / document / mixed]
+  Project Root: {project_root}          ← confirmed in prior step
+  Language/Framework: [e.g., Python 3.11+ / FastAPI]
+  Build Command: [e.g., uv run main.py]
+  Test Command: [e.g., uv run pytest]
+
+## 3. Acceptance Criteria
+
+  L1 Core Standards:
+    | ID   | Item           | Verification Method |
+    |------|----------------|---------------------|
+    | L1-1 | ...            | ...                 |
+
+  L2 Quality Standards:
+    | ID   | Item           | Verification Method |
+    |------|----------------|---------------------|
+    | L2-1 | ...            | ...                 |
+
+  L3 Excellence Standards:
+    | ID   | Item           | Verification Method |
+    |------|----------------|---------------------|
+    | L3-1 | ...            | ...                 |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Options:
+  A) Confirm all — proceed to first iteration
+  B) Modify topology / roles
+  C) Modify deliverables config
+  D) Modify acceptance criteria
+  E) Modify multiple sections
+```
+
+After the user confirms (option A) or finishes modifications, the Director writes `topology.md`, `deliverables.md`, and `acceptance.md` in sequence, then proceeds to Rules Loading and the Main Iteration Loop.
+
+---
+
 ## config.json Mechanism
 
 ### Storage Location

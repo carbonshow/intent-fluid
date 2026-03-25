@@ -32,10 +32,10 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **Quality Oscillation**: If `quality_history` shows the same dimension bouncing back and forth for 3 consecutive rounds (e.g., Basic→Good→Basic), the optimization direction for that dimension has internal conflicts. Do not blindly continue optimizing; lock that dimension or ask the user to rule on priorities.
 - **Optimization Directives Fail**: If the same optimization directive is marked as "Unexecuted" by QA for two consecutive rounds, do not inject it a third time. Explain the situation to the user during the Iteration Review and request guidance.
 - **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working. **This is a mandatory obligation for the Director after every Phase—not optional. Violating this rule is equivalent to a process interruption.**
-- **Expert Panel Token Budget**: Each expert subagent receives the full review package (PRD + analyze + solution summaries). With 5 parallel experts, this is 5× the context. Always pass solution **summaries** (not full detailed solutions) to experts. The hard cap of 5 experts is both a quality and resource constraint.
-- **Expert Veto Override**: Users can override expert vetoes at Checkpoint 3, but the Director must ensure they explicitly acknowledge the flagged risks. Never silently proceed past a veto.
-- **Design Checkpoint Stale State**: `design_checkpoint` in state.md must be reset to `null` when entering the design phase. Stale checkpoint values from a previous iteration can cause the Director to skip steps.
-- **Output Truncation**: Subagent tasks that are too large may produce truncated output (stalled mid-generation or cut off). After every subagent returns, the Director MUST run Output Integrity Validation (Phase Invocation Flow step 5) before proceeding to Process Output. Never assume a returned output is complete — always verify against the phase's required-section checklist in `references/output-validation.md`.
+- **Expert Panel Token Budget**: Always pass solution **summaries** (not full designs) to experts; hard cap 5 experts. → `references/expert-review.md` §Constraints
+- **Expert Veto Override**: Users can override vetoes at Checkpoint 3, but must explicitly acknowledge flagged risks. → `references/expert-review.md` §Veto Semantics
+- **Design Checkpoint Stale State**: `design_checkpoint` must be reset to `null` when entering the design phase. → `references/state-schema.md` §design_checkpoint
+- **Output Truncation**: After every subagent returns, run Output Integrity Validation (step 5) before Process Output. Never assume output is complete. → `references/output-validation.md`
 
 ## Core Flow
 
@@ -137,6 +137,21 @@ In your final reply (not the content written to the file), please provide an add
 - Output file path and approximate line count
 - Unexpected situations or issues needing Director's attention (skip if none)
 ```
+
+### Token Budget Guidelines
+
+Long-running tasks (5+ iterations, parallel subagents) can exhaust context windows. Apply these rules to keep subagent prompts lean:
+
+| Rule | When | Action |
+|------|------|--------|
+| **Summary over history** | Always | Pass summaries of upstream outputs to subagents, not full documents. Full files stay on disk for Read access. |
+| **Rolling context window** | Iteration ≥ 3 | Analyze subagent receives only the latest QA report (`iter_{N-1}_qa.md`) and the original `context.md`, not all prior analyze/research outputs. |
+| **Quality history trim** | Iteration ≥ 4 | When injecting `quality_history` into QA subagent prompts, include only the most recent 3 rounds (sufficient for oscillation detection and trend analysis). Full history remains in `state.md`. |
+| **Expert review slim input** | Always | Expert subagents receive candidate **summaries** (not full detailed designs). See `references/expert-review.md` §Constraints. |
+| **Research raw materials by reference** | Always | The research summary document references raw material files by path — never inline full web content into downstream prompts. |
+| **Optimization directives only** | Iteration ≥ 2 | When injecting optimization context into implement/design subagents, pass only the filtered directive list from `state.md`, not the full previous QA report. |
+
+**Director self-monitoring**: If a subagent prompt exceeds ~40% of the estimated context window, the Director should apply scope reduction (summarize further, split into sub-tasks) before dispatching.
 
 ### Phase Failure Handling
 
