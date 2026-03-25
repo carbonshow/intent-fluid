@@ -1,7 +1,7 @@
 # Surge Design Phase: Expert Review Committee
 
 **Date**: 2026-03-25
-**Status**: Draft
+**Status**: Reviewed
 **Scope**: Enhance surge design phase with multi-expert review and user interaction checkpoints
 
 ## Problem Statement
@@ -22,7 +22,7 @@ The current surge design phase operates as a black box: it generates 2-3 solutio
 
 ## Redesigned Design Phase Flow
 
-The current 7-step linear flow becomes a 10-step flow with 4 user checkpoints:
+The current 8-step linear flow becomes a 10-step flow with 4 user checkpoints. The design phase dispatch model changes from **single agent** to **Director-orchestrated**: the Director remains active throughout Steps 2-7, dispatching expert subagents in parallel and gating user checkpoints, rather than handing off to a single design agent.
 
 ```
 Step 1: Solution Conception (unchanged)
@@ -87,12 +87,22 @@ Experts are recommended based on signals detected in the PRD and analyze output:
 | `code` | Code Quality Reviewer |
 | `document` | Logical Consistency Reviewer (argument chains, data citations, structural completeness) |
 | `mixed` | Integration Consistency Reviewer (document-code alignment) |
-| Cannot determine | **Ask user** — prompt: "What general review perspective would be most valuable?" |
+
+**Note:** `deliverable_type` is guaranteed to be set before the design phase runs (startup Step 4). For `mixed` deliverables where the balance is unclear, the Director should ask the user which universal review perspective is most valuable.
+
+**Extensibility:** The role library is a starting set. The Director MAY define ad-hoc expert roles when project signals don't match library entries. The retro phase SHOULD capture effective ad-hoc roles as candidates for library inclusion.
 
 **Constraints:**
 - Recommend 3-5 experts per task
-- Hard cap at 5 experts (prevent review overhead)
+- Hard cap at 5 experts (both quality control and token budget — each expert receives the full review package)
 - If Director cannot identify 3+ appropriate experts from PRD, **must ask user** for guidance
+- Solution summaries (not full detailed solutions) are passed to experts to control input size
+
+### Expert Subagent Prompt Template
+
+The expert review prompt template lives in `references/expert-review.md`. It is a single parameterized template — the Director injects the `expert_role` block (title, focus_areas, review_lens) for each expert. Expert subagents do NOT follow the standard Phase Invocation Flow; they use this dedicated template instead.
+
+**Expert subagents do NOT receive topology roles** — they receive only the expert role definition. The standard "Process Output Requirement" does not apply; expert output follows the structured YAML contract below.
 
 ### Expert Subagent Input/Output Contract
 
@@ -137,6 +147,12 @@ veto_items: []                         # [VETO: reason] for critical blockers
 
 ### Review Synthesis Report Format
 
+**File naming and persistence:**
+- Individual expert reviews: `iterations/iter_{NN}_expert_review_{role_slug}.md` (e.g., `iter_01_expert_review_security_expert.md`)
+- Synthesis report: `iterations/iter_{NN}_expert_synthesis.md`
+- Role slug: lowercase, spaces replaced with underscores (e.g., "Backend Architect" → `backend_architect`)
+- These files are added to `output-structure.md`'s file naming rules
+
 Director consolidates all expert outputs into:
 
 ```markdown
@@ -145,9 +161,9 @@ Director consolidates all expert outputs into:
 ### Rating Matrix
 | Dimension | Solution A | Solution B | Solution C |
 |-----------|-----------|-----------|-----------|
-| Backend Architect | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Security Expert | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ |
-| Performance Engineer | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
+| Backend Architect | 4/5 | 3/5 | 5/5 |
+| Security Expert | 3/5 | 5/5 | 2/5 |
+| Performance Engineer | 5/5 | 2/5 | 4/5 |
 | Consensus Recommendation | 2/3 | 1/3 | 0/3 |
 
 ### Consensus Points
@@ -171,7 +187,32 @@ After viewing the synthesis report:
 - **C)** Need more information — request deeper analysis from specific expert
 - **D)** None of these work — propose new direction or constraints
 
+### Veto Semantics
+
+- A single veto from any expert removes that solution from the Director's recommendation, but the solution is still shown to the user in the synthesis report (marked as vetoed)
+- If ALL solutions are vetoed, the Director MUST inform the user and default to Checkpoint 3 option D (propose new direction)
+- **Veto is advisory** — at Checkpoint 3, the user CAN select a vetoed solution if they explicitly acknowledge the risks flagged by the vetoing expert(s)
+- Multiple experts may veto the same solution for different reasons; all reasons are listed
+
+### Expert Subagent Error Handling
+
+- If an expert subagent fails (timeout, malformed output), the Director retries once
+- If retry fails, that expert's review is omitted from the synthesis report with a note to the user
+- Minimum 2 expert reviews required to proceed; if fewer than 2 succeed, ask user whether to re-run failed experts or proceed with available reviews
+
 ## Integration with Existing Surge Architecture
+
+### Dispatch Model Change
+
+The design phase changes from **single agent dispatch** to **Director-orchestrated**. In SKILL.md's Main Iteration Loop table, the design phase row must be updated from `Single agent` to `Director-orchestrated`. The Director remains active throughout Steps 1-7, performing:
+- Solution generation (Step 1 — can delegate to a design subagent)
+- User interaction at 4 checkpoints (Steps 2, 3, 5, 7)
+- Expert subagent dispatch and synthesis (Steps 4-5)
+- Detailed design orchestration (Step 6)
+
+### Checkpoint and Process Output Coexistence
+
+The existing "Missing Process Output" gotcha requires a process summary after every phase. For the redesigned design phase, **Checkpoint 4 (Design Confirmation) serves as the process summary**. The Director does NOT show a separate post-phase summary after design completes — the checkpoint interaction already provides this. The 4 checkpoints within the phase provide more transparency than a single post-phase summary ever could.
 
 ### File Changes
 
@@ -179,7 +220,7 @@ After viewing the synthesis report:
 |---|---|---|
 | `references/phases/design.md` | **Rewrite** | Core redesign: 10-step flow with expert review and 4 checkpoints |
 | `references/expert-review.md` | **New** | Expert role library + subagent prompt template + report format |
-| `SKILL.md` | **Modify** | Update design phase description, add expert review to gotchas |
+| `SKILL.md` | **Significant rewrite** | Update Main Iteration Loop table (design → Director-orchestrated), add expert review to gotchas, update phase description |
 | `assets/rules.md` | **Modify** | Add expert review NEVER/ALWAYS/PREFER rules |
 | `references/state-schema.md` | **Modify** | Add `expert_roles`, `design_checkpoint`, `expert_review_summary` fields |
 
@@ -190,6 +231,18 @@ expert_roles: []                  # Current task's expert role list, e.g. ["Back
 design_checkpoint: null           # "candidates_shown" | "experts_confirmed" | "review_done" | "design_confirmed"
 expert_review_summary: null       # Path to latest review synthesis report
 ```
+
+**Field Lifecycle Rules:**
+
+| Field | Reset Timing | On Level 2 Rollback | On Lightweight Iteration |
+|---|---|---|---|
+| `expert_roles` | Set at Checkpoint 2, persists across iterations | **Preserved** (user can opt to change) | Preserved |
+| `design_checkpoint` | Reset to `null` when entering design phase | Reset to `null` | Reset to `null` |
+| `expert_review_summary` | Set after synthesis report generated | Updated with new report path | Updated with new report path |
+
+On **Fail** (any deviation level): `design_checkpoint` ← `null`, `expert_review_summary` ← `null`. `expert_roles` preserved unless requirements changed (Level 3).
+
+On **Pass-Converged**: fields frozen with final values.
 
 ### New Rules (rules.md)
 
@@ -217,7 +270,7 @@ expert_review_summary: null       # Path to latest review synthesis report
 | **First iteration** | Full 10-step flow with complete expert review |
 | **Level 1 rollback** (execution issues) | Skip design phase entirely — no re-review |
 | **Level 2 rollback** (design issues) | Re-enter design phase; **reuse confirmed expert panel** (user can opt to change); experts only review redesigned parts |
-| **Lightweight iteration** | Skip analyze/research; streamlined review — only relevant experts evaluate changes |
+| **Lightweight iteration** | Streamlined flow: skip Checkpoint 1 (solutions already selected) and Checkpoint 2 (reuse previous expert panel). Experts receive only the diff/delta + optimization directives (not full solutions). Keep Checkpoint 3 (synthesis) and Checkpoint 4 (design confirmation). Director determines which experts are relevant based on which dimensions QA flagged for optimization. |
 
 ## Out of Scope
 
