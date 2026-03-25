@@ -39,13 +39,14 @@ The Director will provide the following file contents in the prompt:
 7. **Shared Context Generation**: If parallel task packages exist, generate a `shared_context` block containing:
    - **Exact field lists** for all core data structures referenced across documents (not just abbreviation definitions).
    - The `canonical_source` (authoritative source document/chapter) for each definition, clarifying "which one prevails".
+   - **Shared utility function signatures**: For functions that will be called across multiple packages (e.g., formatting helpers, date utils), list the exact function name, parameter types, and return type. This prevents duplicate implementations and API mismatches between packages.
    - Unified terminology glossary.
 
 8. Output the design document, which must include the following sections (format as you see fit):
 
    - **Solution Comparison**: Architectural descriptions of 2-3 solutions, pros/cons + comparison matrix (dimensions: complexity, risk, maintainability, requirement alignment).
    - **Selected Solution & Reasons**: Which solution was chosen, and why it is better than the others.
-   - **Detailed Design**: Module division (including responsibilities, inputs/outputs, dependencies), key interface definitions, data structures.
+   - **Detailed Design**: Module division (including responsibilities, inputs/outputs, dependencies), key interface definitions, data structures. For any logic involving thresholds, date ranges, or numeric windows, specify exact boundary semantics using interval notation (e.g., `(today, today+3]`).
    - **Parallel Task Packages**: If there are parallelizable independent modules, list them in the JSON format below; if all are serial, state so.
    - **Shared Context** (Required for parallel): `shared_context` block, containing exact field lists and canonical_source.
 
@@ -59,7 +60,8 @@ The Director will provide the following file contents in the prompt:
     "context_files": ["context.md", "iter_{NN}_design.md"],
     "output_files": ["src/module_a.py", "src/module_a_test.py"],
     "estimated_output_size": "small | medium | large | xlarge",
-    "split_plan": "(Required only for large/xlarge) Description of splitting plan"
+    "split_plan": "(Required only for large/xlarge) Description of splitting plan",
+    "test_expectations": "(Optional) Description of what tests this package should produce, e.g., 'Unit tests for all exported functions, component render tests for form validation'"
   }
 ]
 ```
@@ -72,6 +74,13 @@ The Director will provide the following file contents in the prompt:
       "StructureName": {
         "fields": ["field1: type — description", "field2: type — description"],
         "canonical_source": "iter_{NN}_design.md §X.Y"
+      }
+    },
+    "utility_functions": {
+      "functionName": {
+        "signature": "functionName(param: Type): ReturnType",
+        "source_module": "src/utils/example.ts",
+        "description": "Brief description of what it does"
       }
     }
   }

@@ -56,6 +56,13 @@ The initialization script will automatically generate the directory structure an
 
 Then, write the PRD and background knowledge provided by the user into `{surge_root}/tasks/{task_id}/context.md`.
 
+> ⚠️ **Path Resolution**: After determining `surge_root` and `task_id`, the Director MUST resolve the task directory to an **absolute path** and use it for ALL subsequent file operations (state.sh calls, file reads/writes, subagent prompts). Subagent execution (especially `npm run build`, `cd` commands) can change the working directory, causing relative paths to break silently.
+>
+> Store as variables:
+> - `task_dir` = absolute path of `{surge_root}/tasks/{task_id}/`
+> - `state_file` = `{task_dir}/state.md`
+> - `iterations_dir` = `{task_dir}/iterations/`
+
 ### Initial Content of state.md (YAML)
 
 ```yaml
