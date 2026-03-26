@@ -24,7 +24,7 @@ git clone https://github.com/carbonshow/intent-fluid.git
 
 | Platform | Command |
 |----------|---------|
-| Claude Code | `/plugin install intent-fluid@claude-plugins-official` |
+| Claude Code | `/plugin install intent-fluid@carbonshow` |
 | Cursor | `/add-plugin intent-fluid` |
 | Gemini CLI | `gemini extensions install https://github.com/carbonshow/intent-fluid` |
 
