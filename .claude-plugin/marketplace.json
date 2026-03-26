@@ -1,10 +1,15 @@
 {
-  "owner": "carbonshow",
-  "plugins": [
-    {
-      "name": "intent-fluid",
-      "repository": "https://github.com/carbonshow/intent-fluid",
-      "description": "AI Skills for intent-driven development"
-    }
-  ]
+   "name": "intent-fluid",
+   "owner": {
+     "name": "carbonshow",
+     "url": "https://github.com/carbonshow"
+   },
+   "plugins": [
+     {
+       "name": "intent-fluid",
+       "source": "./",
+       "description": "AI Skills for intent-driven development",
+       "version": "1.0.0"
+     }
+   ]
 }
