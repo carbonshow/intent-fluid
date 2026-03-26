@@ -1,10 +1,12 @@
 {
-  "owner": "carbonshow",
+  "name": "intent-fluid",
+  "description": "Transforming human intent into autonomous execution with AI Skills.",
+  "version": "1.0.0",
   "plugins": [
     {
       "name": "intent-fluid",
-      "repository": "https://github.com/carbonshow/intent-fluid",
-      "description": "AI Skills for intent-driven development"
+      "description": "A collection of AI Skills for intent-driven development and cognitive workflows.",
+      "path": "./"
     }
   ]
 }

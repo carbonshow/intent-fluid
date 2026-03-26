@@ -34,6 +34,8 @@ These rules codify stable constraints validated during surge execution, using th
 - ALWAYS persist every WebSearch/WebFetch result to an individual file in `iter_{NN}_research/` during the research phase, with YAML frontmatter (seq, type, query, direction, layer, timestamp, relevance, importance). Raw content must be saved in full without truncation. The summary document (`iter_{NN}_research.md`) references these files instead of inlining full content.
 - ALWAYS validate subagent output integrity after every phase dispatch — read the output file and check against the phase's required-section checklist in `references/output-validation.md` — before proceeding to Process Output or the next phase.
 - ALWAYS include the end-marker instruction (`--- END OF {PHASE} OUTPUT ---`) when retrying a phase after truncation detection, so the Director can detect if the retried output was also truncated.
+- ALWAYS escalate non-trivial ambiguities (impact scope covers P0 requirements or ≥3 downstream phases) to the user after the Analyze phase completes, before proceeding to Research or Design. Silently filling ambiguities with assumptions on core project direction (product identity, KPI targets, budget, key creative/technical decisions, timeline) is prohibited.
+- ALWAYS execute the Research phase in the first iteration when `deliverable_type` is `"document"` or `"mixed"` and the task involves strategy, marketing, market analysis, or domain-specific expertise. The agent's pre-trained knowledge is not a substitute for current external evidence.
 
 ## PREFER
 

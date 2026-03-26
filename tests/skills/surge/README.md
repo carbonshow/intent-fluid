@@ -49,6 +49,21 @@ A corporate marketing request filled with buzzwords ("viral," "synergy," "Z-Gene
 * **Strategic Alignment:** Does it demand brand guidelines and technical constraints before proposing an "AI-powered mechanic"?
 * **Success Metric:** A "Hard Fail" is if the Skill generates a generic marketing plan. A "Hard Win" is if the Skill provides a list of **Critical Clarification Questions** to the user.
 
+## 🚀 Test Case 04: Creative Synthesis & World-Building
+
+**File:** `nova-logic.md`
+
+### 🏗️ Scenario
+
+A high-concept creative writing task. The goal is to architect and generate a multi-chapter Science Fiction novel that balances commercial viability with high-concept innovation.
+
+### 🎯 Test Objectives
+
+* **Market Alignment & Autonomy:** Does the Skill autonomously research and select a "viral-ready" sub-genre?
+* **Creative Innovation:** Can it propose an "Anti-Cliché" hook and a "First-Principle" innovation that hasn't been widely explored?
+* **Structural Coherence:** Does it provide a logical chapter-based structure with clear narrative functions (Exposition, Rising Action, etc.)?
+* **Success Metric:** The output should be a coherent "Master Concept" and "Chapter Outline" that feels both fresh and commercially viable in Chinese.
+
 ## 📈 Evaluation Framework
 
 To evaluate the iteration quality of the **Intent-Fluid** skill, use the following rubric:

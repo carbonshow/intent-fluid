@@ -4,25 +4,26 @@
 
 ## Claude Code
 
+To add intent-fluid as a plugin in Claude Code via the marketplace:
+
 ```bash
-/plugin install intent-fluid@claude-plugins-official
+/plugin marketplace add carbonshow/intent-fluid
 ```
 
-Or install from Git directly:
+Or install from Git directly for local development:
 
 ```bash
 git clone https://github.com/carbonshow/intent-fluid.git
 cd intent-fluid
-# Skills are automatically discovered from the skills/ directory
+# Use /plugin add . to point to the local directory
 ```
 
 ## Cursor
 
-```bash
-/add-plugin intent-fluid
-```
+Cursor does not have a native `/add-plugin` command. Instead, you can:
 
-Or add manually by cloning the repository and pointing Cursor to the `skills/` directory.
+1.  **Use it as a rule source:** Add `https://github.com/carbonshow/intent-fluid` to your Cursor settings for `.cursorrules`.
+2.  **MCP Integration:** Use an MCP server that scans the `skills/` directory.
 
 ## Gemini CLI
 

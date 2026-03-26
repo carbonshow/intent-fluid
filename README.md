@@ -8,7 +8,56 @@
   <img src="https://img.shields.io/badge/Focus-Flow--State-blueviolet?style=for-the-badge" alt="Focus: Flow-State">
 </p>
 
-<!-- Insert Demo GIF here: e.g., ![Intent-Fluid Demo](docs/assets/demo.gif) -->
+### ⚡ The Magic: Intent vs. Outcome
+
+Stop writing boilerplate. Start directing intelligence.
+
+**Your Intent (The Input):**
+> *"Build a Next.js landing page for a SaaS product. Include a hero section, pricing table, and a contact form. Use TailwindCSS and make it dark mode by default."*
+
+**The Autonomous Execution (The Output):**
+```text
+[Surge Skill Activated: Iteration 1]
+🧠 Analyzing requirements & generating topology...
+📐 Designing component architecture (Expert Panel evaluating...)...
+🛠️ Implementing initial prototype:
+   ├── app/page.tsx
+   └── components/Hero.tsx
+❌ QA: Missing form validation in ContactForm.
+
+[Iteration 2: Autonomous Optimization]
+🧠 Re-analyzing constraints & refining design...
+🛠️ Implementing fixes & completing files:
+   ├── components/Pricing.tsx
+   ├── components/ContactForm.tsx
+   └── tailwind.config.ts
+✅ QA: Pass-Converged. All acceptance criteria met.
+📝 Running Retro and extracting process experience...
+🚀 Delivery complete.
+```
+
+### 🧠 The Cognitive Pipeline
+
+Intent-Fluid transforms vague ideas into structured reality through an iterative, agentic pipeline. It doesn't just generate code once; it loops until the quality converges on your acceptance criteria:
+
+```mermaid
+graph TD
+    A[💡 Raw Intent] --> B(🧠 Analyze / Research)
+    
+    subgraph Autonomous Iteration Loop
+        B --> C(📐 Design)
+        C --> D(🛠️ Implement)
+        D --> E{✅ QA Conclusion}
+        E -->|Unconverged / Optimizable| B
+    end
+    
+    E -->|Pass-Converged| F(📝 Retro)
+    F --> G[🚀 Deliverable]
+
+    style A fill:#ff99cc,stroke:#333,stroke-width:2px,color:#000
+    style E fill:#ffffcc,stroke:#333,stroke-width:2px,color:#000
+    style G fill:#99ccff,stroke:#333,stroke-width:2px,color:#000
+```
 
 ---
 
@@ -22,10 +71,10 @@ See the full [Installation Guide](docs/INSTALL.md) for platform-specific instruc
 git clone https://github.com/carbonshow/intent-fluid.git
 ```
 
-| Platform | Command |
+| Platform | Integration Command / Method |
 |----------|---------|
-| Claude Code | `/plugin install intent-fluid@claude-plugins-official` |
-| Cursor | `/add-plugin intent-fluid` |
+| Claude Code | `/plugin marketplace add carbonshow/intent-fluid` |
+| Cursor | Add `https://github.com/carbonshow/intent-fluid` as a rule source or MCP server. |
 | Gemini CLI | `gemini extensions install https://github.com/carbonshow/intent-fluid` |
 
 ---

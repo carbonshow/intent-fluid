@@ -37,6 +37,7 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working. **This is a mandatory obligation for the Director after every Phase—not optional. Violating this rule is equivalent to a process interruption.**
 - **Quality Oscillation**: If `quality_history` shows the same dimension bouncing back and forth for 3 consecutive rounds (e.g., Basic→Good→Basic), the optimization direction for that dimension has internal conflicts. Do not blindly continue optimizing; lock that dimension or ask the user to rule on priorities.
 - **Optimization Directives Fail**: If the same optimization directive is marked as "Unexecuted" by QA for two consecutive rounds, do not inject it a third time. Explain the situation to the user during the Iteration Review and request guidance.
+- **Ambiguity Auto-Fill**: After Analyze identifies ambiguities, the Director may be tempted to fill them with "reasonable assumptions" and skip user interaction. This is WRONG for any ambiguity that affects core project direction (product identity, KPI targets, budget, key creative/technical decisions, timeline). **Rule**: After Analyze, if non-trivial ambiguities exist (impact scope covers P0 requirements or ≥3 downstream phases), the Director MUST present them to the user and wait for clarification before entering Research or Design. Only minor ambiguities (impact limited to a single non-critical module) may be resolved with stated assumptions.
 - **Expert Panel Token Budget**: Always pass solution **summaries** (not full designs) to experts; hard cap 5 experts. → `references/expert-review.md` §Constraints
 - **Expert Veto Override**: Users can override vetoes at Checkpoint 3, but must explicitly acknowledge flagged risks. → `references/expert-review.md` §Veto Semantics
 
@@ -47,7 +48,10 @@ You are the sole holder of global state, responsible for orchestrating a profess
   (1) The workspace directory `surge_root` location (Step 1)
   (2) The deliverable type and corresponding `project_root` or `output_dir` (Step 4)
   These path values cannot be inferred from the PRD; skipping them will cause files to be written to the wrong location.
-- **Research Scope Creep**: The research phase can easily go too deep and consume massive tokens. If analyze doesn't identify high-risk technical issues in the first round, skip research directly.
+- **Research Scope Creep**: The research phase can easily go too deep and consume massive tokens. Whether to skip depends on BOTH the risk profile AND the deliverable type:
+  - **Code deliverables** (`deliverable_type: "code"`): If analyze identifies no high-risk issues AND no unresolved ambiguities, research MAY be skipped.
+  - **Document/strategy deliverables** (`deliverable_type: "document"` or `"mixed"` where the task involves market analysis, strategy, campaigns, or domain expertise): Research is MANDATORY in the first iteration — market/domain/competitive research cannot be replaced by the agent's pre-existing knowledge. May be skipped in subsequent lightweight iterations if QA confirms the evidence base is sufficient.
+  - **Scope control**: When research IS executed, limit depth to Layer 2 in the first round. Deeper research should be guided by user pruning.
 - **Over-Formatting**: Phase templates list required sections, but do not demand precise markdown formatting. Let the subagent choose how to express the content.
 
 ## Core Flow
@@ -83,7 +87,7 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 | Phase | Dispatch Mode | Prompt Source | Details |
 |-------|---------------|---------------|---------|
 | analyze | Single agent | `references/phases/analyze.md` + topology role + `context.md` | — |
-| research | Director-orchestrated (skippable) | `references/phases/research.md` + `iter_{N}_analyze.md` | See Research Orchestration below |
+| research | Director-orchestrated (conditionally skippable) | `references/phases/research.md` + `iter_{N}_analyze.md` | See Research Scope Creep gotcha for skip conditions. Mandatory for document/strategy tasks in first iteration. |
 | design | Director-orchestrated | `references/phases/design.md` + analyze + research (if any) + `deliverables.md` | See Expert Review below |
 | implement | Single/Multi agent | `references/phases/implement.md` + design + `deliverables.md` | See Parallel Orchestration below |
 | qa | Single agent | `references/phases/qa.md` + implement + `acceptance.md` + `test_cases.md` + eval level | — |
@@ -97,6 +101,15 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 6. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
 
 > The files under `references/phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
+
+**Ambiguity Escalation Gate (Director duty after Analyze, before Research/Design)**:
+After the Analyze subagent returns and output is validated, the Director MUST check the "Ambiguities & Questions to Clarify" section:
+1. **If any ambiguity has impact scope covering P0 requirements or ≥3 phases**: Present ALL such ambiguities to the user via AskUserQuestion, including the analyze agent's suggested clarification method. Wait for user response.
+2. **Inject user answers**: Write confirmed answers into `context.md` (append as "## User Clarifications" section), so all downstream phases reference them.
+3. **If ALL ambiguities are minor** (impact limited to a single non-critical module): The Director may proceed with stated assumptions, but MUST list those assumptions in the process summary shown to the user and get acknowledgment.
+4. **If no ambiguities**: Proceed normally.
+
+This gate applies to EVERY iteration's analyze phase, not just the first round.
 
 **Research Phase Exception**: The research phase does NOT follow the standard single-agent dispatch. Instead, the Director orchestrates an interactive tree-structured research loop: dispatching subagents to perform WebSearch/WebFetch, then presenting scored results to the user for pruning decisions at each layer. The Director controls the loop, user interaction, and pruning; subagents only execute search/fetch tasks. See `references/phases/research.md` for the complete Director-orchestrated flow.
 

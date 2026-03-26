@@ -14,7 +14,14 @@ Subagents in this phase are **short-lived workers** — each receives a single s
 
 ## Trigger
 
-Invoked after the analyze phase completes. If the risk list and ambiguities from analyze are both empty and the Director does not identify high-risk technical issues, the Director may skip this phase entirely.
+Invoked after the analyze phase completes (and after the Ambiguity Escalation Gate, if applicable).
+
+**Skip conditions** — the Director may skip this phase ONLY when ALL of the following hold:
+1. The risk list is empty or contains only Low-severity risks, AND
+2. There are no unresolved ambiguities requiring external research, AND
+3. The `deliverable_type` is `"code"` OR the task does not inherently require market/domain/competitive research.
+
+**Mandatory research**: When `deliverable_type` is `"document"` or `"mixed"` and the task involves strategy, marketing, market analysis, or domain expertise, research is MANDATORY in the first iteration. The agent's pre-trained knowledge is NOT a substitute for current market data, competitive analysis, and domain-specific evidence.
 
 ## Input Contract
 
