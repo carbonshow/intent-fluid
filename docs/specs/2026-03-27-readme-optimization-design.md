@@ -119,13 +119,13 @@ Dual-audience: attract attention with visual impact first, retain professional u
 |----------|-------|
 | **Dimensions** | 1200 × 500 px |
 | **Location** | After 5 highlights section |
-| **Layout** | Horizontal pipeline backbone across center. 3 key phases pop out as spotlight panels with glowing emphasis borders. Non-spotlight phases stay compact. |
-| **Spotlight 1** | 🔍 Research: Live Intelligence (blue glow, above backbone) — real-time web search for latest docs, best practices, domain expertise |
-| **Spotlight 2** | 👥 Design: Expert Panel (purple glow, below backbone) — 3-5 independent experts, multi-perspective synthesis, veto power, no echo chamber |
-| **Spotlight 3** | ✅ QA: Tiered Evaluation (green glow, above backbone) — L1→L2→L3 progressive levels, surgical precision steering for each iteration |
-| **Bottom** | Iteration loop arrow from QA back to Analyze: "QA steers the next iteration — loop until converged" |
-| **Style** | Dark navy background, spotlight panels with colored glow borders, compact muted non-spotlight nodes |
-| **AI Prompt** | "Technical pipeline diagram, 1200x500, dark navy background. Horizontal backbone across center with nodes: PRD, Analyze, Research, Design, Implement, QA, Deliverable. Three nodes pop out as enlarged spotlight panels with glowing borders: Research panel (blue glow, above) labeled 'Live Intelligence' with subtitle about real-time web search; Design panel (purple glow, below) labeled 'Expert Panel' with subtitle about 3-5 independent experts with veto power; QA panel (green glow, above) labeled 'Tiered Evaluation' with subtitle about L1 L2 L3 progressive levels. Non-spotlight nodes compact and muted. Bottom iteration arrow from QA back to Analyze. Clean sans-serif typography, modern tech aesthetic, minimalist flat design" |
+| **Layout** | Horizontal pipeline backbone across center. 3 key phases pop out as icon-driven spotlight panels (minimal text, keywords only). Non-spotlight phases compact and muted. |
+| **Spotlight 1** | 🔍 Live Intelligence (blue glow, above): Globe icon + 3 data stream arrows (Latest Docs / Best Practices / Domain Expertise) funneling into "Real-Time Evidence Base" badge |
+| **Spotlight 2** | 👥 Expert Panel (purple glow, below): 5 circular expert icons (🔒Security ⚡Perf 🎨UX 🔧Maintain 📐Arch) converging ↘↓↙ into "Synthesized Design" badge + red 🚫 Veto tag |
+| **Spotlight 3** | ✅ Tiered Evaluation (green glow, above): 3 stacked progress bars (L1 Core Functions ✓ → L2 Edge Cases ✓ → L3 Polish & Optimize ✓) → "Precision Steering" badge |
+| **Bottom** | Iteration loop arrow: "↻ Loop until converged" |
+| **Style** | Dark navy background, icon-driven with keywords only, spotlight panels with colored glow borders, compact muted non-spotlight nodes |
+| **AI Prompt** | "Technical pipeline diagram, 1200x500, dark navy background. Horizontal backbone with compact nodes: PRD, Analyze, Research, Design, Implement, QA, Deliverable. Three spotlight panels pop out. Research (blue glow, above): globe icon with 3 data stream arrows labeled Latest Docs, Best Practices, Domain Expertise funneling into Evidence Base badge. Design (purple glow, below): 5 circular expert icons with domain symbols converging into Synthesized Design badge with red Veto tag. QA (green glow, above): 3 stacked progress bars L1 L2 L3 with checkmarks, arrow to Precision Steering badge. Icon-driven minimal text, keywords only, modern tech aesthetic" |
 
 ### Image 4: Architecture Overview (`architecture.png`)
 
