@@ -2,7 +2,9 @@
   "name": "intent-fluid",
   "description": "Transforming human intent into autonomous execution with AI Skills.",
   "version": "1.0.0",
-  "author": "carbonshow",
+  "author": { 
+    "name": "carbonshow"
+  },
   "homepage": "https://github.com/carbonshow/intent-fluid",
   "repository": "https://github.com/carbonshow/intent-fluid",
   "license": "MIT",
