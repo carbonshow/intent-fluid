@@ -59,5 +59,8 @@ pids
 *.seed
 *.pid.lock
 
+# Surge
+.surge/
+
 # Plugin
 superpowers
