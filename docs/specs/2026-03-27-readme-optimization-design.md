@@ -108,10 +108,10 @@ Dual-audience: attract attention with visual impact first, retain professional u
 | **Dimensions** | 1200 × 600 px |
 | **Location** | Below Hero, above highlights |
 | **Layout** | Left/right split |
-| **Left (Before)** | Title "Without Surge" in gray. Scattered code fragments with red X marks and circular arrows showing manual retry loops. Bottom text: "Manual iteration, context lost, quality inconsistent" |
-| **Right (After)** | Title "With Surge" in blue-purple gradient. Clean 5-step pipeline (Analyze→Research→Design→Implement→QA) flowing left-to-right with green checkmark convergence indicator. Bottom text: "Autonomous iteration, expert review, quality converged" |
-| **Style** | Dark background, muted tones on left, vibrant blue-purple on right, flat design, clean sans-serif |
-| **AI Prompt** | "Split comparison infographic, 1200x600, dark background. Left side muted gray: scattered code fragments with red X marks and circular arrows showing manual retry loops, label 'Without Surge'. Right side vibrant blue-purple: clean 5-step pipeline flowing left to right (Analyze→Research→Design→Implement→QA) with a green checkmark convergence indicator, label 'With Surge'. Minimalist flat design, no gradients on icons, clean sans-serif typography" |
+| **Left (Before)** | Title "Without Surge" in gray. Human figure trapped in chaotic circular loop: Write → Test → Fail → Debug → Rewrite → Test Again → back to Write. Human at EVERY step (bottleneck). Red ✗ marks, clock draining icon. Caption: "You are the loop. Every iteration drains your time and focus." |
+| **Right (After)** | Title "With Surge" in blue-purple. 3 rising wave forms (ocean waves), each = one iteration with A→R→D→I→Q phase nodes flowing in wave curve. Wave 1 (muted blue): "Initial prototype". Wave 2 (blue-purple): "Refined & optimized". Wave 3 (vivid purple + glow): "Converged ✓". User icon ONLY at wave crests (checkpoints). Caption: "Surge iterates like waves. You only steer at the crests." |
+| **Style** | Dark background, muted exhaustion tones on left, vibrant momentum blue-purple on right, flat design, clean sans-serif |
+| **AI Prompt** | "Split comparison infographic, 1200x600, dark background. Left side muted gray: a human stick figure trapped in a chaotic circular loop of arrows labeled Write, Test, Fail, Debug, Rewrite, Test Again, with red X marks and a clock draining icon, label 'Without Surge', caption 'You are the loop'. Right side vibrant blue-purple: three rising ocean wave forms stacked vertically, each wave contains small nodes A R D I Q flowing along the curve, waves get progressively brighter from bottom to top (muted blue, blue-purple, vivid glowing purple with checkmark), tiny human icon only at wave crests between waves as checkpoint, label 'With Surge', caption 'Surge iterates like waves. You only steer at the crests.' Minimalist flat design, clean sans-serif typography, modern tech aesthetic" |
 
 ### Image 3: Cognitive Pipeline (`cognitive-pipeline.png`)
 
@@ -119,9 +119,13 @@ Dual-audience: attract attention with visual impact first, retain professional u
 |----------|-------|
 | **Dimensions** | 1200 × 500 px |
 | **Location** | After 5 highlights section |
-| **Content** | Entry: 💡 PRD/Raw Intent → Main loop: Analyze → Research → Design (Expert Panel sub-node) → Implement (Parallel Tasks sub-node) → QA → Branch: Converged → Retro → Deliverable; Unconverged → back to Analyze. Side annotation: Process Memory extraction |
-| **Style** | Dark navy background, rounded rectangle nodes with subtle glow borders, gradient glowing connection lines |
-| **AI Prompt** | "Technical flowchart diagram, 1200x500, dark navy background. Nodes as rounded rectangles with subtle glow borders: PRD Input → Analyze → Research → Design (with 'Expert Panel' sub-node) → Implement (with 'Parallel Tasks' sub-node) → QA. QA branches: 'Converged' path to Retro → Deliverable; 'Unconverged' loops back to Analyze. Side annotation 'Process Memory' with brain icon. Gradient glowing connection lines, modern tech aesthetic, clean sans-serif labels" |
+| **Layout** | Horizontal pipeline backbone across center. 3 key phases pop out as spotlight panels with glowing emphasis borders. Non-spotlight phases stay compact. |
+| **Spotlight 1** | 🔍 Research: Live Intelligence (blue glow, above backbone) — real-time web search for latest docs, best practices, domain expertise |
+| **Spotlight 2** | 👥 Design: Expert Panel (purple glow, below backbone) — 3-5 independent experts, multi-perspective synthesis, veto power, no echo chamber |
+| **Spotlight 3** | ✅ QA: Tiered Evaluation (green glow, above backbone) — L1→L2→L3 progressive levels, surgical precision steering for each iteration |
+| **Bottom** | Iteration loop arrow from QA back to Analyze: "QA steers the next iteration — loop until converged" |
+| **Style** | Dark navy background, spotlight panels with colored glow borders, compact muted non-spotlight nodes |
+| **AI Prompt** | "Technical pipeline diagram, 1200x500, dark navy background. Horizontal backbone across center with nodes: PRD, Analyze, Research, Design, Implement, QA, Deliverable. Three nodes pop out as enlarged spotlight panels with glowing borders: Research panel (blue glow, above) labeled 'Live Intelligence' with subtitle about real-time web search; Design panel (purple glow, below) labeled 'Expert Panel' with subtitle about 3-5 independent experts with veto power; QA panel (green glow, above) labeled 'Tiered Evaluation' with subtitle about L1 L2 L3 progressive levels. Non-spotlight nodes compact and muted. Bottom iteration arrow from QA back to Analyze. Clean sans-serif typography, modern tech aesthetic, minimalist flat design" |
 
 ### Image 4: Architecture Overview (`architecture.png`)
 
