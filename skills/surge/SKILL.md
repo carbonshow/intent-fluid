@@ -61,9 +61,11 @@ flowchart LR
   A[Start] --> B[Init + Config Confirm]
   B --> C[Main Iteration Loop]
   C --> D{QA Conclusion}
-  D -->|Converged| E[retro]
+  D -->|Converged| E[Completion Review]
   D -->|Unconverged| C
-  E --> F[Complete]
+  E -->|User Confirms| F[retro]
+  E -->|User Continues| C
+  F --> G[Complete]
 ```
 
 ### Startup
@@ -161,8 +163,8 @@ Core principle: pass **summaries** of upstream outputs to subagents, not full do
 > Complete three-value logic and convergence conditions are in `references/qa-handling.md`.
 
 Core principles:
-- **Pass-Converged** → Enter retro.
-- **Pass-Optimizable** → Check convergence conditions (low marginal benefits / budget exhausted / plateau / Pareto frontier / oscillation). If converged, enter retro; otherwise, continue iteration.
+- **Pass-Converged** → Execute Evaluator Calibration Review, then Completion Review Checkpoint. Enter retro only after user confirms.
+- **Pass-Optimizable** → Check convergence conditions (low marginal benefits / budget exhausted / plateau / Pareto frontier / oscillation). If converged, execute Evaluator Calibration Review + Completion Review Checkpoint; otherwise, continue iteration.
 - **Fail** → Choose minimal cost rollback based on deviation level: Level 1 rerun implement → Level 2 rollback to design → Level 3 rollback to analyze or escalate to human.
 
 **Evaluation Tier Progression**: L1 → L1+L2 → L1+L2+L3. Rollback to L1 on failure. **Note**: If `deliverable_type` is `document`, Round 1 defaults to L1+L2 (see `references/qa-handling.md`).
@@ -189,8 +191,8 @@ Trigger Events: Requirement ambiguities, reusable components found, solutions re
 
 | Condition | Handling |
 |-----------|----------|
-| QA Pass-Converged / Convergence condition met | Normal completion, enter retro |
-| Pareto frontier / Oscillation detected | Show dimension tradeoffs to user for confirmation, then enter retro |
+| QA Pass-Converged / Convergence condition met | Execute Evaluator Calibration Review + Completion Review Checkpoint, enter retro after user confirms |
+| Pareto frontier / Oscillation detected | Show dimension tradeoffs to user for confirmation, then execute Completion Review Checkpoint |
 | Reached max_iterations | Inform user of progress, ask to continue/terminate/adjust limit |
 | Tool permission issues / Fundamental requirement changes | Escalate to user |
 | User explicitly terminates | Save state, enter retro (partial retro) |
