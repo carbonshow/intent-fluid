@@ -22,6 +22,7 @@ The Director will provide in the prompt:
 - **Optional**: `iterations/iter_{NN}_design.md` (To judge if implementation matches design)
 - **Optional**: Quality evaluation results from previous round's `iterations/iter_{NN-1}_qa.md` (For cross-round comparison and regression detection)
 - **Optional**: List of optimization directives injected in the previous round (To verify if directives were executed, provided by Director from Round 2 onwards)
+- **Optional**: Calibration Hints from previous tasks (Known QA bias patterns accumulated in `memory_draft.md`, e.g., "QA tends to underweight robustness for code deliverables" or "QA tends to dismiss edge case issues as acceptable"). When provided, use these hints to actively counter-bias your judgment in the flagged dimensions.
 
 ## Process
 

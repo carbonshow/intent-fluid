@@ -12,13 +12,13 @@ Read `iter_{N}_qa.md`, handle according to the three-value conclusion.
 
 All acceptance items passed, all quality dimensions ≥ Good.
 
-**Handling**: Update `state.md`: set `current_phase` to `retro`, `status` to `done`, enter retro.
+**Handling**: Execute Evaluator Calibration Review (see §Evaluator Calibration Review below), then execute Completion Review Checkpoint (see §Completion Review Checkpoint below). Enter retro only after user confirms.
 
 ### Director Override: Pass-Optimizable → Converged
 
 The QA subagent may output "Pass-Optimizable" even when all quality dimensions are ≥ Good (e.g., because it identifies High/Medium benefit improvements). In this case, the **Director** applies the following override rule:
 
-> When ALL quality dimensions are ≥ Good AND all acceptance criteria at the current evaluation level pass, the Director SHOULD declare convergence and enter retro, regardless of the QA subagent's three-value output.
+> When ALL quality dimensions are ≥ Good AND all acceptance criteria at the current evaluation level pass, the Director SHOULD declare convergence, execute Evaluator Calibration Review, then execute Completion Review Checkpoint. Enter retro only after user confirms.
 
 This prevents the common failure mode where QA never outputs "Pass-Converged" due to conservative judgment. The QA subagent's optimization gradients are still recorded in `quality_history` for the retro phase.
 
@@ -34,7 +34,7 @@ There are failed acceptance items, handle according to deviation level (see Devi
 
 ## Convergence Conditions
 
-**Stop iteration and enter retro if ANY condition is met:**
+**Stop iteration, execute Evaluator Calibration Review + Completion Review Checkpoint, and enter retro only after user confirms, if ANY condition is met:**
 
 | # | Condition Name | Judgment Criteria |
 |---|----------------|-------------------|
@@ -210,3 +210,68 @@ Historical Output Files (Available for review):
 | D) Terminate early, enter retro | Update `status` to `terminated_by_user` in `state.md`, skip remaining iterations, jump directly to retro phase |
 
 **After user confirmation, the Director may enter the next iteration round (`iteration` +1, return to start of loop).**
+
+---
+
+## Evaluator Calibration Review
+
+**Timing**: After the Director determines convergence (Pass-Converged, Director Override, or convergence condition met), BEFORE displaying the Completion Review Checkpoint to the user.
+
+**Purpose**: Detect whether the QA subagent's judgment is miscalibrated (too lenient or too strict), so the user can make an informed decision about whether to accept convergence or continue iterating.
+
+### Director Self-Audit Steps
+
+1. **Cross-reference QA scores with implementation artifacts**: Re-read key sections of `iter_{N}_implement.md` (or the actual deliverable files). For each quality dimension rated ≥ Good, check whether the Director's own reading of the output supports that rating.
+
+2. **Check for "identify-then-dismiss" pattern**: Scan the QA report for phrases where the QA identified a potential issue but then dismissed it as acceptable (e.g., "this could be improved but is adequate"). Count these instances — more than 3 such dismissals is a warning sign of leniency bias.
+
+3. **Compare with historical pattern** (if iteration > 1): Check `quality_history` — did the QA suddenly jump multiple tiers in a single round without corresponding major changes in the implementation? A jump from Basic to Excellent in one round is suspicious.
+
+4. **Check acceptance criteria coverage**: Verify the QA actually tested each acceptance criterion with concrete evidence (not just "verified ✓" without explanation). Shallow verification is a known QA failure mode.
+
+### Output
+
+- If no calibration concerns: Proceed to Completion Review Checkpoint normally.
+- If calibration concerns found: Add `[CALIBRATION WARNING]` tags to the Completion Review display:
+  ```
+  ⚠️ Calibration Warnings:
+  - [CALIBRATION WARNING: QA may be too lenient — dismissed 4 identified issues as "acceptable"]
+  - [CALIBRATION WARNING: Robustness jumped Basic→Excellent in one round without major implementation changes]
+  ```
+  The user can then decide whether to accept convergence (Option A) or continue optimizing (Option B) with adjusted QA focus.
+
+### Cross-Task Calibration Accumulation
+
+- After retro, record any confirmed calibration findings in `memory_draft.md` with format: `[{timestamp}] [calibration] {finding}` (e.g., "QA consistently underweights robustness for code deliverables").
+- In subsequent tasks, the Director MAY pass accumulated calibration findings as "Calibration Hints" to the QA subagent (see `references/phases/qa.md` §Input Contract).
+
+---
+
+## Completion Review Checkpoint
+
+**After convergence is determined (Pass-Converged, Director Override, or convergence condition met) and Evaluator Calibration Review is completed, the Director MUST execute a Completion Review before entering retro.**
+
+### Display Format
+
+```
+Completion Review — Round {N} Ended
+─────────────────────────────────────────
+QA Conclusion: [Pass-Converged / Pass-Optimizable (Director Override) / Pass-Optimizable (Converged)]
+Convergence Reason: [All quality ≥ Good / Low marginal benefit / Plateau / ...]
+Quality Summary: [Final tier for each dimension with intra-tier positioning]
+Iterations Completed: {N} / {max_iterations}
+Calibration Warnings: [List any warnings from Evaluator Calibration Review, or "None"]
+─────────────────────────────────────────
+
+Historical Output Files (Available for review):
+  - iterations/iter_01_*.md, iter_02_*.md, ...
+```
+
+### User Options
+
+| Option | Handling |
+|--------|----------|
+| A) Confirm completion, enter retro | Update `state.md`: set `current_phase` to `retro`, `status` to `done`, proceed to retro phase |
+| B) Continue optimizing | User specifies optimization direction; Director treats as unconverged, injects user direction as optimization directive, continues iteration |
+| C) Adjust acceptance criteria | Display current `acceptance.md`, update file after user modification, `acceptance_modifications` +1, then re-run QA with updated criteria |
+| D) Review deliverables before deciding | Director presents key deliverable content summary (read and summarize the main output files), user decides after review |
