@@ -1,141 +1,84 @@
-# Intent-Fluid
+<p align="center">
+  <img src="assets/images/hero-banner.png" alt="Intent-Fluid" width="100%">
+</p>
 
-> **"Transforming human intent into autonomous execution. Stop manual grinding, start directing intelligence across code, content, and strategy."**
+<p align="center">
+  <strong>Transforming human intent into autonomous execution.</strong><br>
+  Stop manual grinding, start directing intelligence.
+</p>
 
-<p align="left">
+<p align="center">
   <img src="https://img.shields.io/badge/Platform-Claude_Code_|_Cursor_|_Gemini_CLI-success?style=for-the-badge" alt="Platform Supported">
   <img src="https://img.shields.io/badge/Paradigm-Intent_Driven-ff69b4?style=for-the-badge" alt="Paradigm: Intent-Driven">
   <img src="https://img.shields.io/badge/Focus-Flow--State-blueviolet?style=for-the-badge" alt="Focus: Flow-State">
 </p>
 
-### ⚡ The Magic: Intent vs. Outcome
+---
 
-Stop writing boilerplate. Start directing intelligence.
+## ⚡ The Difference
 
-**Your Intent (The Input):**
-> *"Build a Next.js landing page for a SaaS product. Include a hero section, pricing table, and a contact form. Use TailwindCSS and make it dark mode by default."*
-
-**The Autonomous Execution (The Output):**
-```text
-[Surge Skill Activated: Iteration 1]
-🧠 Analyzing requirements & generating topology...
-📐 Designing component architecture (Expert Panel evaluating...)...
-🛠️ Implementing initial prototype:
-   ├── app/page.tsx
-   └── components/Hero.tsx
-❌ QA: Missing form validation in ContactForm.
-
-[Iteration 2: Autonomous Optimization]
-🧠 Re-analyzing constraints & refining design...
-🛠️ Implementing fixes & completing files:
-   ├── components/Pricing.tsx
-   ├── components/ContactForm.tsx
-   └── tailwind.config.ts
-✅ QA: Pass-Converged. All acceptance criteria met.
-📝 Running Retro and extracting process experience...
-🚀 Delivery complete.
-```
-
-### 🧠 The Cognitive Pipeline
-
-Intent-Fluid transforms vague ideas into structured reality through an iterative, agentic pipeline. It doesn't just generate code once; it loops until the quality converges on your acceptance criteria:
-
-```mermaid
-graph TD
-    A[💡 Raw Intent] --> B(🧠 Analyze / Research)
-    
-    subgraph Autonomous Iteration Loop
-        B --> C(📐 Design)
-        C --> D(🛠️ Implement)
-        D --> E{✅ QA Conclusion}
-        E -->|Unconverged / Optimizable| B
-    end
-    
-    E -->|Pass-Converged| F(📝 Retro)
-    F --> G[🚀 Deliverable]
-
-    style A fill:#ff99cc,stroke:#333,stroke-width:2px,color:#000
-    style E fill:#ffffcc,stroke:#333,stroke-width:2px,color:#000
-    style G fill:#99ccff,stroke:#333,stroke-width:2px,color:#000
-```
+<p align="center">
+  <img src="assets/images/before-after.png" alt="Without Surge vs With Surge" width="100%">
+</p>
 
 ---
 
-## 📦 Quick Start & Installation
+## 🌊 Why Surge?
+
+**🔄 Autonomous Iteration Engine**
+Director Agent drives Analyze → Research → Design → Implement → QA in a closed loop. Not a one-shot generator — it iterates until quality converges. Auto-detects stagnation, oscillation, and Pareto frontiers to reach highest quality in minimum iterations.
+
+**👥 Expert Review Panel**
+Automatically assembles 3-5 domain experts for parallel design review. Each expert evaluates independently — security, performance, maintainability — with veto power. Multi-perspective synthesis eliminates blind spots.
+
+**✅ Rigorous Quality Assurance**
+Three-tier acceptance criteria (L1→L2→L3) with progressive escalation. Output integrity validation auto-detects truncation and recovers. Optimization directives are closed-loop tracked — every improvement proposed is verified next round.
+
+**📋 PRD-to-Deliverable Pipeline**
+One PRD in, complete deliverables out — code, documents, or strategy reports. Auto-analyzes requirement topology, negotiates acceptance criteria, orchestrates parallel subtasks. From fuzzy intent to structured output, fully autonomous.
+
+**🧠 Self-Evolving Process Memory**
+Extracts process experience after every iteration — ambiguities found, reusable components, rejected approaches, missing test cases. Persisted to memory files — gets smarter with every use. Retro phase generates rule update suggestions.
+
+---
+
+## 🧠 The Cognitive Pipeline
+
+<p align="center">
+  <img src="assets/images/cognitive-pipeline.png" alt="Surge Cognitive Pipeline" width="100%">
+</p>
+
+Intent-Fluid transforms intent into structured reality through an iterative, agentic pipeline. It doesn't generate once and stop — it loops through Analyze → Research → Design → Implement → QA until quality converges on your acceptance criteria. Each iteration extracts process memory, making the next run smarter.
+
+---
+
+## 📦 Quick Start
 
 See the full [Installation Guide](docs/INSTALL.md) for platform-specific instructions.
-
-**Quick start (any platform):**
 
 ```bash
 git clone https://github.com/carbonshow/intent-fluid.git
 ```
 
-| Platform | Integration Command / Method |
-|----------|---------|
+| Platform | Integration |
+|----------|-------------|
 | Claude Code | `/plugin marketplace add carbonshow/intent-fluid` |
-| Cursor | Add `https://github.com/carbonshow/intent-fluid` as a rule source or MCP server. |
+| Cursor | Add `https://github.com/carbonshow/intent-fluid` as a rule source or MCP server |
 | Gemini CLI | `gemini extensions install https://github.com/carbonshow/intent-fluid` |
 
 ---
 
-## 🧬 General Cognitive Engine (Use Cases)
+## 🏗 Architecture
 
-Intent-Fluid is not just a code generator; it's a general-purpose methodology executor.
+<p align="center">
+  <img src="assets/images/architecture.png" alt="Intent-Fluid Architecture" width="100%">
+</p>
 
-*   🧠 **Knowledge Architecture (Research & Synthesis):**
-    *   **The Intent:** "Analyze these raw competitor documentation URLs and synthesize a comprehensive feature comparison matrix in Markdown."
-    *   **The Fluid Workflow:** Provide the intent → the **surge** skill autonomously researches, extracts key differences, and formats a professional report.
-*   💻 **Full-Stack Engineering (From Spec to Production):**
-    *   **The Intent:** "Based on this rough API draft, design the database schema, generate the Node.js endpoints, and write comprehensive integration tests."
-    *   **The Fluid Workflow:** Hand the draft to a skill → it orchestrates multi-phase delivery (design, implement, QA) with convergence detection.
-*   📝 **Content Pipeline (Creation & Repurposing):**
-    *   **The Intent:** "Deconstruct this 10-page technical whitepaper into a 5-part Twitter thread series optimized for engagement."
-    *   **The Fluid Workflow:** The agent understands the context, restructures the narrative, and delivers ready-to-publish content.
-
----
-
-## 🎯 Available Skills
+### Available Skills
 
 | Skill | Description |
 |-------|-------------|
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
-
----
-
-## 🌊 The Manifesto
-
-As software creators and knowledge workers, our greatest asset is our ideas. Yet, a massive chasm exists between a concept and its realization: **the friction of execution**.
-
-We spend invaluable cognitive energy fighting boilerplate, syntax, formatting, and infrastructure configuration. This friction destroys **Flow**.
-
-**Intent-Fluid** is a curated collection of AI SKILLs designed to bridge this chasm. It embodies a new paradigm where human intention is the primary input, and AI acts as the adaptive catalyst that materializes that intention without requiring us to get bogged down in low-level details.
-
-Here, we don't just write code; we orchestrate intelligence.
-
-### The Core Philosophy
-
-1.  **Intent Over Implementation:** We focus on *what* to achieve, leveraging AI to handle the *how*.
-2.  **Flow-State Engineering:** If a workflow forces you to switch context or consult documentation for more than 30 seconds, it's broken. We build tools that maintain creative momentum.
-3.  **Rapid Verification:** The time from "What if?" to "Here's a prototype" should approach zero.
-
----
-
-## 🏗️ Architecture
-
-### `/skills` — Cognitive Patterns
-
-A library of structured prompts, chain-of-thought methodologies, and agent configurations. Each skill lives in its own directory under `skills/` with a `SKILL.md` manifest that defines when and how to activate it. See the [Skill Specification](docs/SKILL_SPEC.md) for the canonical format.
-
----
-
-## 🚀 Getting Started
-
-### Using Skills
-
-1. Install intent-fluid (see above)
-2. Start a new AI session
-3. Provide a PRD or detailed spec — the appropriate skill activates automatically
 
 ### Creating a New Skill
 
@@ -144,17 +87,12 @@ A library of structured prompts, chain-of-thought methodologies, and agent confi
 3. Create your skill under `skills/<your-skill-name>/`
 4. Validate: `bash scripts/validate-skill.sh skills/<your-skill-name>`
 
-### Exploring the Codebase
-
-1.  **Study the [Skill Spec](docs/SKILL_SPEC.md):** Understand the canonical format for skill authoring.
-2.  **Read `/skills/surge`:** See how a production skill is structured with references, scripts, and assets.
-3.  **Adapt the patterns:** Use the prompt structures as templates for your own AI-assisted workflows.
-
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the `LICENSE` file for details. It is open for adaptation, provided credit is given to the original philosophy.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
-<p align="center">"Stay in flow. Let the intelligence follow your will."</p>
+
+<p align="center"><em>"Stay in flow. Let the intelligence follow your will."</em></p>
