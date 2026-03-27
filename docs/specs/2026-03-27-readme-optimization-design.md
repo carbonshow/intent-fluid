@@ -133,9 +133,11 @@ Dual-audience: attract attention with visual impact first, retain professional u
 |----------|-------|
 | **Dimensions** | 1200 × 450 px |
 | **Location** | After Quick Start, before Footer |
-| **Content** | Three horizontal layers: Top "User Intent" (pink), Middle "Intent-Fluid Core" (blue), Bottom "Skills Library" with "surge" highlighted in purple glow + grayed placeholder slots for future skills. Right side vertical bar "Platform Adapters" showing Claude Code, Cursor, Gemini CLI |
-| **Style** | Dark background, layered diagram, different color per layer, flat design, subtle connecting arrows |
-| **AI Prompt** | "Layered architecture diagram, 1200x450, dark background. Three horizontal layers: top 'User Intent' in pink, middle 'Intent-Fluid Core' in blue, bottom 'Skills Library' with 'surge' highlighted in purple glow and grayed placeholder slots for future skills. Right side vertical bar 'Platform Adapters' showing Claude Code, Cursor, Gemini CLI logos. Clean flat design, subtle connecting arrows between layers, modern tech documentation style" |
+| **Layout** | Left-right split. Left = compact system layers, Right = self-evolving intelligence spotlight (the star) |
+| **Left Half** | Three stacked layers: "👤 User Intent" (pink) → "⚙️ Intent-Fluid Core" (blue) → Skills Library ("🌊 surge" purple glow + grayed "future skill" slots). Below: platform badges (Claude Code, Cursor, Gemini CLI) |
+| **Right Half** | 🧠 Self-Evolving Intelligence (orange glow panel): **Within a Task** — Iter 1→📝→Iter 2→📝→Iter 3 chain (memory per iteration). **Across Tasks** — T1+T2+T3 circles → 🧠 Smarter brain icon (cross-task rule accumulation). Bottom: 5 ascending bars "Gets smarter with every use" |
+| **Style** | Dark background, icon-driven, keywords only, orange glow for evolution panel |
+| **AI Prompt** | "Architecture diagram, 1200x450, dark background, left-right split. Left: stacked layers User Intent pink, Core blue, Skills with surge purple glow and grayed future slots, platform badges below. Right: orange glow panel Self-Evolving Intelligence. Top sub-panel: Iter1→notepad→Iter2→notepad→Iter3 memory chain. Bottom sub-panel: T1+T2+T3 circles arrow into glowing brain Smarter. Bar chart 5 ascending orange bars. Icon-driven keywords only modern tech aesthetic" |
 
 ## 6. Changes from Current README
 
