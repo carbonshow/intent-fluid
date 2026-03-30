@@ -46,7 +46,27 @@ Write to `{surge_root}/tasks/{task_id}/retro.md`, which must include the followi
 - **Formalized Experience**: Memory update entries, RULES entries (NEVER/ALWAYS/PREFER format), Candidate SKILLs (name and brief description) — note if none for any category.
 - **Improvement Suggestions for surge itself**: Process issues or areas for improvement discovered during this execution.
 
-### Step 3: Formalize Experience (Requires User Confirmation)
+### Step 3: Generate Execution Visualization
+
+After writing `retro.md`, generate execution flow visualizations from the trace log:
+
+```bash
+bash <repo_root>/scripts/trace-export.sh {task_dir}/trace.jsonl mermaid --skill-dir {surge_skill_dir}
+bash <repo_root>/scripts/trace-export.sh {task_dir}/trace.jsonl summary --skill-dir {surge_skill_dir}
+```
+
+This produces:
+- `{task_dir}/execution_dag.mmd` — Mermaid DAG of the complete execution flow
+- `{task_dir}/execution_summary.md` — Markdown table summarizing each step's duration, status, and key metrics
+
+If the dashboard is running, stop it:
+```bash
+bash <repo_root>/scripts/dashboard.sh stop {task_dir}
+```
+
+Include a note in `retro.md` pointing to these visualization files.
+
+### Step 4: Formalize Experience (Requires User Confirmation)
 
 **Memory Updates** (if any):
 1. Organize the content to be written into `CLAUDE.md`.

@@ -93,8 +93,37 @@ platforms: [claude, cursor, gemini]
 | `author` | no | free text | skill author |
 | `tags` | no | string array | discovery only |
 | `platforms` | no | array of `claude`, `cursor`, `gemini` | compatibility declaration |
+| `trace` | no | object | workflow declaration for execution tracing and dashboard support (see §5.3) |
 
-### 5.3 Body Requirements
+### 5.3 Trace Frontmatter (Optional)
+
+Skills can declare their workflow structure for execution tracing and real-time dashboard visualization. When present, the framework's trace tools (`scripts/trace.sh`, `scripts/trace-export.sh`, `scripts/dashboard.sh`) use this metadata to generate topology-aware visualizations.
+
+```yaml
+---
+name: my-skill
+description: "Use when ..."
+trace:
+  steps: [step1, step2, step3]
+  topology: linear
+  max_rounds: 1
+---
+```
+
+| Subfield | Required (if trace present) | Type | Constraints | Description |
+|----------|---------------------------|------|-------------|-------------|
+| `steps` | yes | string[] | non-empty, `[a-z0-9-]` per element | ordered list of execution step names |
+| `topology` | yes | string | `linear` \| `cyclic` \| `dag` | workflow shape — affects dashboard layout strategy |
+| `max_rounds` | no | positive integer | default: 1 for linear, 5 for cyclic | maximum execution rounds |
+
+**Topology values:**
+- `linear` — single-pass execution, steps run once in order
+- `cyclic` — iterative loop, steps may repeat across multiple rounds
+- `dag` — general directed acyclic graph with branching/merging
+
+See `docs/TRACE_SPEC.md` for the complete trace protocol specification and integration guide.
+
+### 5.4 Body Requirements
 
 The Markdown body should:
 
@@ -105,7 +134,7 @@ The Markdown body should:
 - point to bundled resources with relative paths
 - stay concise; split out large details before `SKILL.md` becomes bloated
 
-### 5.4 Body Size Guidance
+### 5.5 Body Size Guidance
 
 - Keep `SKILL.md` under 500 lines whenever practical.
 - When the skill supports multiple variants, keep only routing logic in `SKILL.md` and move variant details into `references/`.

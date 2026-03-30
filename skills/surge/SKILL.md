@@ -5,6 +5,10 @@ description: "Use when a user provides a PRD, spec, or detailed requirements doc
 author: carbonshow
 tags: [orchestration, prd, delivery, multi-agent]
 platforms: [claude, cursor, gemini]
+trace:
+  steps: [analyze, research, design, implement, qa, retro]
+  topology: cyclic
+  max_rounds: 5
 ---
 
 # surge
@@ -71,6 +75,82 @@ flowchart LR
 ### Startup
 
 > See `references/startup.md` for detailed startup steps, config schema, and **Resume Protocol** (recovering from interrupted sessions).
+
+#### Execution Trace Protocol
+
+After EVERY state transition, the Director MUST emit a trace event by calling the framework-level `trace.sh` script. The trace file path is `{task_dir}/trace.jsonl`, created during `init.sh`.
+
+```bash
+bash <repo_root>/scripts/trace.sh <task_dir>/trace.jsonl surge <type> <step> <round> <agent> [detail_json]
+```
+
+**Mandatory emission points** (the Director already performs actions at these points — tracing is an additional append):
+
+| Moment | Event Type | Step | Existing Action Being Augmented |
+|--------|------------|------|---------------------------------|
+| Startup steps 1-5 complete | `step_start` / `step_end` | `startup` | Writing state.md, topology.md, etc. |
+| Before dispatching each subagent | `agent_dispatch` | current phase | Reading phase template + assembling prompt |
+| After subagent returns | `agent_return` | current phase | Output Integrity Validation (step 5) |
+| After validation result | `step_end` | current phase | Process Output (step 6) |
+| QA conclusion processing | `decision` | `qa` | Updating state.md fields |
+| Convergence check | `checkpoint` | `qa` | Deciding continue/stop |
+| Error/retry | `error` | current phase | Phase Failure Handling |
+
+**Detail JSON examples:**
+
+```bash
+# Step start
+bash scripts/trace.sh "$TRACE_FILE" surge step_start analyze "$ROUND" director \
+  '{"input_files":["context.md","topology.md"],"tags":["iteration_type:full"]}'
+
+# Agent dispatch
+bash scripts/trace.sh "$TRACE_FILE" surge agent_dispatch analyze "$ROUND" subagent:analyze \
+  "{\"parent_id\":\"$STEP_START_ID\",\"input_files\":[\"context.md\"]}"
+
+# Agent return with validation
+bash scripts/trace.sh "$TRACE_FILE" surge agent_return analyze "$ROUND" subagent:analyze \
+  "{\"parent_id\":\"$STEP_START_ID\",\"output_files\":[\"iterations/iter_01_analyze.md\"],\"validation_result\":\"PASS\"}"
+
+# QA decision
+bash scripts/trace.sh "$TRACE_FILE" surge decision qa "$ROUND" director \
+  '{"decision":"continue","tags":["eval_level:L1+L2","convergence:unconverged"]}'
+```
+
+The Director should store the returned event ID (printed to stdout by `trace.sh`) and pass it as `parent_id` for child events within the same step.
+
+#### Status Announcement Protocol
+
+Before each major action, the Director MUST print a status line to the user. This provides real-time progress indication during long-running operations and is emitted alongside the trace event.
+
+**Format**: `{emoji} [{step}] {status_description}`
+
+**Mandatory status announcements:**
+
+| Moment | Status Line |
+|--------|-------------|
+| Before dispatching subagent | `⚡ [analyze] Dispatching subagent — analyzing requirements...` |
+| Subagent returned, validating | `🔍 [analyze] Subagent returned — validating output integrity...` |
+| Validation passed, showing output | `📋 [analyze] Validation passed — processing results...` |
+| QA decision made | `🎯 [qa] Conclusion: Pass-Optimizable — evaluating convergence...` |
+| Starting new iteration | `🔄 [iter 2] Starting iteration 2 (full cycle)...` |
+| Convergence detected | `✅ [convergence] All criteria met — preparing completion review...` |
+| Error/retry | `⚠️ [implement] SEVERE_TRUNCATION detected — retrying with scope reduction...` |
+
+#### Dashboard (Optional)
+
+After `init.sh` completes and before entering the Main Iteration Loop, the Director SHOULD ask the user:
+
+> "Would you like to enable the real-time visualization dashboard? (y/n)"
+
+If yes:
+```bash
+bash <repo_root>/scripts/dashboard.sh start "${TASK_DIR}" --skill-dir "${SKILL_DIR}"
+```
+
+The dashboard is a read-only observer — surge runs identically with or without it. The Director stops the dashboard during the retro phase or on task termination:
+```bash
+bash <repo_root>/scripts/dashboard.sh stop "${TASK_DIR}"
+```
 
 1. **Determine Workspace and Task ID**: Check project config → check `config.json` → ask user → use default `.surge`
 2. **Initialize Context Package**: Run `<surge_skill_dir>/scripts/init.sh <surge_root> <task_id>` to create directories, then write the PRD to `context.md`. Be sure to find the script based on your current execution path (e.g., `bash tools/surge/scripts/init.sh ...`).
@@ -223,3 +303,6 @@ After retro finishes:
 | `scripts/merge-parallel.sh` | Merges parallel implement outputs | After parallel implement |
 | `references/expert-review.md` | Expert role library, subagent prompt template, synthesis report format | Design phase Steps 3-5 |
 | `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 5) |
+| `docs/TRACE_SPEC.md` (repo root) | Trace protocol specification, event schema, integration guide | When emitting trace events |
+| `scripts/trace.sh` (repo root) | Emits a trace event to trace.jsonl | Every state transition |
+| `scripts/dashboard.sh` (repo root) | Starts/stops the real-time visualization dashboard | Startup (optional) and retro |

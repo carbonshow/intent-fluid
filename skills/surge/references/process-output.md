@@ -8,6 +8,14 @@
 
 After each subagent returns, the Director MUST present a brief process summary to the user. **This is a mandatory obligation after every Phase — not optional. Violating this rule is equivalent to a process interruption.**
 
+### Pre-Phase Status Announcement
+
+Before dispatching each subagent, the Director MUST also print a status line to provide real-time progress indication:
+
+**Format**: `{emoji} [{step}] {status_description}`
+
+This is a one-line announcement before the action, NOT a summary after the action. It serves as a real-time heartbeat so the user knows the task is progressing. The status line is also emitted as a trace event (see Execution Trace Protocol in `SKILL.md`).
+
 ---
 
 ## Required Content Per Phase

@@ -97,6 +97,10 @@ echo "  ✓ Created context.md"
 touch "${TASK_DIR}/memory_draft.md"
 echo "  ✓ Created memory_draft.md"
 
+# Create empty trace.jsonl for execution tracing
+touch "${TASK_DIR}/trace.jsonl"
+echo "  ✓ Created trace.jsonl"
+
 # Create empty test_cases.md
 touch "${TASK_DIR}/test_cases.md"
 echo "  ✓ Created test_cases.md"
@@ -111,6 +115,7 @@ echo "    └── ${TASK_ID}/"
 echo "        ├── state.md"
 echo "        ├── context.md"
 echo "        ├── memory_draft.md"
+echo "        ├── trace.jsonl"
 echo "        ├── test_cases.md"
 echo "        └── iterations/"
 echo "            └── .gitkeep"
