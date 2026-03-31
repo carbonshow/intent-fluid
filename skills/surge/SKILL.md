@@ -76,6 +76,32 @@ flowchart LR
 
 > See `references/startup.md` for detailed startup steps, config schema, and **Resume Protocol** (recovering from interrupted sessions).
 
+1. **Determine Workspace and Task ID**: Check project config → check `config.json` → ask user → use default `.surge`
+2. **Initialize Context Package**: Run `<surge_skill_dir>/scripts/init.sh <surge_root> <task_id>` to create directories, then write the PRD to `context.md`. Be sure to find the script based on your current execution path (e.g., `bash tools/surge/scripts/init.sh ...`).
+3. **Task Topology Analysis**: Analyze PRD, output topology report (serial/parallel/mixed), generate domain-specialized roles for each Phase, write to `topology.md`, and present to user for confirmation.
+4. **Deliverables Negotiation**: Confirm deliverable_type (code/document/mixed), project root, language/framework, etc., and write to `deliverables.md`.
+5. **Acceptance Criteria Negotiation**: Generate L1/L2/L3 tiered acceptance plans and write to `acceptance.md`.
+
+**Fast Startup**: If the user's intent is clear and the PRD is sufficient, steps 3-5 can be combined into a one-time display for the user to confirm at once. **However, `surge_root` (Step 1) and deliverable paths (`project_root` / `output_dir` in Step 4) MUST be explicitly asked—never silently use defaults.**
+
+#### Dashboard Prompt (after Step 2, before entering Main Loop)
+
+**After init.sh completes, the Director MUST ask the user:**
+
+> "Would you like to enable the real-time visualization dashboard? (y/n)"
+
+If yes:
+```bash
+bash <repo_root>/scripts/dashboard.sh start "${TASK_DIR}" --skill-dir "${SURGE_SKILL_DIR}"
+```
+
+The dashboard is a read-only observer — surge runs identically with or without it. The Director stops the dashboard during the retro phase or on task termination:
+```bash
+bash <repo_root>/scripts/dashboard.sh stop "${TASK_DIR}"
+```
+
+> **Path resolution for `<repo_root>`**: This refers to the **git repository root** of the intent-fluid project (the parent of the `scripts/` directory containing `trace.sh`, `dashboard.sh`, `dashboard-server.js`). Resolve it at startup by running `git rev-parse --show-toplevel` or by traversing upward from the skill directory. Store the resolved absolute path as `repo_root` alongside `surge_root` and `task_dir`.
+
 #### Execution Trace Protocol
 
 After EVERY state transition, the Director MUST emit a trace event by calling the framework-level `trace.sh` script. The trace file path is `{task_dir}/trace.jsonl`, created during `init.sh`.
@@ -136,30 +162,6 @@ Before each major action, the Director MUST print a status line to the user. Thi
 | Convergence detected | `✅ [convergence] All criteria met — preparing completion review...` |
 | Error/retry | `⚠️ [implement] SEVERE_TRUNCATION detected — retrying with scope reduction...` |
 
-#### Dashboard (Optional)
-
-After `init.sh` completes and before entering the Main Iteration Loop, the Director SHOULD ask the user:
-
-> "Would you like to enable the real-time visualization dashboard? (y/n)"
-
-If yes:
-```bash
-bash <repo_root>/scripts/dashboard.sh start "${TASK_DIR}" --skill-dir "${SKILL_DIR}"
-```
-
-The dashboard is a read-only observer — surge runs identically with or without it. The Director stops the dashboard during the retro phase or on task termination:
-```bash
-bash <repo_root>/scripts/dashboard.sh stop "${TASK_DIR}"
-```
-
-1. **Determine Workspace and Task ID**: Check project config → check `config.json` → ask user → use default `.surge`
-2. **Initialize Context Package**: Run `<surge_skill_dir>/scripts/init.sh <surge_root> <task_id>` to create directories, then write the PRD to `context.md`. Be sure to find the script based on your current execution path (e.g., `bash tools/surge/scripts/init.sh ...`).
-3. **Task Topology Analysis**: Analyze PRD, output topology report (serial/parallel/mixed), generate domain-specialized roles for each Phase, write to `topology.md`, and present to user for confirmation.
-4. **Deliverables Negotiation**: Confirm deliverable_type (code/document/mixed), project root, language/framework, etc., and write to `deliverables.md`.
-5. **Acceptance Criteria Negotiation**: Generate L1/L2/L3 tiered acceptance plans and write to `acceptance.md`.
-
-**Fast Startup**: If the user's intent is clear and the PRD is sufficient, steps 3-5 can be combined into a one-time display for the user to confirm at once. **However, `surge_root` (Step 1) and deliverable paths (`project_root` / `output_dir` in Step 4) MUST be explicitly asked—never silently use defaults.**
-
 **Rules Loading**: After Startup completes and before entering the Main Iteration Loop, the Director MUST read `{surge_root}/rules.md` into active context. This file contains NEVER/ALWAYS/PREFER constraints that act as guardrails throughout execution. If the file does not exist (e.g., `init.sh` was skipped), copy from `assets/rules.md` first.
 
 ### Main Iteration Loop
@@ -178,9 +180,11 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 1. Read `references/phases/{phase}.md` to get the prompt template.
 2. Read `topology.md` to get the customized role for this Phase, replacing the default description after `<!-- DEFAULT_ROLE -->` in the template.
 3. Read required context files and concatenate into a complete subagent prompt.
-4. Dispatch the subagent via the Agent tool.
-5. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to Process Output on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
-6. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
+4. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_dispatch {phase} "$ROUND" subagent:{phase} '{...}'` — store the returned event ID.
+5. Dispatch the subagent via the Agent tool.
+6. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_return {phase} "$ROUND" subagent:{phase} '{...}'` — include `parent_id` from step 4 and `validation_result`.
+7. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to Process Output on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
+8. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
 
 > The files under `references/phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
 
@@ -302,7 +306,7 @@ After retro finishes:
 | `scripts/state.sh` | Reads/Updates state.md fields | Every state change |
 | `scripts/merge-parallel.sh` | Merges parallel implement outputs | After parallel implement |
 | `references/expert-review.md` | Expert role library, subagent prompt template, synthesis report format | Design phase Steps 3-5 |
-| `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 5) |
+| `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 7) |
 | `docs/TRACE_SPEC.md` (repo root) | Trace protocol specification, event schema, integration guide | When emitting trace events |
-| `scripts/trace.sh` (repo root) | Emits a trace event to trace.jsonl | Every state transition |
-| `scripts/dashboard.sh` (repo root) | Starts/stops the real-time visualization dashboard | Startup (optional) and retro |
+| `scripts/trace.sh` (repo root — resolve via `git rev-parse --show-toplevel`) | Emits a trace event to trace.jsonl | Every state transition (Phase Invocation Flow steps 4 & 6) |
+| `scripts/dashboard.sh` (repo root — resolve via `git rev-parse --show-toplevel`) | Starts/stops the real-time visualization dashboard | Startup (Dashboard Prompt) and retro |
