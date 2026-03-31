@@ -1,10 +1,14 @@
 ---
 name: surge
-version: "1.0.0"
+version: "1.0.1"
 description: "Use when a user provides a PRD, spec, or detailed requirements document and needs a full project delivered through iterative expert orchestration — multi-round analyze/research/design/implement/QA cycles with convergence detection. NOT for: single-file edits, quick prototypes, simple Q&A, or tasks without a written spec."
 author: carbonshow
 tags: [orchestration, prd, delivery, multi-agent]
 platforms: [claude, cursor, gemini]
+trace:
+  steps: [analyze, research, design, implement, qa, retro]
+  topology: cyclic
+  max_rounds: 5
 ---
 
 # surge
@@ -80,6 +84,84 @@ flowchart LR
 
 **Fast Startup**: If the user's intent is clear and the PRD is sufficient, steps 3-5 can be combined into a one-time display for the user to confirm at once. **However, `surge_root` (Step 1) and deliverable paths (`project_root` / `output_dir` in Step 4) MUST be explicitly asked—never silently use defaults.**
 
+#### Dashboard Prompt (after Step 2, before entering Main Loop)
+
+**After init.sh completes, the Director MUST ask the user:**
+
+> "Would you like to enable the real-time visualization dashboard? (y/n)"
+
+If yes:
+```bash
+bash <repo_root>/scripts/dashboard.sh start "${TASK_DIR}" --skill-dir "${SURGE_SKILL_DIR}"
+```
+
+The dashboard is a read-only observer — surge runs identically with or without it. The Director stops the dashboard during the retro phase or on task termination:
+```bash
+bash <repo_root>/scripts/dashboard.sh stop "${TASK_DIR}"
+```
+
+> **Path resolution for `<repo_root>`**: This refers to the **git repository root** of the intent-fluid project (the parent of the `scripts/` directory containing `trace.sh`, `dashboard.sh`, `dashboard-server.js`). Resolve it at startup by running `git rev-parse --show-toplevel` or by traversing upward from the skill directory. Store the resolved absolute path as `repo_root` alongside `surge_root` and `task_dir`.
+
+#### Execution Trace Protocol
+
+After EVERY state transition, the Director MUST emit a trace event by calling the framework-level `trace.sh` script. The trace file path is `{task_dir}/trace.jsonl`, created during `init.sh`.
+
+```bash
+bash <repo_root>/scripts/trace.sh <task_dir>/trace.jsonl surge <type> <step> <round> <agent> [detail_json]
+```
+
+**Mandatory emission points** (the Director already performs actions at these points — tracing is an additional append):
+
+| Moment | Event Type | Step | Existing Action Being Augmented |
+|--------|------------|------|---------------------------------|
+| Startup steps 1-5 complete | `step_start` / `step_end` | `startup` | Writing state.md, topology.md, etc. |
+| Before dispatching each subagent | `agent_dispatch` | current phase | Reading phase template + assembling prompt |
+| After subagent returns | `agent_return` | current phase | Output Integrity Validation (step 5) |
+| After validation result | `step_end` | current phase | Process Output (step 6) |
+| QA conclusion processing | `decision` | `qa` | Updating state.md fields |
+| Convergence check | `checkpoint` | `qa` | Deciding continue/stop |
+| Error/retry | `error` | current phase | Phase Failure Handling |
+
+**Detail JSON examples:**
+
+```bash
+# Step start
+bash scripts/trace.sh "$TRACE_FILE" surge step_start analyze "$ROUND" director \
+  '{"input_files":["context.md","topology.md"],"tags":["iteration_type:full"]}'
+
+# Agent dispatch
+bash scripts/trace.sh "$TRACE_FILE" surge agent_dispatch analyze "$ROUND" subagent:analyze \
+  "{\"parent_id\":\"$STEP_START_ID\",\"input_files\":[\"context.md\"]}"
+
+# Agent return with validation
+bash scripts/trace.sh "$TRACE_FILE" surge agent_return analyze "$ROUND" subagent:analyze \
+  "{\"parent_id\":\"$STEP_START_ID\",\"output_files\":[\"iterations/iter_01_analyze.md\"],\"validation_result\":\"PASS\"}"
+
+# QA decision
+bash scripts/trace.sh "$TRACE_FILE" surge decision qa "$ROUND" director \
+  '{"decision":"continue","tags":["eval_level:L1+L2","convergence:unconverged"]}'
+```
+
+The Director should store the returned event ID (printed to stdout by `trace.sh`) and pass it as `parent_id` for child events within the same step.
+
+#### Status Announcement Protocol
+
+Before each major action, the Director MUST print a status line to the user. This provides real-time progress indication during long-running operations and is emitted alongside the trace event.
+
+**Format**: `{emoji} [{step}] {status_description}`
+
+**Mandatory status announcements:**
+
+| Moment | Status Line |
+|--------|-------------|
+| Before dispatching subagent | `⚡ [analyze] Dispatching subagent — analyzing requirements...` |
+| Subagent returned, validating | `🔍 [analyze] Subagent returned — validating output integrity...` |
+| Validation passed, showing output | `📋 [analyze] Validation passed — processing results...` |
+| QA decision made | `🎯 [qa] Conclusion: Pass-Optimizable — evaluating convergence...` |
+| Starting new iteration | `🔄 [iter 2] Starting iteration 2 (full cycle)...` |
+| Convergence detected | `✅ [convergence] All criteria met — preparing completion review...` |
+| Error/retry | `⚠️ [implement] SEVERE_TRUNCATION detected — retrying with scope reduction...` |
+
 **Rules Loading**: After Startup completes and before entering the Main Iteration Loop, the Director MUST read `{surge_root}/rules.md` into active context. This file contains NEVER/ALWAYS/PREFER constraints that act as guardrails throughout execution. If the file does not exist (e.g., `init.sh` was skipped), copy from `assets/rules.md` first.
 
 ### Main Iteration Loop
@@ -98,9 +180,11 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 1. Read `references/phases/{phase}.md` to get the prompt template.
 2. Read `topology.md` to get the customized role for this Phase, replacing the default description after `<!-- DEFAULT_ROLE -->` in the template.
 3. Read required context files and concatenate into a complete subagent prompt.
-4. Dispatch the subagent via the Agent tool.
-5. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to Process Output on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
-6. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
+4. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_dispatch {phase} "$ROUND" subagent:{phase} '{...}'` — store the returned event ID.
+5. Dispatch the subagent via the Agent tool.
+6. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_return {phase} "$ROUND" subagent:{phase} '{...}'` — include `parent_id` from step 4 and `validation_result`.
+7. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to Process Output on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
+8. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
 
 > The files under `references/phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
 
@@ -222,4 +306,7 @@ After retro finishes:
 | `scripts/state.sh` | Reads/Updates state.md fields | Every state change |
 | `scripts/merge-parallel.sh` | Merges parallel implement outputs | After parallel implement |
 | `references/expert-review.md` | Expert role library, subagent prompt template, synthesis report format | Design phase Steps 3-5 |
-| `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 5) |
+| `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 7) |
+| `docs/TRACE_SPEC.md` (repo root) | Trace protocol specification, event schema, integration guide | When emitting trace events |
+| `scripts/trace.sh` (repo root — resolve via `git rev-parse --show-toplevel`) | Emits a trace event to trace.jsonl | Every state transition (Phase Invocation Flow steps 4 & 6) |
+| `scripts/dashboard.sh` (repo root — resolve via `git rev-parse --show-toplevel`) | Starts/stops the real-time visualization dashboard | Startup (Dashboard Prompt) and retro |

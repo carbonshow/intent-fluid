@@ -1,6 +1,6 @@
 {
   "name": "intent-fluid",
   "description": "Transforming human intent into autonomous execution with AI Skills.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "contextFileName": "GEMINI.md"
 }

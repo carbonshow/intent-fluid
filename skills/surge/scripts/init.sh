@@ -6,22 +6,38 @@ set -euo pipefail
 
 # --- Usage ---
 usage() {
-    echo "Usage: bash scripts/init.sh <surge_root> <task_id>"
+    echo "Usage: bash scripts/init.sh [--force] <surge_root> <task_id>"
     echo ""
     echo "Arguments:"
     echo "  surge_root  surge workspace directory (e.g., .surge)"
     echo "  task_id     task identifier (e.g., 20260319-abc1)"
     echo ""
+    echo "Options:"
+    echo "  --force     Re-initialize an existing task directory (only creates missing files,"
+    echo "              never overwrites existing ones). Useful for recovering from partial init."
+    echo ""
     echo "Example: bash scripts/init.sh .surge 20260319-abc1"
+    echo "         bash scripts/init.sh --force .surge 20260319-abc1"
     exit 1
 }
 
-if [[ $# -ne 2 ]]; then
+# Parse --force flag
+FORCE=false
+POSITIONAL=()
+for arg in "$@"; do
+    if [[ "$arg" == "--force" ]]; then
+        FORCE=true
+    else
+        POSITIONAL+=("$arg")
+    fi
+done
+
+if [[ ${#POSITIONAL[@]} -ne 2 ]]; then
     usage
 fi
 
-SURGE_ROOT="$1"
-TASK_ID="$2"
+SURGE_ROOT="${POSITIONAL[0]}"
+TASK_ID="${POSITIONAL[1]}"
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TASK_DIR="${SURGE_ROOT}/tasks/${TASK_ID}"
 
@@ -39,9 +55,16 @@ fi
 
 # Check if task directory already exists
 if [[ -d "$TASK_DIR" ]]; then
-    echo "Warning: task directory already exists: ${TASK_DIR}" >&2
-    echo "Skipping initialization to avoid overwriting existing data." >&2
-    exit 1
+    if [[ "$FORCE" == true ]]; then
+        echo "Re-initializing existing task directory (--force mode)..."
+        echo "  Only missing files will be created; existing files are preserved."
+    else
+        echo "Warning: task directory already exists: ${TASK_DIR}" >&2
+        echo "Skipping initialization to avoid overwriting existing data." >&2
+        echo "" >&2
+        echo "Hint: use --force to safely re-initialize (creates missing files only)." >&2
+        exit 1
+    fi
 fi
 
 echo "Initializing Context Package..."
@@ -64,8 +87,9 @@ else
     echo "  - rules.md already exists, skipping copy"
 fi
 
-# Generate state.md with default values
-cat > "${TASK_DIR}/state.md" << EOF
+# Generate state.md with default values (skip if exists in --force mode)
+if [[ ! -f "${TASK_DIR}/state.md" ]]; then
+    cat > "${TASK_DIR}/state.md" << EOF
 task_id: "${TASK_ID}"
 surge_root: "${SURGE_ROOT}"
 current_phase: analyze
@@ -87,19 +111,42 @@ expert_roles: []
 design_checkpoint: null
 expert_review_summary: null
 EOF
-echo "  ✓ Generated state.md"
+    echo "  ✓ Generated state.md"
+else
+    echo "  - state.md already exists, skipping"
+fi
 
-# Create empty context.md
-touch "${TASK_DIR}/context.md"
-echo "  ✓ Created context.md"
+# Create empty context.md (skip if exists)
+if [[ ! -f "${TASK_DIR}/context.md" ]]; then
+    touch "${TASK_DIR}/context.md"
+    echo "  ✓ Created context.md"
+else
+    echo "  - context.md already exists, skipping"
+fi
 
-# Create empty memory_draft.md
-touch "${TASK_DIR}/memory_draft.md"
-echo "  ✓ Created memory_draft.md"
+# Create empty memory_draft.md (skip if exists)
+if [[ ! -f "${TASK_DIR}/memory_draft.md" ]]; then
+    touch "${TASK_DIR}/memory_draft.md"
+    echo "  ✓ Created memory_draft.md"
+else
+    echo "  - memory_draft.md already exists, skipping"
+fi
 
-# Create empty test_cases.md
-touch "${TASK_DIR}/test_cases.md"
-echo "  ✓ Created test_cases.md"
+# Create empty trace.jsonl for execution tracing (skip if exists)
+if [[ ! -f "${TASK_DIR}/trace.jsonl" ]]; then
+    touch "${TASK_DIR}/trace.jsonl"
+    echo "  ✓ Created trace.jsonl"
+else
+    echo "  - trace.jsonl already exists, skipping"
+fi
+
+# Create empty test_cases.md (skip if exists)
+if [[ ! -f "${TASK_DIR}/test_cases.md" ]]; then
+    touch "${TASK_DIR}/test_cases.md"
+    echo "  ✓ Created test_cases.md"
+else
+    echo "  - test_cases.md already exists, skipping"
+fi
 
 echo ""
 echo "Directory Structure:"
@@ -111,6 +158,7 @@ echo "    └── ${TASK_ID}/"
 echo "        ├── state.md"
 echo "        ├── context.md"
 echo "        ├── memory_draft.md"
+echo "        ├── trace.jsonl"
 echo "        ├── test_cases.md"
 echo "        └── iterations/"
 echo "            └── .gitkeep"

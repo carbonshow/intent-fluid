@@ -6,13 +6,20 @@ set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 errors=0
+warnings=0
 
 fail() {
   echo -e "${RED}FAIL${NC}: $1"
   errors=$((errors + 1))
+}
+
+warn() {
+  echo -e "${YELLOW}WARN${NC}: $1"
+  warnings=$((warnings + 1))
 }
 
 pass() {
@@ -130,11 +137,79 @@ if [[ -n "$DESCRIPTION" ]]; then
 fi
 
 # ── Summary ─────────────────────────────────────────
+
+# ── 11. Validate trace frontmatter (non-blocking) ────
+# Uses Node.js for YAML-like parsing of the trace block
+if echo "$FRONTMATTER" | grep -qE '^trace:'; then
+  if command -v node &>/dev/null; then
+    node -e '
+const frontmatter = process.argv[1];
+const lines = frontmatter.split("\n");
+let inTrace = false;
+let traceLines = [];
+for (const line of lines) {
+  if (/^trace:/.test(line)) { inTrace = true; continue; }
+  if (inTrace) {
+    if (/^[a-z]/.test(line)) break; // next top-level field
+    traceLines.push(line);
+  }
+}
+const traceBlock = traceLines.join("\n");
+
+// Check steps
+const stepsMatch = traceBlock.match(/steps:\s*\[([^\]]*)\]/);
+if (!stepsMatch || stepsMatch[1].trim().length === 0) {
+  console.log("WARN:trace.steps is empty or missing");
+} else {
+  console.log("PASS:trace.steps declared");
+}
+
+// Check topology
+const topoMatch = traceBlock.match(/topology:\s*(\S+)/);
+if (!topoMatch) {
+  console.log("WARN:trace.topology is missing");
+} else {
+  const topo = topoMatch[1].replace(/["\x27]/g, "");
+  if (!["linear", "cyclic", "dag"].includes(topo)) {
+    console.log("WARN:trace.topology has invalid value: " + topo + " (expected: linear|cyclic|dag)");
+  } else {
+    console.log("PASS:trace.topology is valid: " + topo);
+  }
+}
+
+// Check max_rounds if present
+const roundsMatch = traceBlock.match(/max_rounds:\s*(\S+)/);
+if (roundsMatch) {
+  const val = parseInt(roundsMatch[1], 10);
+  if (isNaN(val) || val < 1) {
+    console.log("WARN:trace.max_rounds must be a positive integer, got: " + roundsMatch[1]);
+  } else {
+    console.log("PASS:trace.max_rounds is valid: " + val);
+  }
+}
+' "$FRONTMATTER" | while IFS=: read -r level msg; do
+      if [[ "$level" == "WARN" ]]; then
+        warn "$msg"
+      elif [[ "$level" == "PASS" ]]; then
+        pass "$msg"
+      fi
+    done
+  else
+    warn "trace field found but Node.js not available for validation"
+  fi
+else
+  pass "No trace field (optional)"
+fi
+
+# ── Summary ─────────────────────────────────────────
 echo ""
-if [[ $errors -eq 0 ]]; then
+if [[ $errors -eq 0 && $warnings -eq 0 ]]; then
   echo -e "${GREEN}All checks passed for '$DIR_NAME'${NC}"
   exit 0
+elif [[ $errors -eq 0 ]]; then
+  echo -e "${GREEN}All checks passed for '$DIR_NAME'${NC} (${YELLOW}$warnings warning(s)${NC})"
+  exit 0
 else
-  echo -e "${RED}$errors check(s) failed for '$DIR_NAME'${NC}"
+  echo -e "${RED}$errors check(s) failed for '$DIR_NAME'${NC}$(if [[ $warnings -gt 0 ]]; then echo " (${YELLOW}$warnings warning(s)${NC})"; fi)"
   exit 1
 fi

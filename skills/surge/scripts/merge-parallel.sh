@@ -27,6 +27,12 @@ ITER_DIR="${TASK_DIR}/iterations"
 # Validate task directory
 if [[ ! -d "$ITER_DIR" ]]; then
     echo "Error: iterations directory does not exist: ${ITER_DIR}" >&2
+    echo "" >&2
+    echo "Hint: the first argument should be the task directory (containing iterations/)," >&2
+    echo "  not the iterations directory itself." >&2
+    echo "" >&2
+    echo "  Correct:  merge-parallel.sh .surge/tasks/my-task 1" >&2
+    echo "  Wrong:    merge-parallel.sh .surge/tasks/my-task/iterations iter_01_implement" >&2
     exit 1
 fi
 

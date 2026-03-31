@@ -27,6 +27,7 @@ notes: ""                               # string  — Free-form notes
 expert_roles: []                       # array   — Current task's expert role list (e.g., ["Backend Architect", "Security Expert"])
 design_checkpoint: null                # string? — Design phase progress: candidates_shown / experts_confirmed / review_done / design_confirmed
 expert_review_summary: null            # string? — Path to latest expert review synthesis report
+trace_file: null                       # string? — Path to trace.jsonl for execution tracing (set by Director after init)
 ```
 
 ---
@@ -175,6 +176,12 @@ expert_review_summary: null            # string? — Path to latest expert revie
   - Fail (any deviation level): Reset to `null`
   - Pass-Converged: Frozen with final value
 - **Description**: Absolute path to the latest expert review synthesis report. Used by the Director to reference expert recommendations during detailed design.
+
+### trace_file
+- **Type**: string | null
+- **Default**: `null`
+- **Update Timing**: Set by the Director after `init.sh` completes, pointing to `{task_dir}/trace.jsonl`. Immutable after creation.
+- **Description**: Absolute path to the JSONL trace file for execution flow tracking. Used by the framework-level `trace.sh`, `trace-export.sh`, and `dashboard.sh` scripts. See `docs/TRACE_SPEC.md` for the trace protocol specification.
 
 ---
 

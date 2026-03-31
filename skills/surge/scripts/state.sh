@@ -40,7 +40,16 @@ STATE_FILE="$2"
 
 # Validate state file exists
 if [[ ! -f "$STATE_FILE" ]]; then
-    echo "Error: state file does not exist: ${STATE_FILE}" >&2
+    # Detect common mistake: swapped subcommand and file arguments
+    if [[ "$STATE_FILE" =~ ^(get|set|increment|show)$ ]]; then
+        echo "Error: it looks like you swapped the subcommand and file path." >&2
+        echo "  You wrote:  state.sh $SUBCMD $STATE_FILE ..." >&2
+        echo "  Correct:    state.sh $STATE_FILE $SUBCMD ..." >&2
+        echo "" >&2
+        echo "Usage: bash scripts/state.sh <subcommand> <state_file> [field] [value]" >&2
+    else
+        echo "Error: state file does not exist: ${STATE_FILE}" >&2
+    fi
     exit 1
 fi
 
