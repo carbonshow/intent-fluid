@@ -18,8 +18,8 @@
 ## 🎬 See Surge In Action
 
 <p align="center">
-  <video src="assets/videos/surge-demo.mp4" width="100%" controls autoplay muted>
-    Your browser does not support the video tag. <a href="assets/videos/surge-demo.mp4">Download the demo video</a>.
+  <video src="https://github.com/user-attachments/assets/0626b8eb-4cdc-4ce5-aec9-3bc9ac3ff1c9" width="100%" controls autoplay muted>
+    Your browser does not support the video tag. <a href="https://github.com/user-attachments/assets/0626b8eb-4cdc-4ce5-aec9-3bc9ac3ff1c9">Download the demo video</a>.
   </video>
 </p>
 
