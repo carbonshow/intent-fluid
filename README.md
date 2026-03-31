@@ -15,6 +15,18 @@
 
 ---
 
+## 🎬 See Surge In Action
+
+<p align="center">
+  <video src="assets/videos/surge-demo.mp4" width="100%" controls autoplay muted>
+    Your browser does not support the video tag. <a href="assets/videos/surge-demo.mp4">Download the demo video</a>.
+  </video>
+</p>
+
+> **One PRD in → complete deliverables out.** Watch Surge autonomously iterate through Analyze → Research → Design → Implement → QA until quality converges.
+
+---
+
 ## ⚡ The Difference
 
 <p align="center">
