@@ -1,0 +1,14 @@
+{
+  "name": "slidev-runner",
+  "private": true,
+  "description": "Slidev 运行环境 — 供 slidev skill 专用，不要手动修改",
+  "scripts": {
+    "dev": "slidev",
+    "export": "slidev export",
+    "build": "slidev build"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.14.2",
+    "@slidev/theme-default": "^0.25.0"
+  }
+}

@@ -1,0 +1,54 @@
+/* Slidev Starter Template Style
+ * Created: 2026-04-15
+ * Tested with: Slidev ^0.49.x
+ * Chinese Font: NotoSansSC
+ *   Place font files in public/fonts/ before first use.
+ *   Download from: https://fonts.google.com/noto/specimen/Noto+Sans+SC
+ *   Required files: NotoSansSC-Regular.woff2, NotoSansSC-Bold.woff2
+ */
+
+/* ── Chinese Font Declaration ── */
+@font-face {
+  font-family: 'NotoSansSC';
+  src: url('/fonts/NotoSansSC-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoSansSC';
+  src: url('/fonts/NotoSansSC-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* ── Color Tokens (Deep Navy palette) ── */
+/* NOTE: Values are inlined here intentionally — no cross-tool variable sync */
+:root {
+  --color-primary: #1E3A5F;   /* Deep Navy */
+  --color-accent: #3B7DD8;    /* Accent Blue */
+  --color-text: #1A1A2E;      /* Near-black text */
+  --color-bg: #FFFFFF;
+  --color-muted: #6B7280;
+}
+
+/* ── Base Font Apply ── */
+.slidev-layout {
+  font-family: 'NotoSansSC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+  color: var(--color-text);
+}
+
+/* ── Heading Colors ── */
+.slidev-layout h1 {
+  color: var(--color-primary);
+}
+
+.slidev-layout h2,
+.slidev-layout h3 {
+  color: var(--color-accent);
+}
+
+/* ── Code Block ── */
+.slidev-layout .shiki {
+  border-radius: 6px;
+}

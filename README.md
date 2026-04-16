@@ -91,6 +91,7 @@ git clone https://github.com/carbonshow/intent-fluid.git
 | Skill | Description |
 |-------|-------------|
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
+| [slidev](skills/slidev/) | Create and export professional presentations using Markdown, Vue 3 components, animations, and interactive elements. Perfect for technical talks, reports, and product demos. |
 
 ### Creating a New Skill
 
