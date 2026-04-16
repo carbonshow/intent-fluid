@@ -107,7 +107,17 @@ tag instead.
 
 ### Step 1: Initialize Presentation
 
-Ask the user about the topic and where to create the presentation. Then run:
+Before creating the presentation, confirm two things with the user:
+
+1. **Output directory** — where to create the presentation files. Suggest a
+   reasonable default based on context (e.g., `./presentations/<topic>/` for
+   standalone decks, or `./docs/slides/` if inside an existing project).
+2. **Language** — what language the slides should use. If the user does not
+   specify, infer from the source material: if the input content is primarily
+   in Chinese, write the slides in Chinese; if in English, use English; for
+   mixed content, follow the dominant language. When in doubt, ask.
+
+Then run:
 
 ```bash
 bash "$SKILL_ROOT/scripts/new-presentation.sh" <target_dir> \
@@ -121,7 +131,9 @@ Options:
 - `--force` — overwrites an existing directory.
 
 The script copies the starter template, substitutes title/date/author, creates
-the `public/fonts/` directory, and ensures the shared runner is ready.
+the `public/fonts/` directory, symlinks the shared runner's `node_modules` into
+the target directory (so Slidev can find Mermaid, themes, and other plugins),
+and ensures the runner is ready.
 
 ### Step 2: Design Content
 
@@ -274,7 +286,7 @@ bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
 | Step-by-step reveal | `<v-click>content</v-click>` | Click to show next item |
 | Text highlighting | `<v-mark type="underline\|circle\|box\|highlight">text</v-mark>` | Visual emphasis on click |
 | Code line highlight | ` ```ts {1\|3-4\|all} ` | Step through highlighted lines |
-| Code animation | ` ````magic-move ` blocks | Smooth code transitions (>= 0.48) |
+| Code animation | ` ````md magic-move ` blocks | Smooth code transitions (>= 0.48) |
 | Vue components | `<script setup>` + template | Full Vue 3 reactivity |
 | Two-column layout | `<div class="grid grid-cols-2 gap-4">` | Tailwind CSS available |
 | Presenter notes | `<!-- note text -->` | Hidden from audience |

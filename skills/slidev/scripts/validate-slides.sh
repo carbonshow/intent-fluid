@@ -176,9 +176,9 @@ for TAG in "v-click" "v-mark"; do
 done
 
 # ── Check 9: Paired magic-move fences ───────────────────────────────────────
-# Magic-move uses 4-backtick fences (````magic-move ... ````). An unclosed fence
+# Magic-move uses 4-backtick fences (````md magic-move ... ````). An unclosed fence
 # causes Slidev to silently swallow all subsequent slides.
-MAGIC_OPEN=$(grep -c '````magic-move' "$SLIDES" 2>/dev/null || true)
+MAGIC_OPEN=$(grep -c '````md magic-move' "$SLIDES" 2>/dev/null || true)
 MAGIC_CLOSE=$(grep -cE '^````\s*$' "$SLIDES" 2>/dev/null || true)
 if [[ "$MAGIC_OPEN" -eq 0 ]]; then
   pass "No magic-move blocks (nothing to check)"

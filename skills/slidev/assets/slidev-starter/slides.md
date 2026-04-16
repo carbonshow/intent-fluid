@@ -106,7 +106,7 @@ layout: default
 
 Magic Move smoothly animates transitions between code snippets — perfect for showing evolution or refactoring:
 
-````magic-move
+````md magic-move
 ```typescript
 // Step 1: Initial version
 function add(a, b) {

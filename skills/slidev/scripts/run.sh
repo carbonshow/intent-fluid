@@ -81,6 +81,24 @@ if [[ ! -d "$THEME" ]]; then
   exit 1
 fi
 
+# ── Ensure node_modules symlink in slides directory ─────────────────────────
+# Slidev resolves dependencies from the entry file's directory, not from CWD.
+# A symlink to the shared runner's node_modules ensures Mermaid, themes, and
+# other plugins are found without per-project npm install.
+SLIDES_DIR="$(dirname "$SLIDES_ABS")"
+RUNNER_ABS="$(cd "$RUNNER" && pwd)"
+TARGET_MODULES="$SLIDES_DIR/node_modules"
+if [[ ! -L "$TARGET_MODULES" ]] && [[ ! -d "$TARGET_MODULES" ]]; then
+  ln -s "$RUNNER_ABS/node_modules" "$TARGET_MODULES"
+elif [[ -L "$TARGET_MODULES" ]]; then
+  # Refresh if symlink points to wrong location
+  CURRENT_TARGET="$(readlink "$TARGET_MODULES")"
+  if [[ "$CURRENT_TARGET" != "$RUNNER_ABS/node_modules" ]]; then
+    rm "$TARGET_MODULES"
+    ln -s "$RUNNER_ABS/node_modules" "$TARGET_MODULES"
+  fi
+fi
+
 # ── Playwright check for export ──────────────────────────────────────────────
 if [[ "$COMMAND" == "export" ]]; then
   if ! npx playwright --version &>/dev/null; then
@@ -99,7 +117,9 @@ if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then
 fi
 echo ""
 
-cd "$RUNNER"
+# Run from the slides directory so Vite cache stays local (not in ancestor dirs).
+# The node_modules symlink ensures all dependencies are found.
+cd "$SLIDES_DIR"
 
 case "$COMMAND" in
   dev)

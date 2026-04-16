@@ -163,6 +163,29 @@ if [[ ! -d "$RUNNER/node_modules/@slidev/cli" ]]; then
   echo ""
 fi
 
+# ── Link runner node_modules into target ─────────────────────────────────────
+# Slidev resolves dependencies from the entry file's directory, not from CWD.
+# Without this symlink, features like Mermaid diagrams, themes, and plugins
+# cannot be found, and Vite may pollute ancestor directories with cache files.
+RUNNER_ABS="$(cd "$RUNNER" && pwd)"
+TARGET_MODULES="$TARGET_DIR/node_modules"
+if [[ -L "$TARGET_MODULES" ]]; then
+  rm "$TARGET_MODULES"
+fi
+ln -s "$RUNNER_ABS/node_modules" "$TARGET_MODULES"
+
+# Create a minimal package.json to anchor Vite's project root detection.
+# Without this, Vite walks up the directory tree looking for a package.json
+# and may create .vite cache directories in ancestor projects.
+if [[ ! -f "$TARGET_DIR/package.json" ]]; then
+  cat > "$TARGET_DIR/package.json" << 'PKG_EOF'
+{
+  "private": true,
+  "description": "Slidev presentation — managed by slidev skill"
+}
+PKG_EOF
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 TARGET_ABS="$(cd "$TARGET_DIR" && pwd)"
 echo "Presentation created at: $TARGET_ABS"

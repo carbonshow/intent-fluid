@@ -199,7 +199,7 @@ fi
 # Check for closing slide (last slide contains common closing patterns)
 LAST_SLIDE="$CURRENT_SLIDE"
 HAS_CLOSING=false
-if echo "$LAST_SLIDE" | grep -qiE '(thank|questions|discussion|Q&A|the end|summary|recap|conclusion|takeaway)'; then
+if echo "$LAST_SLIDE" | grep -qiE '(thank|questions|discussion|Q&A|the end|summary|recap|conclusion|takeaway|谢谢|感谢|提问|讨论|总结|回顾|ありがとう|danke|merci|gracias)'; then
   HAS_CLOSING=true
 fi
 

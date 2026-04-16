@@ -125,7 +125,7 @@ Syntax: `{1|2-3|all}` — pipe-separated ranges, each click advances to the next
 Smooth character-level animation between code snapshots. Requires Slidev >= 0.48:
 
 ````markdown
-```magic-move
+````md magic-move
 ```typescript
 // Step 1: Initial version
 function add(a, b) {
