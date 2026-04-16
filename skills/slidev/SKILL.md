@@ -11,7 +11,7 @@ author: carbonshow
 tags: [presentation, slidev, slides, export, markdown]
 platforms: [claude, cursor, gemini]
 trace:
-  steps: [prepare, develop, validate, review, export]
+  steps: [prepare, strategize, develop, validate, review, export]
   topology: linear
   max_rounds: 1
 ---
@@ -169,7 +169,30 @@ the `public/fonts/` directory, symlinks the shared runner's `node_modules` into
 the target directory (so Slidev can find Mermaid, themes, and other plugins),
 and ensures the runner is ready.
 
-### Step 2: Design Content
+### Step 2: Content Strategy
+
+Before writing any slides, analyze the source material and produce a design brief.
+This prevents the most common failure mode: creating a faithful text dump of the
+source instead of an effective presentation.
+
+If the user provides a document, directory, or URL as source material, read it
+and assess across five dimensions:
+
+1. **Audience** — who will see this? (technical peers / executives / students / general)
+2. **Purpose** — what should the audience do after? (inform / persuade / teach / report)
+3. **Key messages** — the 3-5 things the audience must remember
+4. **Visual strategy** — mix of slide types (text, diagram, code, image, table)
+5. **Pacing** — estimated slide count and rhythm (deep dives, breathers, transitions)
+
+Then produce a **design brief** with an outline table (one row per slide) and
+show it to the user. Wait for confirmation or adjustments before writing slides.
+If the user's intent is simple enough ("just make it quick"), you can propose the
+brief and proceed without waiting, but always show the brief.
+
+> For the full analysis framework, design brief template, and pacing guidelines,
+> read `references/content-strategy.md`.
+
+### Step 3: Write Content
 
 This is the most important step. Edit `slides.md` based on the user's materials.
 
@@ -190,9 +213,11 @@ This is the most important step. Edit `slides.md` based on the user's materials.
 > For detailed content design principles (narrative arcs, audience adaptation,
 > when to use code vs diagrams, visual hierarchy), read `references/content-design.md`.
 
+> For the design brief template and analysis framework, read `references/content-strategy.md`.
+
 > For frontmatter options beyond the essentials, read `references/frontmatter-guide.md`.
 
-### Step 3: Validate
+### Step 4: Validate
 
 Run structural validation before previewing or exporting:
 
@@ -206,7 +231,7 @@ This checks all Critical Gotchas automatically: frontmatter integrity, `colorSch
 > If validation fails, read `references/troubleshooting.md` for solutions to
 > common issues.
 
-### Step 4: Review Quality
+### Step 5: Review Quality
 
 Run the quality review to catch content-level issues that validation does not cover:
 
@@ -225,7 +250,7 @@ pipelines.
 
 **After fixing issues**, re-run both validate and review to confirm improvements.
 
-### Step 5: Run & Export
+### Step 6: Run & Export
 
 All commands use the centralized runner via `run.sh`:
 
