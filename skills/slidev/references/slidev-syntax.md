@@ -152,6 +152,53 @@ function add(a: number, b: number): number {
 
 Each click smoothly animates from one code block to the next.
 
+**Important**: Magic Move is for **code-only** transitions. It does not render
+Mermaid, PlantUML, or other diagram languages. Use ` ```mermaid ` for diagrams.
+
+---
+
+## Mermaid Diagrams
+
+Slidev has built-in Mermaid support. Use a standard fenced code block with the
+`mermaid` language identifier:
+
+```markdown
+```mermaid
+flowchart LR
+  A[Input] --> B[Process]
+  B --> C[Output]
+```
+```
+
+### Scaling
+
+Large diagrams can overflow the slide. Add `{scale: N}` to shrink:
+
+```markdown
+```mermaid {scale: 0.7}
+flowchart TB
+  A --> B --> C --> D
+```
+```
+
+### Supported Diagram Types
+
+- `flowchart LR` / `flowchart TB` — process flows (LR is more slide-friendly)
+- `sequenceDiagram` — API/interaction flows
+- `classDiagram` — class relationships
+- `erDiagram` — entity relationships
+- `gantt` — timelines
+- `pie` — proportions
+- `stateDiagram-v2` — state machines
+
+### Space Guidelines
+
+Slides cannot scroll. Keep Mermaid diagrams simple:
+- Prefer `flowchart LR` over `flowchart TB` (horizontal uses less height)
+- Limit to 6-8 nodes without subgraphs
+- Never combine a Mermaid diagram with a table or large image on the same slide
+- If the diagram is too complex, split across multiple slides
+
 ---
 
 ## Interactive Elements
@@ -251,6 +298,8 @@ Add notes visible only in presenter view using HTML comments:
 | Use `npx slidev` | Use `npx @slidev/cli` | No npm package named `slidev` |
 | Mix 3-backtick and 4-backtick fences in magic-move | Use 3-backtick for inner blocks, 4-backtick for the outer fence | Mismatched fences cause silent rendering failure |
 | Put `<script setup>` inside a `<v-click>` | Place `<script setup>` at the top of the slide, outside any wrapper | Vue script blocks must be at the top level |
+| Put Mermaid syntax inside magic-move | Use ` ```mermaid ` for diagrams, magic-move for code only | Magic-move does not render diagram languages |
+| Combine Mermaid diagram + table on one slide | Split into separate slides | Content overflows the fixed viewport |
 
 Run `bash scripts/validate-slides.sh <path>` to catch syntax and frontmatter errors automatically.
 See SKILL.md "Critical Gotchas" for the full list of known pitfalls.

@@ -83,8 +83,70 @@ Code slides are powerful in technical talks but risky in general ones:
 For code, use **line highlighting** (`{1|3-4|all}`) to guide focus. Never show
 a full code block and expect the audience to find the important part themselves.
 
-**Magic Move** is ideal for showing code evolution — refactoring, adding types,
-progressive enhancement. Use it instead of side-by-side comparisons.
+**Magic Move** (`````md magic-move`) is ideal for showing code evolution —
+refactoring, adding types, progressive enhancement. Use it instead of side-by-side
+comparisons. Important: Magic Move is **code-only**. It does not render Mermaid,
+PlantUML, or any other diagram language.
+
+## When to Use Mermaid Diagrams
+
+Mermaid diagrams (` ```mermaid `) are built into Slidev. Use them for:
+
+- **Flowcharts** — process flows, decision trees, system pipelines
+- **Sequence diagrams** — API call flows, user interactions
+- **Class/ER diagrams** — data models, architecture relationships
+
+**Diagram complexity limits** — slides have a fixed viewport (~980×552 px).
+A Mermaid diagram that exceeds half the slide height will push any content
+below it off-screen. The audience cannot scroll.
+
+| Diagram type | Safe complexity | Over-budget |
+|-------------|-----------------|-------------|
+| `flowchart LR` | 6-8 nodes, no subgraph | 10+ nodes, nested subgraph |
+| `flowchart TB` | 4-5 rows | 6+ rows |
+| `sequenceDiagram` | 4-5 participants, 8 messages | 6+ participants |
+
+When a diagram is too complex:
+1. **Simplify** — remove nodes that don't serve the slide's one idea
+2. **Scale down** — add `{scale: 0.7}` after ` ```mermaid `
+3. **Split** — show the overview on one slide, zoom into a section on the next
+4. **Use text** — if the diagram is hard to read at presentation scale, use
+   a bullet list or ASCII box art in a code block instead
+
+**Never combine** a Mermaid diagram with a table, a large image, or more than
+one sentence of text on the same slide.
+
+## Slide Space Budget
+
+Slides have a fixed, non-scrollable viewport. Every element competes for the
+same vertical space. Before adding content to a slide, mentally check:
+
+| Element | Approximate height budget |
+|---------|--------------------------|
+| Heading (h1) | ~60px |
+| Bullet point | ~30px per line |
+| Code block (5 lines) | ~150px |
+| Mermaid (simple LR) | ~180px |
+| Mermaid (with subgraph) | ~300px+ |
+| Image (w-full) | ~350px+ |
+| Table (3 rows) | ~120px |
+| v-click wrapper | ~10px overhead per block |
+
+**Total available**: ~480px below the heading. If your mental sum exceeds this,
+split into two slides. Splitting is always cheaper than an overflowed slide
+that the audience cannot see.
+
+Practical combos that fit one slide:
+- Heading + Mermaid (simple) + 1 sentence
+- Heading + image (w-3/5) + 1-2 bullets
+- Heading + code block + 1 v-click paragraph
+- Heading + table (4 rows) + 1 sentence
+
+Combos that will overflow:
+- Mermaid (subgraph) + bullet list
+- Image + table
+- Code block + table
+- Any two visual elements
 
 ## Visual Hierarchy
 

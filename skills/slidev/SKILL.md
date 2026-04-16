@@ -101,6 +101,40 @@ tag instead.
 </div>
 ```
 
+**4. Mermaid diagrams use ` ```mermaid `, not magic-move**
+
+Mermaid diagrams are rendered via ` ```mermaid ` fenced code blocks. Magic Move
+(` ````md magic-move `) is exclusively for animating transitions between **code
+snapshots** — it does not render Mermaid, PlantUML, or any other diagram language.
+If you put Mermaid syntax inside a magic-move block, it will display as raw text.
+
+```markdown
+<!-- BAD — Mermaid inside magic-move renders as raw text -->
+````md magic-move
+flowchart LR
+  A --> B
+````
+
+<!-- GOOD — standalone Mermaid block -->
+```mermaid
+flowchart LR
+  A --> B
+```
+```
+
+**5. One visual element per slide — no overflow**
+
+Slides have a fixed viewport (default 980×552 px). A Mermaid diagram, a large
+image, or a table each consume significant vertical space. Combining any two of
+these on one slide — or adding substantial text below a visual — will push content
+below the visible area. The audience cannot scroll.
+
+Rule of thumb for a single slide:
+- **Diagram + 1 sentence** — OK
+- **Diagram + bullet list** — will likely overflow; split into two slides
+- **Image + table** — will overflow; never combine
+- **Mermaid with subgraph** — use `{scale: 0.7}` or simpler layout (LR over TB)
+
 ---
 
 ## Workflow
@@ -286,7 +320,9 @@ bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
 | Step-by-step reveal | `<v-click>content</v-click>` | Click to show next item |
 | Text highlighting | `<v-mark type="underline\|circle\|box\|highlight">text</v-mark>` | Visual emphasis on click |
 | Code line highlight | ` ```ts {1\|3-4\|all} ` | Step through highlighted lines |
-| Code animation | ` ````md magic-move ` blocks | Smooth code transitions (>= 0.48) |
+| Code animation | ` ````md magic-move ` blocks | Code-only; not for Mermaid/diagrams |
+| Mermaid diagrams | ` ```mermaid ` blocks | Built-in; use `{scale: 0.7}` to shrink |
+| Images | `<img src="/file.png" class="w-3/5 mx-auto" />` | Files in `public/`; control size with Tailwind |
 | Vue components | `<script setup>` + template | Full Vue 3 reactivity |
 | Two-column layout | `<div class="grid grid-cols-2 gap-4">` | Tailwind CSS available |
 | Presenter notes | `<!-- note text -->` | Hidden from audience |
