@@ -1,5 +1,9 @@
 # Slidev Troubleshooting Guide
 
+> **Path convention**: Throughout this guide, `<skill-root>` refers to the directory
+> containing this skill's `SKILL.md` (e.g., the `skills/slidev/` directory).
+> Resolve it to an absolute path before use.
+
 ## Common Issues & Solutions
 
 ### Dev Server Issues
@@ -11,14 +15,16 @@ lsof -i :3030
 kill -9 <PID>
 
 # Then restart
-cd skills/slidev/runner && npx @slidev/cli /path/to/slides.md
+RUNNER="<skill-root>/assets/runner"
+cd "$RUNNER" && npx @slidev/cli /path/to/slides.md --theme "$RUNNER/node_modules/@slidev/theme-default"
 ```
 
 **Problem: "theme not found"**
 
-Ensure you're using absolute paths and pointing to the runner's theme:
+Ensure you are using absolute paths and pointing to the runner's theme:
 ```bash
-THEME="/Users/wenzhitao/Projects/github/intent-fluid/skills/slidev/runner/node_modules/@slidev/theme-default"
+RUNNER="<skill-root>/assets/runner"
+THEME="$RUNNER/node_modules/@slidev/theme-default"
 ```
 
 **Problem: Changes not auto-reloading**
@@ -44,12 +50,12 @@ This usually means `---` appeared inside an HTML block:
 </div>
 ```
 
-**Problem: Chinese characters showing as squares**
+**Problem: Custom font characters showing as squares**
 
-1. Check font files exist: `ls public/fonts/NotoSansSC-*.woff2`
+1. Check font files exist in your presentation's `public/fonts/` directory
 2. Verify `style.css` references correct font paths
 3. Fallback: System fonts will be used (less precise rendering)
-4. Download fonts from: https://fonts.google.com/noto/specimen/Noto+Sans+SC
+4. For CJK fonts, download from: https://fonts.google.com/noto/specimen/Noto+Sans+SC
 
 **Problem: v-click or v-mark not working**
 
@@ -70,7 +76,8 @@ npx playwright install chromium
 
 - Try basic export first (without `--with-clicks`):
   ```bash
-  cd skills/slidev/runner && npx @slidev/cli export /path/to/slides.md --theme /path/to/theme
+  RUNNER="<skill-root>/assets/runner"
+  cd "$RUNNER" && npx @slidev/cli export /path/to/slides.md --theme "$RUNNER/node_modules/@slidev/theme-default"
   ```
 - If that fails, check Playwright installation:
   ```bash
@@ -103,29 +110,26 @@ npm install -g npm  # Update npm
 which npm            # Check if it's in PATH
 ```
 
+### Runner Issues
+
+**Problem: Runner has no node_modules**
+
+Run the setup script:
+```bash
+bash <skill-root>/scripts/setup-runner.sh
+```
+
+This will install all dependencies. Requires Node.js >= 18.
+
 ## Frontmatter Validation
 
-The frontmatter must:
-1. Start with `---` on first line
-2. Have NO `---` separators inside it
-3. End with `---` on its own line
-4. Include `colorSchema: light`
+Run the validation script to catch all frontmatter issues automatically:
 
-```yaml
-# ✅ CORRECT
----
-title: My Presentation
-theme: default
-colorSchema: light
----
-
-# ❌ WRONG - has --- inside
----
-title: My Presentation
-# --- This breaks the frontmatter
-theme: default
----
+```bash
+bash <skill-root>/scripts/validate-slides.sh /path/to/slides.md
 ```
+
+See SKILL.md "Critical Gotchas" for the full list of known pitfalls.
 
 ## Performance
 
@@ -141,22 +145,15 @@ If presentations are slow:
 To see detailed output:
 
 ```bash
-cd skills/slidev/runner && DEBUG=* npx @slidev/cli /path/to/slides.md
-```
-
-Check `slides.md` syntax:
-```bash
-# Simple YAML validator
-cat /path/to/slides.md | head -20
-# First line must be ---
-# Should see frontmatter fields
+RUNNER="<skill-root>/assets/runner"
+cd "$RUNNER" && DEBUG=* npx @slidev/cli /path/to/slides.md
 ```
 
 ## When All Else Fails
 
-1. Try a minimal presentation (copy `assets/slidev-starter/slides.md`)
+1. Try a minimal presentation (copy `<skill-root>/assets/slidev-starter/slides.md`)
 2. Verify Node version: `node --version` should be >= 18
-3. Check runner is intact: `ls -la skills/slidev/runner/node_modules/@slidev/cli`
+3. Check runner is intact: `ls -la <skill-root>/assets/runner/node_modules/@slidev/cli`
 4. Restart terminal/shell completely
 5. Create a fresh presentation directory
 

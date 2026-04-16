@@ -1,29 +1,34 @@
 /* Slidev Starter Template Style
- * Created: 2026-04-15
- * Tested with: Slidev ^0.49.x
- * Chinese Font: NotoSansSC
- *   Place font files in public/fonts/ before first use.
- *   Download from: https://fonts.google.com/noto/specimen/Noto+Sans+SC
- *   Required files: NotoSansSC-Regular.woff2, NotoSansSC-Bold.woff2
+ * Deep Navy color palette with system font stack.
+ *
+ * CUSTOM FONTS
+ * To use web fonts (e.g., for CJK text), uncomment the @font-face blocks
+ * below, place the .woff2 files in your presentation's public/fonts/
+ * directory, and add the font name to the font-family list in .slidev-layout.
+ *
+ * Example — Noto Sans SC (Chinese):
+ *   1. Download woff2 from https://fonts.google.com/noto/specimen/Noto+Sans+SC
+ *   2. Place NotoSansSC-Regular.woff2 and NotoSansSC-Bold.woff2 in public/fonts/
+ *   3. Uncomment the @font-face blocks below
+ *   4. Add 'NotoSansSC' at the start of the font-family in .slidev-layout
  */
 
-/* ── Chinese Font Declaration ── */
+/* ── Uncomment for custom font ──────────────────────
 @font-face {
   font-family: 'NotoSansSC';
   src: url('/fonts/NotoSansSC-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
 }
-
 @font-face {
   font-family: 'NotoSansSC';
   src: url('/fonts/NotoSansSC-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
 }
+───────────────────────────────────────────────────── */
 
 /* ── Color Tokens (Deep Navy palette) ── */
-/* NOTE: Values are inlined here intentionally — no cross-tool variable sync */
 :root {
   --color-primary: #1E3A5F;   /* Deep Navy */
   --color-accent: #3B7DD8;    /* Accent Blue */
@@ -32,9 +37,10 @@
   --color-muted: #6B7280;
 }
 
-/* ── Base Font Apply ── */
+/* ── Base Font ── */
 .slidev-layout {
-  font-family: 'NotoSansSC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+               Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   color: var(--color-text);
 }
 

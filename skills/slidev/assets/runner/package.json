@@ -1,7 +1,7 @@
 {
   "name": "slidev-runner",
   "private": true,
-  "description": "Slidev 运行环境 — 供 slidev skill 专用，不要手动修改",
+  "description": "Shared Slidev runtime — managed by the slidev skill, do not edit manually",
   "scripts": {
     "dev": "slidev",
     "export": "slidev export",

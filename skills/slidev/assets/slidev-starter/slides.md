@@ -104,11 +104,9 @@ layout: default
 
 # Code Animation (Shiki Magic Move)
 
-Magic Move smoothly animates transitions between code snippets - perfect for showing evolution or refactoring.
-Use ````magic-move```` to wrap multiple code blocks:
+Magic Move smoothly animates transitions between code snippets — perfect for showing evolution or refactoring:
 
-````md
-```magic-move
+````magic-move
 ```typescript
 // Step 1: Initial version
 function add(a, b) {
@@ -130,10 +128,9 @@ function add(a: number, b: number): number {
   return a + b
 }
 ```
-```
 ````
 
-<!-- Each click transitions smoothly to next code snippet -->
+<!-- Each click transitions smoothly to next code snapshot -->
 
 ---
 layout: default

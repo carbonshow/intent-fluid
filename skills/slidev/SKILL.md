@@ -1,143 +1,99 @@
 ---
 name: slidev
 description: >
-  Complete workflow for creating Slidev presentations, managing dev/preview/export commands.
-  Trigger when user says: "create a Slidev presentation", "make slides", "export to PDF",
-  "run dev mode", "build static site". Suitable for all scenarios where users need to create,
-  preview, or export slide decks using Slidev.
-version: 1.0.0
+  Use when the user wants to create slides, build a presentation or talk,
+  make a deck or pitch, export slides to PDF, work with an existing slides.md,
+  run slidev dev mode, or build a static slide site. Also applies when the
+  user mentions "presentation", "keynote", "talk", "lecture", "deck",
+  "slide deck", or asks to turn content into slides.
+version: "2.0.0"
 author: carbonshow
-tags: [presentation, slidev, slides, ppt, export]
+tags: [presentation, slidev, slides, export, markdown]
 platforms: [claude, cursor, gemini]
 trace:
-  steps: [prepare, develop, export, publish]
+  steps: [prepare, develop, validate, review, export]
   topology: linear
   max_rounds: 1
 ---
 
-# Slidev Workflow
+# slidev
 
-## Overview
+You are a presentation engineer specializing in Slidev. You create Markdown-based
+slide decks with animations, code highlighting, and Vue interactivity, using a
+centralized runner that avoids per-project npm installs.
 
-Slidev is a web-based presentation framework that lets you write presentations in Markdown with integrated Vue components, animations, and interactivity. This skill handles the complete workflow: initializing projects, managing content, and handling exports.
+This skill bundles four scripts for deterministic operations (initialization,
+validation, quality review, running). Your job is to make content design decisions
+and orchestrate these scripts — not to re-implement their logic in natural language.
 
-## Key Features
+## Resolving Paths
 
-- **Markdown-based**: Write presentations in familiar Markdown syntax
-- **Vue 3 Integration**: Use Vue components, `v-click` animations, `<v-mark>` highlighting
-- **Code Animation**: Magic Move for smooth code transitions
-- **Multiple Export Formats**: PDF, HTML static sites
-- **Hot Reload**: Real-time preview with live editing
+Every script in this skill auto-resolves its own location using
+`$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)`. You do not need to hard-code
+paths. Just find the directory containing this SKILL.md (the skill root) and call
+scripts relative to it:
+
+```bash
+SKILL_ROOT="<directory containing this SKILL.md>"
+bash "$SKILL_ROOT/scripts/new-presentation.sh" ...
+bash "$SKILL_ROOT/scripts/validate-slides.sh" ...
+bash "$SKILL_ROOT/scripts/run.sh" ...
+bash "$SKILL_ROOT/scripts/review-presentation.sh" ...
+```
+
+All scripts accept absolute paths for the slides file. Always resolve paths to
+absolute before passing them.
 
 ---
 
-## Step 1: Determine Target Directory & Create Project
+## Critical Gotchas
 
-Ask user about presentation topic and intended use. Create directory structure:
+These cause silent failures. The `validate-slides.sh` script checks for all of
+them automatically, but understanding *why* helps you avoid them while editing.
 
-```bash
-TARGET_DIR="path/to/presentation"
-mkdir -p "$TARGET_DIR"
-```
+**1. No `---` inside frontmatter (including comments)**
 
-## Step 2: Initialize Presentation
-
-Copy template files to the target directory:
-
-```bash
-# Copy presentation starter (must be named slides.md)
-cp skills/slidev/assets/slidev-starter/slides.md "$TARGET_DIR/slides.md"
-
-# Copy styling (optional, but recommended for consistent theming)
-cp skills/slidev/assets/slidev-starter/style.css "$TARGET_DIR/style.css"
-
-# Create fonts directory for custom fonts
-mkdir -p "$TARGET_DIR/public/fonts"
-```
-
-**Important**: Slidev CLI looks for `slides.md` by default. Keep this naming convention.
-
----
-
-## Step 3: Pre-flight Checks
-
-### 3a. Verify Node.js Version
-
-```bash
-node --version
-# Must be >= 18. If lower, ask user to upgrade
-```
-
-### 3b. Check for Custom Fonts (Optional)
-
-If using the included template with Chinese font references:
-
-```bash
-ls "$TARGET_DIR/public/fonts/"
-# Expected: NotoSansSC-Regular.woff2, NotoSansSC-Bold.woff2
-```
-
-If fonts are missing, inform user that fallback system fonts will be used. This does not block development or preview.
-
-### 3c. Playwright for PDF Export (Only if Exporting)
-
-Only install when user explicitly requests PDF export:
-
-```bash
-npx playwright install chromium
-# ~5 minutes first time, then cached
-```
-
----
-
-## Step 4: Customize Presentation Content
-
-Edit `slides.md` with user-provided outline:
-
-1. **Update frontmatter**: `title`, `date`, `tags`
-2. **Modify cover slide**: Title, subtitle, author name
-3. **Add content slides**: Based on user's outline or provided materials
-4. **Clean up template examples**: Remove unused demo pages (v-click, Magic Move, etc.)
-
-### ⚠️ Critical Gotchas
-
-**1. No `---` (dashes) inside frontmatter**
-
-Slidev/YAML uses `---` to mark frontmatter end. Even in comments:
+Slidev uses `---` to delimit frontmatter. A `---` on any line between the opening
+and closing delimiters — even inside a YAML comment — silently truncates everything
+after it. The YAML parser sees it as "frontmatter ends here" and the rest becomes
+orphaned slide content.
 
 ```yaml
-# ❌ WRONG - Comment with --- causes truncation
+# BAD — comment contains ---, truncates theme and everything below
 # --- Field definitions below ---
 theme: default
 
-# ✅ CORRECT - No --- in frontmatter
+# GOOD — no --- anywhere in frontmatter body
 theme: default
 ```
 
-**2. Must include `colorSchema: light`**
+**2. `colorSchema: light` is mandatory**
 
-Ensures consistent appearance across light/dark system themes:
+Slidev inherits the operating system's color scheme by default. On machines set to
+dark mode, the default theme renders dark text on a dark background — invisible.
+Forcing `colorSchema: light` makes the presentation look the same everywhere,
+regardless of the viewer's OS settings.
 
 ```yaml
----
 colorSchema: light
-theme: default
----
 ```
 
-**3. Use `<hr />` instead of `---` for slide dividers in content**
+**3. Use `<hr />` not `---` for dividers inside HTML blocks**
 
-`---` is a slide separator. Inside `<div>` or `<v-click>`, it breaks HTML parsing:
+Slidev's parser treats `---` as a slide separator at the top level. This parsing
+happens *before* HTML is processed, so `---` inside a `<div>` or `<v-click>` block
+splits the slide in two and breaks the HTML structure. Use a self-closing `<hr />`
+tag instead.
 
 ```html
-<!-- ❌ WRONG -->
+<!-- BAD — splits this into two broken slides -->
 <div>
   Section A
   ---
   Section B
 </div>
 
-<!-- ✅ CORRECT -->
+<!-- GOOD — stays inside the same slide -->
 <div>
   Section A
   <hr class="my-3 opacity-30" />
@@ -147,132 +103,191 @@ theme: default
 
 ---
 
-## Step 5: Running Presentations
+## Workflow
 
-All commands use the shared Slidev runner environment. Commands must be executed from the runner directory with absolute paths to slides.md.
+### Step 1: Initialize Presentation
 
-```bash
-RUNNER="skills/slidev/assets/runner"
-THEME="$RUNNER/node_modules/@slidev/theme-default"
-SLIDES="/absolute/path/to/slides.md"
-```
-
-### Development Mode (with hot reload)
+Ask the user about the topic and where to create the presentation. Then run:
 
 ```bash
-cd "$RUNNER" && npx @slidev/cli "$SLIDES" --theme "$THEME"
+bash "$SKILL_ROOT/scripts/new-presentation.sh" <target_dir> \
+  --title "Presentation Title" \
+  --author "Author Name"
 ```
 
-- Server starts on `http://localhost:3030`
-- Edit `slides.md` → auto-refresh browser
-- Use arrow keys or spacebar to navigate
+Options:
+- `--minimal` — generates a stripped-down template (cover + one content + closing)
+  instead of the full demo template. Good when the user already has an outline.
+- `--force` — overwrites an existing directory.
 
-### Export to PDF (Basic)
+The script copies the starter template, substitutes title/date/author, creates
+the `public/fonts/` directory, and ensures the shared runner is ready.
+
+### Step 2: Design Content
+
+This is the most important step. Edit `slides.md` based on the user's materials.
+
+**Do:**
+1. Start with the narrative arc — what story do these slides tell?
+2. One idea per slide. If a slide needs two sentences to describe, split it.
+3. Write headings as assertions ("Revenue Up 23%") not labels ("Q3 Results").
+4. Use `v-click` for step-by-step reveals on complex slides (aim for 30-50% of
+   content slides to use animations).
+5. Keep text density at 40-80 words per content slide.
+
+**Don't:**
+- Dump all user content onto slides verbatim. Distill and restructure.
+- Use more than 5 bullet points per slide.
+- Add animations to every slide — it slows delivery.
+- Exceed 120 words on any single slide without good reason.
+
+> For detailed content design principles (narrative arcs, audience adaptation,
+> when to use code vs diagrams, visual hierarchy), read `references/content-design.md`.
+
+> For frontmatter options beyond the essentials, read `references/frontmatter-guide.md`.
+
+### Step 3: Validate
+
+Run structural validation before previewing or exporting:
 
 ```bash
-cd "$RUNNER" && npx @slidev/cli export "$SLIDES" --theme "$THEME"
+bash "$SKILL_ROOT/scripts/validate-slides.sh" <target_dir>/slides.md
 ```
 
-- Outputs `slides.pdf` in same directory as `slides.md`
-- One slide per export page
-- Animations collapsed into single view
+This checks all Critical Gotchas automatically: frontmatter integrity, `colorSchema`,
+`---` misuse, tag pairing, and more. Fix any FAIL items before proceeding.
 
-### Export to PDF (With Click Steps)
+> If validation fails, read `references/troubleshooting.md` for solutions to
+> common issues.
+
+### Step 4: Review Quality
+
+Run the quality review to catch content-level issues that validation does not cover:
 
 ```bash
-cd "$RUNNER" && npx @slidev/cli export "$SLIDES" --theme "$THEME" --with-clicks
+bash "$SKILL_ROOT/scripts/review-presentation.sh" <target_dir>/slides.md
 ```
 
-- Each `v-click` animation becomes a separate page
-- Larger file size
-- Better for step-by-step presentations
+This analyzes:
+- **Structure**: slide count, layout variety, animation density
+- **Content**: words per slide, heading coverage, empty slides, text-heavy slides
+- **Score**: 0-100 with grade (Excellent / Good / Fair / Needs Work)
 
-### Build Static HTML Site
+A score below 70 indicates significant issues. Read the suggestions and iterate
+on the content. The `--json` flag outputs machine-readable results for scripted
+pipelines.
+
+**After fixing issues**, re-run both validate and review to confirm improvements.
+
+### Step 5: Run & Export
+
+All commands use the centralized runner via `run.sh`:
 
 ```bash
-cd "$RUNNER" && npx @slidev/cli build "$SLIDES" --theme "$THEME"
+# Development mode (hot reload, default port 3030)
+bash "$SKILL_ROOT/scripts/run.sh" dev <target_dir>/slides.md
+
+# Export to PDF
+bash "$SKILL_ROOT/scripts/run.sh" export <target_dir>/slides.md
+
+# Export to PDF with click steps (each v-click = separate page)
+bash "$SKILL_ROOT/scripts/run.sh" export <target_dir>/slides.md --with-clicks
+
+# Build static HTML site (self-contained, can be served anywhere)
+bash "$SKILL_ROOT/scripts/run.sh" build <target_dir>/slides.md
 ```
 
-- Outputs to `dist/` in slides directory
-- Self-contained, can be served anywhere
-- No Slidev dependency required to view
+Extra flags are passed through to `@slidev/cli`. Common options:
+- `--port 3031` — use a different port for dev mode
+- `--with-clicks` — expand animations into separate PDF pages
+- `--output filename.pdf` — custom output filename for export
+
+PDF export requires Playwright. If not installed:
+```bash
+npx playwright install chromium
+```
 
 ---
 
-## Slidev Syntax Reference
+## Quality Gate
 
-Quick reference for common features in presentations:
+Before declaring a presentation complete, ensure it passes both automated checks:
+
+```bash
+# 1. Structural validation (must be all PASS)
+bash "$SKILL_ROOT/scripts/validate-slides.sh" <slides_path>
+
+# 2. Quality review (target: score >= 70, ideally >= 85)
+bash "$SKILL_ROOT/scripts/review-presentation.sh" <slides_path>
+```
+
+A presentation is ready for delivery when:
+- validate-slides.sh reports 0 failures
+- review-presentation.sh scores "Good" (70+) or "Excellent" (90+)
+- The user has reviewed the content and confirmed it matches their intent
+
+---
+
+## Customization
+
+The starter template is designed to be modified. Here is what users can configure:
+
+### Colors
+
+Edit CSS custom properties in `style.css`:
+
+```css
+:root {
+  --color-primary: #1E3A5F;   /* Headings, accents */
+  --color-accent: #3B7DD8;    /* Sub-headings */
+  --color-text: #1A1A2E;      /* Body text */
+  --color-bg: #FFFFFF;        /* Background */
+  --color-muted: #6B7280;     /* Secondary text */
+}
+```
+
+### Fonts
+
+1. Place `.woff2` font files in `<target_dir>/public/fonts/`
+2. Add `@font-face` declarations in `style.css` (see commented examples in the template)
+3. Add the font name to the `.slidev-layout` font-family list
+
+### Themes
+
+The default theme is bundled with the runner. To use a different Slidev theme:
+1. Install it in the runner: `cd "$SKILL_ROOT/assets/runner" && npm install @slidev/theme-<name>`
+2. Update the `theme:` field in `slides.md` frontmatter
+3. Pass the theme path to `run.sh` or update the `THEME` variable in the script
+
+### Dev Server Port
+
+```bash
+bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
+```
+
+---
+
+## Syntax Quick Reference
 
 | Feature | Syntax | Notes |
 |---------|--------|-------|
-| **Step-by-step reveal** | `<v-click>content</v-click>` | Click to show next item |
-| **Text highlighting** | `<v-mark type="underline\|circle\|box\|highlight">text</v-mark>` | Visual emphasis |
-| **Code line highlight** | ` ```ts {1\|3-4\|all} ` | Step through highlighted lines |
-| **Code animation** | ` ```magic-move ` blocks | Smooth char-level code transitions |
-| **Vue components** | `<script setup>` + template | Full Vue 3 reactivity |
-| **Two-column layout** | `<div class="grid grid-cols-2 gap-4">` | Tailwind CSS available |
-| **Presenter notes** | Text after `<!--` comment marker | Hidden from audience |
+| Step-by-step reveal | `<v-click>content</v-click>` | Click to show next item |
+| Text highlighting | `<v-mark type="underline\|circle\|box\|highlight">text</v-mark>` | Visual emphasis on click |
+| Code line highlight | ` ```ts {1\|3-4\|all} ` | Step through highlighted lines |
+| Code animation | ` ````magic-move ` blocks | Smooth code transitions (>= 0.48) |
+| Vue components | `<script setup>` + template | Full Vue 3 reactivity |
+| Two-column layout | `<div class="grid grid-cols-2 gap-4">` | Tailwind CSS available |
+| Presenter notes | `<!-- note text -->` | Hidden from audience |
 
----
-
-## Frontmatter Fields
-
-### Obsidian Compatibility
-
-Slidev frontmatter can coexist with Obsidian fields:
-
-```yaml
----
-# Obsidian fields
-title: My Presentation
-tags: [slidev, demo]
-date: 2026-04-16
-
-# Slidev fields
-theme: default
-colorSchema: light
-class: text-center
-highlighter: shiki
----
-```
-
-**Important restrictions**:
-- No `---` separators inside frontmatter (breaks parsing)
-- No `[[wikilinks]]` in presentation content
-- Use `<hr />` not `---` for visual dividers in slides
-
----
-
-## Publishing & Distribution
-
-After completing the presentation:
-
-1. **For sharing**: Export to PDF or build static HTML
-2. **For presenting**: Use dev mode with live display
-3. **For archiving**: Commit `slides.md` to version control
-
-Slidev presentations are self-contained text files — version control them alongside project materials.
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "theme not found" | Ensure `--theme` points to absolute path in runner/node_modules |
-| PDF export fails | Run `npx playwright install chromium` |
-| Chinese characters display wrong | Place font files in `public/fonts/`, update `style.css` |
-| Animations not working | Check `v-click` syntax, ensure no stray `---` in content |
-| Dev server won't start | Kill existing process on port 3030, check Node version |
+> For full syntax details, read `references/slidev-syntax.md`.
 
 ---
 
 ## Completion Checklist
 
-- [ ] `slides.md` created with correct frontmatter
-- [ ] Content outline converted to slides
-- [ ] No `---` separators in frontmatter or HTML blocks (use `<hr />`)
-- [ ] `colorSchema: light` present in frontmatter
-- [ ] Dev mode tested (server starts, hot reload works)
-- [ ] If exporting: Playwright installed, PDF export confirmed
-- [ ] User provided dev/export command reference
+- [ ] `validate-slides.sh` reports 0 failures
+- [ ] `review-presentation.sh` scores >= 70
+- [ ] Cover slide has title, subtitle/author, and date
+- [ ] Content follows one-idea-per-slide principle
+- [ ] User has been shown dev/export/build commands
+- [ ] If exporting PDF: Playwright installed and export verified
