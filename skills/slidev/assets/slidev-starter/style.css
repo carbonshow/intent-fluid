@@ -58,3 +58,48 @@
 .slidev-layout .shiki {
   border-radius: 6px;
 }
+
+/* ── Mermaid Containment ──
+ * Mermaid renders SVGs at their natural size, which can exceed the slide
+ * or grid-column width. Force the SVG to shrink to fit its container.
+ * This is the global safety net — {scale: N} fine-tunes within this bound. */
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Density Utilities ──
+ * Use these classes to fit more content per slide without overflow.
+ * See SKILL.md "Critical Gotchas #5" for when to use each tier.
+ */
+
+/* Compact table — smaller font and tighter padding for 5-8 row tables */
+.compact-table {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.compact-table th,
+.compact-table td {
+  padding: 0.25rem 0.5rem;
+}
+
+/* Dense table — minimal chrome for data-heavy comparison slides */
+.dense-table {
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+.dense-table th,
+.dense-table td {
+  padding: 0.15rem 0.4rem;
+}
+
+/* Image containment — prevents overflow while preserving aspect ratio.
+ * Apply to <img> tags: class="slide-img" or use Tailwind max-h-* directly. */
+.slide-img {
+  max-height: 320px;   /* same as Tailwind max-h-80 */
+  width: auto;
+  object-fit: contain;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}

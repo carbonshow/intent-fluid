@@ -98,55 +98,177 @@ Mermaid diagrams (` ```mermaid `) are built into Slidev. Use them for:
 
 **Diagram complexity limits** — slides have a fixed viewport (~980×552 px).
 A Mermaid diagram that exceeds half the slide height will push any content
-below it off-screen. The audience cannot scroll.
+below it off-screen. The audience cannot scroll. Additionally, Mermaid
+renders SVGs at their **natural pixel width** — a diagram with many parallel
+nodes can exceed the container width and be clipped. The starter template
+includes `.mermaid svg { max-width: 100%; height: auto; }` as a safety net,
+but wide diagrams still look cramped when force-shrunk.
 
 | Diagram type | Safe complexity | Over-budget |
 |-------------|-----------------|-------------|
 | `flowchart LR` | 6-8 nodes, no subgraph | 10+ nodes, nested subgraph |
 | `flowchart TB` | 4-5 rows | 6+ rows |
+| `flowchart TB` with fan-out | 3 parallel nodes per row | 5+ parallel nodes — SVG will exceed slide width |
 | `sequenceDiagram` | 4-5 participants, 8 messages | 6+ participants |
 
 When a diagram is too complex:
-1. **Simplify** — remove nodes that don't serve the slide's one idea
-2. **Scale down** — add `{scale: 0.7}` after ` ```mermaid `
-3. **Split** — show the overview on one slide, zoom into a section on the next
-4. **Use text** — if the diagram is hard to read at presentation scale, use
+1. **Scale down** — add `{scale: 0.7}` (or lower) after ` ```mermaid `
+2. **Compact the slide** — use `zoom: 0.9` in frontmatter + `text-sm` body text
+3. **Simplify** — remove nodes that don't serve the slide's one idea
+4. **Switch direction** — `flowchart LR` uses less width for fan-out than `TB`
+5. **Shorten labels** — abbreviate node text to 1-2 words
+6. **Split** — show the overview on one slide, zoom into a section on the next
+7. **Use text** — if the diagram is hard to read even at 0.6 scale, use
    a bullet list or ASCII box art in a code block instead
 
-**Never combine** a Mermaid diagram with a table, a large image, or more than
-one sentence of text on the same slide.
+**Never put a wide Mermaid diagram inside a `grid grid-cols-2` column.**
+A grid column is only ~470px wide — even a simple flowchart with 4+ parallel
+nodes will overflow. Place diagrams in full-width sections, or use text in the
+grid column and put the diagram above/below the grid.
 
-## Slide Space Budget
+At **Normal tier**, avoid combining a Mermaid diagram with a table or large
+image. At **Compact tier** or **Dense tier**, side-by-side combinations in a
+`grid grid-cols-2` are acceptable only if the Mermaid diagram is simple
+(3 nodes or fewer in parallel) — use `{scale: 0.65}` on the Mermaid block and
+`compact-table` on the table.
 
-Slides have a fixed, non-scrollable viewport. Every element competes for the
-same vertical space. Before adding content to a slide, mentally check:
+## Slide Space Budget & Density Control
 
-| Element | Approximate height budget |
-|---------|--------------------------|
+Slides have a fixed, non-scrollable viewport (~980×552 px, ~480px usable below
+the heading). Every element competes for this space. But the answer to "it might
+overflow" is not always "split the slide" — splitting can fragment arguments and
+weaken impact. Instead, use the right **density tier** for the content.
+
+### Density Tiers
+
+Choose the lightest tier that fits your content naturally:
+
+**Tier 1: Normal** (default — no special CSS)
+- One visual element + heading + 1-2 lines of text
+- Suitable for ~80% of slides
+- Element heights to budget against ~480px available:
+
+| Element | Approximate height |
+|---------|-------------------|
 | Heading (h1) | ~60px |
 | Bullet point | ~30px per line |
 | Code block (5 lines) | ~150px |
 | Mermaid (simple LR) | ~180px |
-| Mermaid (with subgraph) | ~300px+ |
-| Image (w-full) | ~350px+ |
+| Image (w-3/5) | ~250px |
 | Table (3 rows) | ~120px |
-| v-click wrapper | ~10px overhead per block |
 
-**Total available**: ~480px below the heading. If your mental sum exceeds this,
-split into two slides. Splitting is always cheaper than an overflowed slide
-that the audience cannot see.
+**Tier 2: Compact** — for content that logically belongs together
+- Add `zoom: 0.9` to the slide frontmatter
+- Use `text-sm` (14px) for body text, `compact-table` for tables
+- Constrain images with `max-h-72 object-contain`
+- Budget expands to ~530px effective (0.9× scaling = 11% more room)
+- Good for: visual + 3-4 bullets, two related diagrams side-by-side,
+  comparison tables with 5-6 rows
 
-Practical combos that fit one slide:
-- Heading + Mermaid (simple) + 1 sentence
-- Heading + image (w-3/5) + 1-2 bullets
-- Heading + code block + 1 v-click paragraph
-- Heading + table (4 rows) + 1 sentence
+```yaml
+---
+zoom: 0.9
+---
+```
 
-Combos that will overflow:
-- Mermaid (subgraph) + bullet list
-- Image + table
-- Code block + table
-- Any two visual elements
+**Tier 3: Dense** — for data-heavy slides where splitting destroys context
+- Add `zoom: 0.75` to the slide frontmatter
+- Wrap heavy visuals in `<Transform :scale="0.7">`
+- Use `text-xs` (12px) for supporting text, `dense-table` for data tables
+- Mermaid with `{scale: 0.55}`
+- Budget expands to ~640px effective
+- Use sparingly — for architecture overviews, multi-metric dashboards,
+  side-by-side comparisons
+
+```yaml
+---
+zoom: 0.75
+---
+```
+
+### Combination Rules (what fits on one slide)
+
+**Normal tier — single visual:**
+- Heading + Mermaid (simple) + 1 sentence ✓
+- Heading + image (w-3/5) + 1-2 bullets ✓
+- Heading + code block (≤8 lines) + 1 v-click paragraph ✓
+- Heading + table (≤4 rows) + 1 sentence ✓
+
+**Compact tier — paired elements:**
+- Heading + two-column grid: left text + right image ✓
+- Heading + compact-table (5-6 rows) + 2 bullets ✓
+- Heading + Mermaid `{scale: 0.7}` + 3-4 bullets ✓
+- Heading + image `max-h-48 object-contain` + compact-table (3 rows) ✓
+
+**Dense tier — dashboards / comparisons:**
+- Heading + two-column grid with Mermaid left + table right ✓
+- Heading + three metrics in a row + summary sentence ✓
+- Heading + before/after code blocks in two columns ✓
+
+**Always split (no density tier saves these):**
+- Three or more full-size visual elements on one slide
+- Code blocks ≥ 15 lines (unreadable when scaled)
+- Text that would drop below ~11px effective font size
+- Content that serves two genuinely separate ideas
+
+### Practical Patterns
+
+**Image that might overflow:**
+```html
+<img src="/diagram.png" class="max-h-80 w-auto mx-auto object-contain" />
+```
+`max-h-80` (320px) caps the image height; `object-contain` preserves aspect
+ratio; `w-auto` lets width adjust naturally.
+
+**Dense comparison table:**
+```html
+<table class="compact-table">
+  <thead><tr><th>Feature</th><th>Option A</th><th>Option B</th></tr></thead>
+  <tbody>
+    <tr><td>Speed</td><td>Fast</td><td>Moderate</td></tr>
+    <!-- ... up to 6-8 rows safely -->
+  </tbody>
+</table>
+```
+
+**Two visuals side-by-side (compact tier):**
+```html
+<div class="grid grid-cols-2 gap-4">
+  <div>
+
+```mermaid {scale: 0.65}
+flowchart LR
+  A --> B --> C
+```
+
+  </div>
+  <div>
+
+| Metric | Value |
+|--------|-------|
+| Latency | 12ms |
+| Throughput | 5k rps |
+
+  </div>
+</div>
+```
+
+**Scaling a single heavy element:**
+```html
+<Transform :scale="0.7" origin="top center">
+
+```mermaid
+sequenceDiagram
+  Client->>API: Request
+  API->>DB: Query
+  DB-->>API: Result
+  API-->>Client: Response
+```
+
+</Transform>
+
+Key takeaway: the round-trip adds ~40ms latency.
+```
 
 ## Visual Hierarchy
 
@@ -163,12 +285,18 @@ spreadsheets.
 
 ## Whitespace
 
-Resist the urge to fill every pixel. Whitespace:
-- Signals importance (fewer items = each matters more)
-- Reduces cognitive load
-- Looks professional
+Resist the urge to fill every pixel — but also resist the urge to split every
+slide. Whitespace signals importance and reduces cognitive load. Use it
+deliberately:
 
-If a slide feels cramped, remove content rather than shrinking font size.
+- **Normal-tier slides** should breathe — generous margins signal confidence.
+- **Compact-tier slides** trade some whitespace for completeness — acceptable
+  when the content forms one logical unit.
+- **Dense-tier slides** minimize whitespace by design — reserve them for data
+  comparisons where the density itself is the point.
+
+If a slide feels cramped even at compact tier, split the content rather than
+pushing to dense. Dense is a scalpel, not the default.
 
 ## Adapting to Audience
 

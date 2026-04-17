@@ -181,6 +181,10 @@ flowchart TB
 ```
 ```
 
+Scale values: `0.7` is a good starting point; go as low as `0.5` for complex
+diagrams in dense-tier slides. Below `0.5`, text becomes hard to read — consider
+simplifying the diagram or splitting across slides.
+
 ### Supported Diagram Types
 
 - `flowchart LR` / `flowchart TB` — process flows (LR is more slide-friendly)
@@ -196,8 +200,102 @@ flowchart TB
 Slides cannot scroll. Keep Mermaid diagrams simple:
 - Prefer `flowchart LR` over `flowchart TB` (horizontal uses less height)
 - Limit to 6-8 nodes without subgraphs
-- Never combine a Mermaid diagram with a table or large image on the same slide
+- At **Normal tier**: avoid combining diagram + table or diagram + large image
+- At **Compact/Dense tier**: side-by-side in `grid grid-cols-2` is fine with
+  `{scale: 0.65}` on the diagram
 - If the diagram is too complex, split across multiple slides
+
+---
+
+## Slide Density Controls
+
+Slidev provides three mechanisms for fitting more content per slide without
+overflow. Use the lightest approach that solves the problem.
+
+### Slide Zoom (whole-slide scaling)
+
+Scale the entire slide content uniformly via frontmatter:
+
+```markdown
+---
+zoom: 0.9
+---
+
+# Dense Content Slide
+
+This entire slide is rendered at 90% scale, giving ~11% more effective space.
+```
+
+Common values:
+- `0.9` — Compact tier: slight shrink, barely noticeable
+- `0.8` — Moderate: fits 25% more content
+- `0.75` — Dense tier: maximum recommended density
+
+### Transform Component (element-level scaling)
+
+Scale a single element while keeping everything else at normal size:
+
+```html
+# Architecture Overview
+
+<Transform :scale="0.7" origin="top center">
+
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Auth Service]
+  B --> D[Data Service]
+  C --> E[(User DB)]
+  D --> F[(Main DB)]
+```
+
+</Transform>
+
+The gateway routes all requests through auth before reaching data services.
+```
+
+Props:
+- `:scale` — number (e.g., `0.7` = 70% size). Default: `1`
+- `origin` — CSS transform-origin (e.g., `"top center"`, `"top left"`). Default: `"top left"`
+
+### Compact Tables
+
+Use the `compact-table` CSS class (defined in the starter template's style.css)
+to reduce font size and cell padding for data-dense tables:
+
+```html
+<table class="compact-table">
+  <thead>
+    <tr><th>Metric</th><th>Before</th><th>After</th><th>Change</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Latency</td><td>120ms</td><td>45ms</td><td>-62%</td></tr>
+    <tr><td>Throughput</td><td>1.2k</td><td>5.1k</td><td>+325%</td></tr>
+    <tr><td>Error rate</td><td>2.3%</td><td>0.1%</td><td>-96%</td></tr>
+    <tr><td>P99</td><td>800ms</td><td>120ms</td><td>-85%</td></tr>
+    <tr><td>CPU usage</td><td>78%</td><td>42%</td><td>-46%</td></tr>
+  </tbody>
+</table>
+```
+
+For even denser data, use `dense-table` (smaller font, minimal padding).
+
+### Image Containment
+
+Prevent images from overflowing while preserving aspect ratio:
+
+```html
+<!-- Constrained height, auto width, centered -->
+<img src="/architecture.png" class="max-h-80 w-auto mx-auto object-contain" />
+
+<!-- Smaller for compact slides -->
+<img src="/diagram.png" class="max-h-64 w-auto mx-auto object-contain" />
+```
+
+Key classes:
+- `max-h-80` (320px), `max-h-72` (288px), `max-h-64` (256px) — height caps
+- `object-contain` — shrinks to fit without cropping
+- `w-auto` — width adjusts to maintain aspect ratio
 
 ---
 
@@ -299,7 +397,9 @@ Add notes visible only in presenter view using HTML comments:
 | Mix 3-backtick and 4-backtick fences in magic-move | Use 3-backtick for inner blocks, 4-backtick for the outer fence | Mismatched fences cause silent rendering failure |
 | Put `<script setup>` inside a `<v-click>` | Place `<script setup>` at the top of the slide, outside any wrapper | Vue script blocks must be at the top level |
 | Put Mermaid syntax inside magic-move | Use ` ```mermaid ` for diagrams, magic-move for code only | Magic-move does not render diagram languages |
-| Combine Mermaid diagram + table on one slide | Split into separate slides | Content overflows the fixed viewport |
+| Use full-size images without height constraint | Add `max-h-80 object-contain` to `<img>` tags | Unconstrained images overflow the viewport |
+| Combine 3+ visuals at normal density | Use compact/dense tier or split into slides | Even with scaling, 3 full visuals will overflow |
+| Set `zoom` below 0.7 | Split the slide instead | Text becomes unreadable below ~11px effective size |
 
 Run `bash scripts/validate-slides.sh <path>` to catch syntax and frontmatter errors automatically.
 See SKILL.md "Critical Gotchas" for the full list of known pitfalls.

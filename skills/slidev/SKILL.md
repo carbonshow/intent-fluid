@@ -108,6 +108,17 @@ Mermaid diagrams are rendered via ` ```mermaid ` fenced code blocks. Magic Move
 snapshots** — it does not render Mermaid, PlantUML, or any other diagram language.
 If you put Mermaid syntax inside a magic-move block, it will display as raw text.
 
+**Mermaid SVG overflow**: Mermaid renders SVGs at their natural pixel width.
+A diagram with many parallel nodes (e.g., 5+ nodes in `flowchart TB`) will
+exceed the slide width — or worse, exceed a `grid grid-cols-2` column width —
+and be silently clipped. The starter template includes a CSS safety net
+(`.mermaid svg { max-width: 100%; height: auto; }`), but you should also:
+- Prefer `flowchart LR` over `flowchart TB` when nodes fan out horizontally
+- Use shorter node labels (abbreviate to 1-2 words)
+- Add `{scale: 0.6}` for complex diagrams
+- **Never** put a wide Mermaid diagram inside a `grid grid-cols-2` column —
+  place it in a full-width section instead
+
 ```markdown
 <!-- BAD — Mermaid inside magic-move renders as raw text -->
 ````md magic-move
@@ -122,18 +133,40 @@ flowchart LR
 ```
 ```
 
-**5. One visual element per slide — no overflow**
+**5. Content must not overflow the viewport — use density controls**
 
-Slides have a fixed viewport (default 980×552 px). A Mermaid diagram, a large
-image, or a table each consume significant vertical space. Combining any two of
-these on one slide — or adding substantial text below a visual — will push content
-below the visible area. The audience cannot scroll.
+Slides have a fixed, non-scrollable viewport (default 980×552 px). Content that
+extends beyond the visible area is silently clipped — the audience cannot scroll.
+But "just split into more slides" is not always the best answer: splitting can
+fragment a logical argument, break comparisons, and dilute impact.
 
-Rule of thumb for a single slide:
-- **Diagram + 1 sentence** — OK
-- **Diagram + bullet list** — will likely overflow; split into two slides
-- **Image + table** — will overflow; never combine
-- **Mermaid with subgraph** — use `{scale: 0.7}` or simpler layout (LR over TB)
+Slidev provides three native mechanisms for fitting denser content. Use them
+before resorting to splitting:
+
+| Technique | Scope | When to use |
+|-----------|-------|-------------|
+| `zoom: 0.8` in slide frontmatter | Whole slide | Content-heavy slide with many elements |
+| `<Transform :scale="0.7">` component | Single element | One large visual (table/diagram) needs shrinking |
+| Mermaid `{scale: 0.6}` | Mermaid block | Complex diagram that overflows on its own |
+
+Combined with CSS utilities (`text-sm`, `compact-table`, `max-h-*`,
+`object-contain`), you can fit considerably more content per slide.
+
+**Density tiers** (choose the lightest tier that fits your content):
+
+1. **Normal** (default) — no special sizing. One visual + heading + 1-2 lines.
+2. **Compact** — add `zoom: 0.9` to the slide, use `text-sm` on bullet text,
+   add `compact-table` class on tables. Fits: visual + 3-4 bullets, or two
+   related visuals side-by-side in a `grid grid-cols-2`.
+3. **Dense** — add `zoom: 0.75`, wrap heavy elements in `<Transform :scale="0.7">`,
+   use `text-xs` for supporting text. Use sparingly — for data-comparison slides,
+   architecture overviews, or dashboards where splitting would destroy context.
+
+**Hard limits that still apply regardless of density:**
+- Never combine three or more full-size visual elements (diagram + table + image)
+- Code blocks ≥ 15 lines should get their own slide (scrolling code is unreadable)
+- If text drops below ~11px effective size, split instead — unreadable text is
+  worse than an extra slide
 
 ---
 
@@ -348,6 +381,10 @@ bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
 | Code animation | ` ````md magic-move ` blocks | Code-only; not for Mermaid/diagrams |
 | Mermaid diagrams | ` ```mermaid ` blocks | Built-in; use `{scale: 0.7}` to shrink |
 | Images | `<img src="/file.png" class="w-3/5 mx-auto" />` | Files in `public/`; control size with Tailwind |
+| Slide zoom | `zoom: 0.8` in slide frontmatter | Shrink entire slide content uniformly |
+| Element scale | `<Transform :scale="0.7">content</Transform>` | Shrink one element; origin defaults top-left |
+| Compact table | `<table class="compact-table">` or `{.compact-table}` | Smaller font + padding for dense tables |
+| Image containment | `<img class="max-h-80 object-contain" />` | Prevents overflow; auto-scales to fit |
 | Vue components | `<script setup>` + template | Full Vue 3 reactivity |
 | Two-column layout | `<div class="grid grid-cols-2 gap-4">` | Tailwind CSS available |
 | Presenter notes | `<!-- note text -->` | Hidden from audience |

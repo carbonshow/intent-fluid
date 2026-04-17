@@ -90,6 +90,7 @@ MAX_WORDS=0
 MIN_WORDS=999999
 ALL_HEADINGS=""
 HAS_NOTES=0
+SLIDES_WITH_ZOOM=0
 
 # Process each slide
 CURRENT_SLIDE=""
@@ -100,9 +101,14 @@ process_slide() {
   local slide_content="$1"
   local idx="$2"
 
-  # Skip per-slide frontmatter lines (layout:, class:, etc.)
+  # Skip per-slide frontmatter lines (layout:, class:, zoom:, etc.)
   local content_lines
-  content_lines="$(echo "$slide_content" | grep -v '^\s*layout:' | grep -v '^\s*class:' | grep -v '^\s*$' || true)"
+  content_lines="$(echo "$slide_content" | grep -v '^\s*layout:' | grep -v '^\s*class:' | grep -v '^\s*zoom:' | grep -v '^\s*$' || true)"
+
+  # Check if this slide uses zoom (density control)
+  if echo "$slide_content" | grep -qE '^\s*zoom:\s*[0-9]'; then
+    SLIDES_WITH_ZOOM=$((SLIDES_WITH_ZOOM + 1))
+  fi
 
   # Word count (strip HTML tags and markdown syntax for counting)
   local clean_text
@@ -120,8 +126,8 @@ process_slide() {
     EMPTY_SLIDES=$((EMPTY_SLIDES + 1))
   fi
 
-  # Text-heavy slide (more than 150 words)
-  if [[ $words -gt 150 ]]; then
+  # Text-heavy slide (more than 200 words — with zoom/compact, 150-200 is acceptable)
+  if [[ $words -gt 200 ]]; then
     TEXT_HEAVY_SLIDES=$((TEXT_HEAVY_SLIDES + 1))
   fi
 
@@ -253,7 +259,7 @@ fi
 
 # Text-heavy slides
 if [[ $TEXT_HEAVY_SLIDES -gt 0 ]]; then
-  add_suggestion $((TEXT_HEAVY_SLIDES * 5)) "$TEXT_HEAVY_SLIDES slide(s) exceed 150 words. Break long text into multiple slides or use bullet points."
+  add_suggestion $((TEXT_HEAVY_SLIDES * 5)) "$TEXT_HEAVY_SLIDES slide(s) exceed 200 words. Use compact/dense tier (zoom: 0.8-0.9) or split into multiple slides."
 fi
 
 # Missing headings
@@ -270,8 +276,8 @@ elif [[ $ANIMATION_PCT -gt 80 ]]; then
 fi
 
 # Average word count
-if [[ $AVG_WORDS -gt 120 ]]; then
-  add_suggestion 10 "Average $AVG_WORDS words per slide. Aim for 40-80 words; let visuals and speech carry the rest."
+if [[ $AVG_WORDS -gt 150 ]]; then
+  add_suggestion 10 "Average $AVG_WORDS words per slide. Use zoom/compact-table to fit dense slides, or split content."
 elif [[ $AVG_WORDS -lt 10 ]] && [[ $SLIDE_COUNT -gt 3 ]]; then
   add_suggestion 5 "Average only $AVG_WORDS words per slide. Some slides may be too sparse."
 fi
@@ -322,7 +328,8 @@ if [[ "$JSON_MODE" == true ]]; then
     "slide_count": $SLIDE_COUNT,
     "empty_slides": $EMPTY_SLIDES,
     "text_heavy_slides": $TEXT_HEAVY_SLIDES,
-    "no_heading_slides": $NO_HEADING_SLIDES
+    "no_heading_slides": $NO_HEADING_SLIDES,
+    "slides_with_zoom": $SLIDES_WITH_ZOOM
   },
   "content": {
     "total_words": $TOTAL_WORDS,
@@ -363,8 +370,9 @@ else
   echo "── Structure ──────────────────────────────"
   echo "  Slides:           $SLIDE_COUNT"
   echo "  Empty slides:     $EMPTY_SLIDES"
-  echo "  Text-heavy:       $TEXT_HEAVY_SLIDES (>150 words)"
+  echo "  Text-heavy:       $TEXT_HEAVY_SLIDES (>200 words)"
   echo "  Missing headings: $NO_HEADING_SLIDES"
+  echo "  Zoomed slides:    $SLIDES_WITH_ZOOM (using density control)"
   echo ""
   echo "── Content ────────────────────────────────"
   echo "  Total words:      $TOTAL_WORDS"
