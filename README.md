@@ -91,6 +91,7 @@ git clone https://github.com/carbonshow/intent-fluid.git
 | Skill | Description |
 |-------|-------------|
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
+| [slidev](skills/slidev/) | Lightweight Markdown-based presentations — intelligently analyzes content, auto-selects layouts (text, diagrams, tables, images), generates Mermaid flowcharts, and applies adaptive density controls to prevent overflow. A faster, code-native alternative to heavy slide tools. |
 
 ### Creating a New Skill
 

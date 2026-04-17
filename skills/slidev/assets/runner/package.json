@@ -1,0 +1,14 @@
+{
+  "name": "slidev-runner",
+  "private": true,
+  "description": "Shared Slidev runtime — managed by the slidev skill, do not edit manually",
+  "scripts": {
+    "dev": "slidev",
+    "export": "slidev export",
+    "build": "slidev build"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.14.2",
+    "@slidev/theme-default": "^0.25.0"
+  }
+}
