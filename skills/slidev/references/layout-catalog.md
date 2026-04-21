@@ -360,3 +360,175 @@ class: content-narrative
 **Allowed animations**: v-mark on the key phrase (optional); v-click to reveal the body paragraph after the heading (optional, uncommon).
 
 ---
+
+## three-metrics
+
+**Semantic role**: Three headline metrics in a horizontal row — big numbers + one-line captions.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: three-metrics
+```
+
+**When to use**:
+- KPI summaries with exactly 3 headline numbers
+- Progress reports: latency / throughput / error rate, or similar triads
+- Goals scorecards (target / current / delta)
+
+**Avoid when**:
+- More than 3 metrics — use `data-table` for 4+
+- Only 1-2 metrics — use `big-statement` or `content-narrative` with inline numbers
+- The metrics are not comparable (different scales, unrelated units) — grouping them dilutes the slide
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `metrics`: array, required, exactly 3 items, each with:
+  - `value`: string, required, maxLength 12 — the number itself, including unit suffix if compact (e.g., "42%", "1.2M")
+  - `unit`: string, optional, maxLength 15 — separate unit when the value needs breathing room
+  - `caption`: string, required, maxLength 40 — what this metric means
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: three-metrics
+---
+
+# {{title}}
+
+<div class="metrics-row">
+  <div class="metric">
+    <div class="metric-value">{{metrics[0].value}}</div>
+    <div class="metric-caption">{{metrics[0].caption}}</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">{{metrics[1].value}}</div>
+    <div class="metric-caption">{{metrics[1].caption}}</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">{{metrics[2].value}}</div>
+    <div class="metric-caption">{{metrics[2].caption}}</div>
+  </div>
+</div>
+```
+
+**Density tier default**: Normal
+
+**Allowed animations**: v-click per metric (reveal one-by-one when building suspense); v-mark on the most important metric's caption.
+
+---
+
+## data-table
+
+**Semantic role**: Structured tabular data — 3-10 rows × 2-6 columns.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: data-table
+```
+
+**When to use**:
+- Comparisons that require seeing rows and columns (feature matrices, KPI vs target)
+- More than 3 metrics (where `three-metrics` doesn't fit)
+- Data-forward executive reporting
+
+**Avoid when**:
+- Fewer than 3 rows — use `three-metrics` or a bullet list instead
+- More than 10 rows — split into multiple slides, or use an appendix reference
+- More than 6 columns — visually cramped; split by concern
+- Inside `two-columns` — for that case use the `table` content pattern (limited to 2-3 cols × 3-6 rows)
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `columns`: array of strings, required, 2-6 items, each maxLength 20 — column headers
+- `rows`: array, required, 3-10 items, each an array of strings matching `columns` length, each cell maxLength 30
+- `highlight_column`: integer, optional — 0-indexed column to style with accent color
+- `caption`: string, optional, maxLength 80 — footnote / source / sampling note
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: data-table
+---
+
+# {{title}}
+
+| {{col 1}} | {{col 2}} | {{col 3}} |
+|-----------|-----------|-----------|
+| {{r1c1}}  | {{r1c2}}  | {{r1c3}}  |
+| {{r2c1}}  | {{r2c2}}  | {{r2c3}}  |
+| {{r3c1}}  | {{r3c2}}  | {{r3c3}}  |
+
+<div class="caption">{{caption}}</div>
+```
+
+**Density tier default**: Normal. If rows exceed 7 or columns exceed 4, set `density_tier: Compact` on this slide.
+
+**Allowed animations**: v-mark on the header of the highlighted column (optional).
+
+---
+
+## timeline-horizontal
+
+**Semantic role**: Horizontal timeline with 4-6 nodes — roadmap, version history, milestones.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: timeline-horizontal
+```
+
+**When to use**:
+- Product roadmaps, release timelines, project milestones
+- Historical evolution (library versions, standards progression)
+- Sequential workflow stages that have time / ordering semantics
+
+**Avoid when**:
+- Fewer than 4 nodes — use bullet list instead
+- More than 6 nodes — split into two slides or use `data-table`
+- No clear ordering — use `content-bullets` or `data-table`
+- The relationships are branching, not linear — use `diagram-primary` with Mermaid flowchart
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `nodes`: array, required, 4-6 items, each with:
+  - `label`: string, required, maxLength 20 — short milestone name or date
+  - `detail`: string, optional, maxLength 40 — one-line description
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: timeline-horizontal
+---
+
+# {{title}}
+
+<div class="timeline">
+  <div class="node">
+    <div class="node-label">{{nodes[0].label}}</div>
+    <div class="node-detail">{{nodes[0].detail}}</div>
+  </div>
+  <div class="node">
+    <div class="node-label">{{nodes[1].label}}</div>
+    <div class="node-detail">{{nodes[1].detail}}</div>
+  </div>
+  <div class="node">
+    <div class="node-label">{{nodes[2].label}}</div>
+    <div class="node-detail">{{nodes[2].detail}}</div>
+  </div>
+  <div class="node">
+    <div class="node-label">{{nodes[3].label}}</div>
+    <div class="node-detail">{{nodes[3].detail}}</div>
+  </div>
+</div>
+```
+
+**Density tier default**: Normal. Use Compact when 6 nodes are present with long labels.
+
+**Allowed animations**: v-click on each node to reveal in order (preferred for teaching roadmaps).
+
+---
