@@ -14,7 +14,7 @@ else
 fi
 
 echo "== markdown trailing whitespace =="
-if grep -rn --include='*.md' ' $' "$SKILL_ROOT"; then
+if grep -rn --include='*.md' --exclude-dir=node_modules ' $' "$SKILL_ROOT"; then
   echo "Found trailing whitespace" >&2
   exit 1
 fi
