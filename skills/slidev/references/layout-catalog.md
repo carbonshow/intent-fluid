@@ -532,3 +532,176 @@ class: timeline-horizontal
 **Allowed animations**: v-click on each node to reveal in order (preferred for teaching roadmaps).
 
 ---
+
+## code-focus
+
+**Semantic role**: A code block is the slide's primary visual — code dominates, prose supports.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: code-focus
+```
+
+**When to use**:
+- Showing an API, function, or pattern in the actual language
+- Step-by-step code walkthroughs (with `{1|3-4|all}` highlighting)
+- Code evolution (before → after → final, via `magic-move`)
+
+**Avoid when**:
+- Code exceeds ~15 lines — split into multiple slides or magic-move variants
+- The logic matters more than the syntax — use pseudocode or a diagram
+- Audience cannot read the language — pseudocode or a `content-bullets` explanation
+
+**Fields schema**:
+- `title`: string, required, maxLength 60 — assertion about the code, not just "Example"
+- `subtitle`: string, optional, maxLength 90 — one-line context
+- `language`: string, required, maxLength 20 — Shiki language identifier (e.g., `typescript`, `rust`, `python`)
+- `code`: string, required — the code itself; must fit Slidev viewport at default font size (aim for ≤ 12 lines)
+- `line_highlight`: string, optional, maxLength 30 — Shiki syntax like `{1|3-4|all}` for click-through reveal
+- `magic_move`: boolean, optional, default false — if true, `code` is expected to contain multiple snapshots in the magic-move fence
+- `trailing_note`: string, optional, maxLength 100 — one-line takeaway under the code
+
+**Markdown template** (single snapshot):
+```markdown
+---
+layout: default
+class: code-focus
+---
+
+# {{title}}
+
+{{subtitle}}
+
+\`\`\`{{language}} {{line_highlight}}
+{{code}}
+\`\`\`
+
+{{trailing_note}}
+```
+
+**Markdown template** (magic-move):
+```markdown
+---
+layout: default
+class: code-focus
+---
+
+# {{title}}
+
+````md magic-move
+```{{language}}
+// snapshot 1
+{{code_v1}}
+```
+
+```{{language}}
+// snapshot 2
+{{code_v2}}
+```
+````
+```
+
+**Density tier default**: Normal. Compact when code > 10 lines.
+
+**Allowed animations**: line highlighting (`{1|3-4|all}`) for step-through; magic-move for evolution; avoid v-click on code itself (redundant with Shiki's stepping).
+
+---
+
+## diagram-primary
+
+**Semantic role**: A Mermaid diagram is the slide's primary visual, with title + one-line caption.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: diagram-primary
+```
+
+**When to use**:
+- Architecture overviews (flowchart LR/TB)
+- Sequence diagrams for API or interaction flows
+- State machines, ER diagrams, class relationships
+- Any programmatically-generated diagram where consistency matters
+
+**Avoid when**:
+- A real screenshot or photo exists — use `image-focus`
+- The diagram has > 8 nodes or > 5 rows — split or simplify; force-shrinking loses legibility
+- Combined with a table or code block on the same slide — dedicate a slide to the diagram
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `diagram_type`: enum, required — one of: `flowchart LR`, `flowchart TB`, `sequenceDiagram`, `classDiagram`, `erDiagram`, `stateDiagram-v2`, `gantt`, `pie`
+- `mermaid_code`: string, required — the Mermaid source between the fenced code block
+- `scale`: float, optional, default 1.0 — `{scale: 0.7}` pattern; use 0.65-0.7 if the diagram is dense
+- `caption`: string, optional, maxLength 80 — one-line interpretation
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: diagram-primary
+---
+
+# {{title}}
+
+\`\`\`mermaid {scale: {{scale}}}
+{{mermaid_code}}
+\`\`\`
+
+<div class="caption">{{caption}}</div>
+```
+
+**Density tier default**: Normal. Compact with `scale: 0.65` for dense diagrams.
+
+**Allowed animations**: none (Mermaid is static SVG; animating parts requires Slidev's draw feature which is out of scope).
+
+---
+
+## image-focus
+
+**Semantic role**: A static image file (png/jpg/svg) is the slide's primary visual — full-slide anchor.
+
+**Slidev frontmatter**:
+```yaml
+layout: image
+class: image-focus
+```
+
+**When to use**:
+- Screenshots (UI, terminal, dashboard, IDE)
+- Photos (product shots, team photos, real-world scenes)
+- Illustrations / diagrams created in external tools (Figma, Excalidraw export, etc.)
+- Branding moments / emotional anchors
+
+**Avoid when**:
+- The image is really a Mermaid-expressible diagram — use `diagram-primary` for version control
+- The image + description is really an "explain this image" pairing — use `image-text-split`
+- Small inline image — use `two-columns` with `image` content pattern
+
+**Fields schema**:
+- `title`: string, optional, maxLength 60 — omit for pure visual-anchor slides
+- `image_path`: string, required — relative to the deck's `public/` directory, e.g., `/screenshots/dashboard.png`
+- `alt_text`: string, required, maxLength 120 — accessibility; must describe the image content
+- `caption`: string, optional, maxLength 80 — one-line caption below the image
+
+**Markdown template**:
+```markdown
+---
+layout: image
+image: {{image_path}}
+class: image-focus
+---
+
+# {{title}}
+
+<div class="caption">{{caption}}</div>
+```
+
+Note: Slidev's `image` layout uses `image:` as a frontmatter field (not a field in the body). The image fills the slide as background.
+
+**Density tier default**: Normal
+
+**Allowed animations**: v-click optional on the title/caption reveal; none on the image itself.
+
+---
