@@ -13,8 +13,7 @@ fail() { FAIL=$((FAIL+1)); echo "  FAIL  $1"; }
 run_case() {
   local label="$1" fixture="$2" expect_exit="$3" expect_grep="$4"
   local output status
-  output=$(bash "$VALIDATE" "$fixture" 2>&1 || true)
-  status=$?
+  output=$(bash "$VALIDATE" "$fixture" 2>&1) && status=0 || status=$?
   if [[ $status -eq $expect_exit ]]; then
     if [[ -z "$expect_grep" ]] || echo "$output" | grep -qE "$expect_grep"; then
       pass "$label"
