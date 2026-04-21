@@ -52,8 +52,7 @@ fi
 
 pass "File exists and is non-empty"
 
-# ── Read file content ────────────────────────────────────────────────────────
-CONTENT="$(cat "$SLIDES")"
+# ── Read first line for frontmatter opening check ──
 FIRST_LINE="$(head -n 1 "$SLIDES")"
 
 # ── Check 2: Frontmatter opens with --- on line 1 ───────────────────────────
@@ -150,6 +149,7 @@ while IFS= read -r line; do
   fi
 
   # If we're inside an HTML block and see ---, that's a problem
+  # shellcheck disable=SC2001  # sed is clearest for leading-whitespace trim here
   if [[ "$IN_HTML" == true ]] && [[ "$(echo "$line" | sed 's/^[[:space:]]*//')" == "---" ]]; then
     HTML_DASH_LINES="${HTML_DASH_LINES}line $BODY_LINE\n"
   fi
