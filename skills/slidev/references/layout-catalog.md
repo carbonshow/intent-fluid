@@ -775,3 +775,150 @@ class: image-text-split
 **Allowed animations**: v-click on body bullets (optional, teaching mode); none on the image.
 
 ---
+
+## two-columns
+
+**Semantic role**: Two side-by-side columns, each filled with one of 6 content patterns. Generalized container — covers classic comparison (A vs B) AND heterogeneous pairings (bullets + table, text + image, etc.). This is the designed answer to "I want heterogeneous content on one slide" — layouts cannot nest, but `two-columns` covers the common cases.
+
+**Slidev frontmatter**:
+```yaml
+layout: two-cols
+class: two-columns
+```
+
+**When to use**:
+- Classic before/after, A/B, pros/cons comparisons
+- Heterogeneous pairings: explanation + example, claim + evidence, text + visual
+- Side-by-side metrics from two categories
+
+**Avoid when**:
+- Content is monolithic prose — use `content-narrative`
+- Only one side has content — use the appropriate single-column layout
+- Either column needs more than ~50% of viewport height when standalone — promote the overflowing content to its own slide (e.g., a large code block → `code-focus`; a 10-row table → `data-table`)
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `left`: object, required — { `pattern`: <one of 6>, plus pattern-specific fields }
+- `right`: object, required — { `pattern`: <one of 6>, plus pattern-specific fields }
+
+**The 6 content patterns** (each can appear in `left` or `right`):
+
+### Pattern: `text`
+Paragraph-style exposition. Supports inline `**bold**`, `*italic*`, `` `code` `` but NOT fenced code blocks.
+- `pattern`: must be the string `text`
+- `content`: markdown string, required, maxLength 250
+
+### Pattern: `bullets`
+2-4 short bullets.
+- `pattern`: must be the string `bullets`
+- `heading`: string, optional, maxLength 30 — column subheading
+- `items`: array of strings, required, 2-4 items, each maxLength 70
+
+### Pattern: `code`
+Small code snippet (≤ 8 lines).
+- `pattern`: must be the string `code`
+- `language`: string, required, maxLength 20
+- `code`: string, required — MUST be ≤ 8 lines; Check 10 WARNs if exceeded (suggest promoting to standalone `code-focus` slide)
+- `highlight`: string, optional, maxLength 30 — Shiki highlight syntax
+
+### Pattern: `image`
+Small inline image (height-capped via `max-h-64` CSS).
+- `pattern`: must be the string `image`
+- `image_path`: string, required
+- `alt_text`: string, required, maxLength 120
+- `caption`: string, optional, maxLength 40
+
+### Pattern: `table`
+Very small table (2-3 cols × 3-6 rows).
+- `pattern`: must be the string `table`
+- `columns`: array of strings, required, 2-3 items, each maxLength 16
+- `rows`: array, required, 3-6 items, each an array matching `columns` length, each cell maxLength 20 — Check 10 WARNs if > 6 rows (suggest promoting to standalone `data-table`)
+
+### Pattern: `metric`
+Single headline number.
+- `pattern`: must be the string `metric`
+- `value`: string, required, maxLength 12
+- `unit`: string, optional, maxLength 10
+- `caption`: string, required, maxLength 30
+
+**Markdown template** (example: `bullets × table`):
+```markdown
+---
+layout: two-cols
+class: two-columns
+---
+
+# {{title}}
+
+::left::
+
+<div class="pattern-bullets">
+
+### {{left.heading}}
+
+- {{left.items[0]}}
+- {{left.items[1]}}
+- {{left.items[2]}}
+
+</div>
+
+::right::
+
+<div class="pattern-table">
+
+| {{right.columns[0]}} | {{right.columns[1]}} |
+|---|---|
+| {{row1[0]}} | {{row1[1]}} |
+| {{row2[0]}} | {{row2[1]}} |
+| {{row3[0]}} | {{row3[1]}} |
+
+</div>
+```
+
+**Markdown template** (example: `text × image`):
+```markdown
+---
+layout: two-cols
+class: two-columns
+---
+
+# {{title}}
+
+::left::
+
+<div class="pattern-text">
+
+{{left.content}}
+
+</div>
+
+::right::
+
+<div class="pattern-image">
+
+<img src="{{right.image_path}}" alt="{{right.alt_text}}" />
+
+<div class="caption">{{right.caption}}</div>
+
+</div>
+```
+
+Note: Slidev's `two-cols` layout uses the `::left::` and `::right::` column markers. Any of the 6 patterns can appear on either side.
+
+### Canonical pairings (for Claude's layout decisions)
+
+| Left × Right | Typical use |
+|---|---|
+| `bullets` × `bullets` | Classic pros/cons, A vs B |
+| `text` × `image` | Concept + visual anchor |
+| `bullets` × `table` | Claims + supporting data |
+| `bullets` × `code` | Explanation + code example |
+| `code` × `code` | Before/after refactor (alternative to magic-move) |
+| `metric` × `metric` | Two contrasting KPIs |
+| `image` × `bullets` | Screenshot + what-it-means |
+
+**Density tier default**: Normal. Use Compact when one pattern is dense (e.g., `table` with 6 rows, `code` with 8 lines).
+
+**Allowed animations**: v-click on either column's bulleted lists (optional); v-click to reveal right column after left is discussed (one sequential reveal, not per-item).
+
+---
