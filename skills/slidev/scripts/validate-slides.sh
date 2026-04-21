@@ -141,7 +141,10 @@ while IFS= read -r line; do
 
   # Track HTML block entry/exit (tags like <div>, <v-click>, etc.)
   # Skip self-closing tags (<br />, <img ... />) — they don't create blocks
-  if echo "$line" | grep -qE '^\s*<[a-zA-Z]' && ! echo "$line" | grep -qE '/>'; then
+  # Skip lines that open AND close a tag on the same line (e.g. <div>...</div>)
+  if echo "$line" | grep -qE '^\s*<[a-zA-Z]' \
+     && ! echo "$line" | grep -qE '/>' \
+     && ! echo "$line" | grep -qE '</[a-zA-Z][^>]*>\s*$'; then
     IN_HTML=true
   fi
   if echo "$line" | grep -qE '^\s*</[a-zA-Z]'; then
