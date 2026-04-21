@@ -253,3 +253,110 @@ class: big-statement
 **Allowed animations**: v-click optional on the statement (useful when revealing the punch line after a setup monologue).
 
 ---
+
+## content-bullets
+
+**Semantic role**: One claim + 3-5 supporting bullets — the workhorse of most decks.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: content-bullets
+```
+
+**When to use**:
+- Presenting a claim with discrete supporting points
+- When each supporting point is a short phrase, not a paragraph
+- For step-by-step reveals via v-click (teaching mode)
+- Default choice when unsure between this and `content-narrative`
+
+**Avoid when**:
+- Points are interdependent prose that flows naturally — use `content-narrative`
+- More than 5 items — consider splitting or restructuring; agenda-style lists go in `agenda`
+- Very short (1-2 items) — use `content-narrative` or `big-statement`
+
+**Fields schema**:
+- `title`: string, required, maxLength 60 — assertion-style heading
+- `subtitle`: string, optional, maxLength 90 — context / sub-claim
+- `bullets`: array of strings, required, 3-5 items, each maxLength 90
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: content-bullets
+---
+
+# {{title}}
+
+{{subtitle}}
+
+<v-click>
+
+- {{bullet 1}}
+
+</v-click>
+
+<v-click>
+
+- {{bullet 2}}
+
+</v-click>
+
+<v-click>
+
+- {{bullet 3}}
+
+</v-click>
+```
+
+**Density tier default**: Normal
+
+**Allowed animations**: v-click per bullet (preferred when teaching); v-mark on the title for emphasis; 30-50% of content-bullets slides should use v-click.
+
+---
+
+## content-narrative
+
+**Semantic role**: One claim + a paragraph of exposition — flowing prose, not discrete points.
+
+**Slidev frontmatter**:
+```yaml
+layout: default
+class: content-narrative
+```
+
+**When to use**:
+- Concept explanation where sentences build on each other
+- Opening background slides / introductions / framing
+- When bullet points would fragment the logic
+
+**Avoid when**:
+- Content is genuinely a list — use `content-bullets`
+- Paragraph exceeds 300 characters — split into multiple slides or use `text-heavy` verbosity + higher density
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `subtitle`: string, optional, maxLength 90
+- `body`: markdown string, required, maxLength 300 — supports inline `**bold**`, `*italic*`, `` `code` `` but NOT fenced code blocks
+- `emphasis`: string, optional, maxLength 40 — a phrase within `body` to wrap in `<v-mark>`
+
+**Markdown template**:
+```markdown
+---
+layout: default
+class: content-narrative
+---
+
+# {{title}}
+
+{{subtitle}}
+
+{{body}}
+```
+
+**Density tier default**: Normal (switch to Compact only if body + subtitle is near ceiling)
+
+**Allowed animations**: v-mark on the key phrase (optional); v-click to reveal the body paragraph after the heading (optional, uncommon).
+
+---
