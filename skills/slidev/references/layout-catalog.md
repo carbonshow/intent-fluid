@@ -705,3 +705,73 @@ Note: Slidev's `image` layout uses `image:` as a frontmatter field (not a field 
 **Allowed animations**: v-click optional on the title/caption reveal; none on the image itself.
 
 ---
+
+## image-text-split
+
+**Semantic role**: Image on one side (~55%) + explanatory text on the other (~45%). Unlike `image-focus`, the image is shown AND explained. Unlike `two-columns`, the pairing is specifically "visual-plus-explanation", not comparison.
+
+**Slidev frontmatter**:
+```yaml
+layout: image-left    # or image-right, based on image_side field
+class: image-text-split
+```
+
+**When to use**:
+- Explaining a UI screenshot (technical: API console / CLI output)
+- Walking through a diagram or chart (executive: quarter's headline chart with commentary)
+- Concept + illustration in educational material (labeled schematic + explanation)
+
+**Avoid when**:
+- Image doesn't need explaining — use `image-focus` (full-width)
+- The text is a comparison against another image — use `two-columns` with `image × image` or `image × bullets`
+- The text is a full narrative paragraph that happens to have an accompanying figure — use `content-narrative` with inline image or `image-focus` on a separate slide
+
+**Fields schema**:
+- `title`: string, required, maxLength 60
+- `image_path`: string, required — relative to deck's `public/`
+- `image_side`: enum, optional, default `left` — either `left` or `right`; maps to Slidev layout `image-left` vs `image-right`
+- `alt_text`: string, required, maxLength 120
+- `body`: markdown string, required, maxLength 300 — supports inline formatting and short bullets (`- item`), but no fenced code blocks
+- `caption`: string, optional, maxLength 60 — short annotation under the image
+
+**Markdown template** (image on left):
+```markdown
+---
+layout: image-left
+image: {{image_path}}
+class: image-text-split
+---
+
+# {{title}}
+
+<div class="body">
+
+{{body}}
+
+</div>
+
+<div class="caption">{{caption}}</div>
+```
+
+**Markdown template** (image on right — use `layout: image-right`):
+```markdown
+---
+layout: image-right
+image: {{image_path}}
+class: image-text-split
+---
+
+# {{title}}
+
+<div class="body">
+
+{{body}}
+
+</div>
+```
+
+**Density tier default**: Normal
+
+**Allowed animations**: v-click on body bullets (optional, teaching mode); none on the image.
+
+---
