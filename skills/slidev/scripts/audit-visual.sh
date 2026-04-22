@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 RUNNER="$SKILL_ROOT/assets/runner"
 
-if ! node -e "require('playwright')" 2>/dev/null; then
+if ! NODE_PATH="$RUNNER/node_modules" node -e "require('playwright')" 2>/dev/null; then
   echo "Playwright not installed. Install with:"
   echo "  (cd $RUNNER && npm install --no-save playwright)"
   echo "  npx --prefix $RUNNER playwright install chromium"
