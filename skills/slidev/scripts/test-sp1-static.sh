@@ -27,7 +27,7 @@ LAYOUT_CLASSES=(agenda content-bullets content-narrative two-columns three-metri
                 image-text-split big-statement)
 
 # Check 1: 6 theme CSS files exist
-CSS_COUNT=$(find "$THEMES_DIR" -maxdepth 1 -name '*.css' 2>/dev/null | wc -l | tr -d ' ')
+CSS_COUNT=$(find "$THEMES_DIR" -maxdepth 1 -name '*.css' -not -name '_*' 2>/dev/null | wc -l | tr -d ' ')
 if [[ "$CSS_COUNT" -eq 6 ]]; then
   pass 1 "6 theme CSS files exist"
 else
