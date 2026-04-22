@@ -178,3 +178,75 @@
   max-height: 100%;
 }
 .slidev-layout.skeleton-code-diagram > .caption { grid-row: 3; }
+
+/* ── Media: image-focus ───────────────────────────────────────── */
+.slidev-layout.image-focus {
+  position: relative;
+  padding: 0;
+}
+.slidev-layout.image-focus > .image-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.slidev-layout.image-focus > .image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slidev-layout.image-focus > .image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    var(--color-overlay) 0%,
+    transparent 40%,
+    transparent 70%,
+    var(--color-overlay) 100%);
+}
+.slidev-layout.image-focus > h1 {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-on-primary);
+  margin: 0;
+}
+.slidev-layout.image-focus > .caption {
+  position: absolute;
+  left: var(--space-5);
+  right: var(--space-5);
+  bottom: var(--space-4);
+  z-index: 2;
+  color: var(--color-on-primary);
+  text-align: left;
+  margin: 0;
+}
+
+/* ── Media: image-text-split (Slidev image-left / image-right) ─── */
+/* Body half (default slot) gets flex center so text doesn't stick to top */
+.slidev-layout.image-text-split {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-5);
+}
+.slidev-layout.image-text-split h1 { margin-bottom: var(--space-3); }
+.slidev-layout.image-text-split .caption {
+  text-align: left;
+  margin-top: var(--space-2);
+}
+
+/* ── Media: two-columns (Slidev two-cols-header) ─────────────── */
+.slidev-layout.two-columns {
+  padding: var(--space-5);
+}
+.slidev-layout.two-columns .col-header {
+  padding-bottom: var(--space-3);
+}
+.slidev-layout.two-columns .col-left,
+.slidev-layout.two-columns .col-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--space-2);
+}
