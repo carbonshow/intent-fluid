@@ -124,69 +124,88 @@ ${demo.body}
     if (d.toString().includes('http://localhost:')) serverReady = true;
   });
   const start = Date.now();
-  while (!serverReady && Date.now() - start < 25000) await sleep(200);
+  while (!serverReady && Date.now() - start < 45000) await sleep(200);
   if (!serverReady) {
     try { process.kill(-server.pid); } catch (e) {}
-    return { theme, layout, status: 'ERROR', errors: ['dev server did not start within 25s'] };
+    return { theme, layout, status: 'ERROR', errors: ['dev server did not start within 45s'] };
   }
-  await sleep(500);  // extra settle time
+  await sleep(1500);  // extra settle time for slow vite compilation
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   const errors = [];
   try {
-    await page.goto(`http://localhost:${port}/2`, { waitUntil: 'networkidle', timeout: 15000 });
-    await page.waitForSelector('.slidev-layout', { timeout: 5000 });
-    await sleep(1200);
+    await page.goto(`http://localhost:${port}/2`, { waitUntil: 'domcontentloaded', timeout: 40000 });
+    await page.waitForSelector('.slidev-layout', { timeout: 10000, state: 'attached' });
+    await sleep(1500);
 
-    // Assertion 1: no child element overflows .slidev-layout bounds
-    const overflow = await page.evaluate(() => {
-      const layout = document.querySelector('.slidev-layout');
-      if (!layout) return 'no .slidev-layout';
-      const lr = layout.getBoundingClientRect();
-      for (const el of layout.querySelectorAll('*')) {
+    // Slidev dev server renders all slides into the DOM; we need the currently
+    // visible one. Pick the .slidev-layout whose bounding box is non-empty and
+    // visible in the viewport.
+    const visibleSlideHandle = await page.evaluateHandle(() => {
+      const all = document.querySelectorAll('.slidev-layout');
+      for (const el of all) {
         const r = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        if (r.width > 100 && r.height > 100 &&
+            style.visibility !== 'hidden' && style.display !== 'none' &&
+            style.opacity !== '0') {
+          return el;
+        }
+      }
+      return all[all.length - 1] || null;  // fallback to last (often the demo)
+    });
+
+    // Assertion 1: no child element overflows the visible slide bounds
+    const overflow = await page.evaluate((slideEl) => {
+      if (!slideEl) return 'no visible slide';
+      const lr = slideEl.getBoundingClientRect();
+      for (const el of slideEl.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
         if (r.right > lr.right + 2 || r.bottom > lr.bottom + 2) {
           return `${el.tagName}.${(el.className || '').toString().slice(0, 40)} overflows`;
         }
       }
       return null;
-    });
+    }, visibleSlideHandle);
     if (overflow) errors.push(`overflow: ${overflow}`);
 
-    // Assertion 2: vertical centering (skip hero-class + image-focus)
+    // Assertion 2: vertical centering (skip hero + image-focus)
     if (!['cover', 'section-divider', 'big-statement', 'closing', 'image-focus'].includes(layout)) {
-      const dev = await page.evaluate(() => {
-        const layout = document.querySelector('.slidev-layout');
-        const kids = Array.from(layout.children).filter(c => c.offsetHeight > 0);
+      const dev = await page.evaluate((slideEl) => {
+        if (!slideEl) return 0;
+        const kids = Array.from(slideEl.children).filter(c => c.offsetHeight > 0);
         if (kids.length === 0) return 0;
-        const lr = layout.getBoundingClientRect();
+        const lr = slideEl.getBoundingClientRect();
         const centers = kids.map(c => { const r = c.getBoundingClientRect(); return (r.top + r.bottom) / 2; });
         const avgCenter = centers.reduce((a, b) => a + b, 0) / centers.length;
         const layoutCenter = (lr.top + lr.bottom) / 2;
         return Math.abs(avgCenter - layoutCenter) / lr.height;
-      });
+      }, visibleSlideHandle);
       if (dev > 0.3) errors.push(`vertical off-center ${Math.round(dev * 100)}%`);
     }
 
     // Assertion 3: h1 font-size in sensible range
-    const h1Size = await page.evaluate(() => {
-      const h1 = document.querySelector('.slidev-layout h1');
+    const h1Size = await page.evaluate((slideEl) => {
+      if (!slideEl) return null;
+      const h1 = slideEl.querySelector('h1');
       return h1 ? parseFloat(getComputedStyle(h1).fontSize) : null;
-    });
+    }, visibleSlideHandle);
     if (h1Size !== null && (h1Size < 35 || h1Size > 140)) {
       errors.push(`h1 font-size ${h1Size}px out of [35, 140]`);
     }
 
-    // Assertion 4: three-metrics alignment
+    // Assertion 4: three-metrics row alignment
     if (layout === 'three-metrics') {
-      const misalign = await page.evaluate(() => {
-        const items = document.querySelectorAll('.metric');
+      const misalign = await page.evaluate((slideEl) => {
+        if (!slideEl) return 'no visible slide';
+        const items = slideEl.querySelectorAll('.metric');
         if (items.length === 0) return 'no .metric elements';
         const tops = Array.from(items).map(i => i.getBoundingClientRect().top);
         const diff = Math.max(...tops) - Math.min(...tops);
         return diff > 4 ? `metric tops vary ${diff.toFixed(1)}px` : null;
-      });
+      }, visibleSlideHandle);
       if (misalign) errors.push(misalign);
     }
 
@@ -207,6 +226,8 @@ ${demo.body}
 
 async function main() {
   const skillRoot = process.argv[2] || path.resolve(__dirname, '../..');
+  const onlyArg = process.argv.indexOf('--only');
+  const only = onlyArg >= 0 ? process.argv[onlyArg + 1] : null;  // format: "theme/layout"
   const ts = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
   const outDir = path.join(skillRoot, 'evals', 'visual-audit', ts);
   fs.mkdirSync(outDir, { recursive: true });
@@ -214,13 +235,21 @@ async function main() {
 
   const layouts = Object.keys(LAYOUT_DEMOS);
   const results = [];
+  const pairs = [];
   for (const theme of THEMES) {
     for (const layout of layouts) {
-      process.stderr.write(`  ${theme} × ${layout}... `);
-      const r = await auditOne(theme, layout, scratch, outDir, skillRoot);
-      results.push(r);
-      process.stderr.write(`${r.status}${r.errors.length ? ' (' + r.errors.join('; ') + ')' : ''}\n`);
+      if (only) {
+        const [t, l] = only.split('/');
+        if (theme !== t || layout !== l) continue;
+      }
+      pairs.push([theme, layout]);
     }
+  }
+  for (const [theme, layout] of pairs) {
+    process.stderr.write(`  ${theme} × ${layout}... `);
+    const r = await auditOne(theme, layout, scratch, outDir, skillRoot);
+    results.push(r);
+    process.stderr.write(`${r.status}${r.errors.length ? ' (' + r.errors.join('; ') + ')' : ''}\n`);
   }
 
   fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ results }, null, 2));
