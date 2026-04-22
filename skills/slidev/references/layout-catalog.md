@@ -45,6 +45,7 @@ If a field genuinely cannot be truncated without losing meaning, add
 **Slidev frontmatter**:
 ```yaml
 layout: cover
+class: skeleton-hero
 ```
 
 **When to use**:
@@ -64,6 +65,7 @@ layout: cover
 ```markdown
 ---
 layout: cover
+class: skeleton-hero
 ---
 
 # {{title}}
@@ -88,7 +90,7 @@ layout: cover
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: agenda
+class: skeleton-list agenda
 ```
 
 **When to use**:
@@ -111,16 +113,20 @@ class: agenda
 ```markdown
 ---
 layout: default
-class: agenda
+class: skeleton-list agenda
 ---
 
 # {{title}}
+
+<div class="content">
 
 1. {{item 1}}
 2. {{item 2}}
 3. {{item 3}}
 4. {{item 4}}
 5. {{item 5}}
+
+</div>
 ```
 
 **Density tier default**: Normal
@@ -136,6 +142,7 @@ class: agenda
 **Slidev frontmatter**:
 ```yaml
 layout: section
+class: skeleton-hero
 ```
 
 **When to use**:
@@ -156,6 +163,7 @@ layout: section
 ```markdown
 ---
 layout: section
+class: skeleton-hero
 ---
 
 # {{section_title}}
@@ -176,6 +184,7 @@ layout: section
 **Slidev frontmatter**:
 ```yaml
 layout: end
+class: skeleton-hero
 ```
 
 **When to use**:
@@ -194,6 +203,7 @@ layout: end
 ```markdown
 ---
 layout: end
+class: skeleton-hero
 ---
 
 # {{title}}
@@ -214,7 +224,7 @@ layout: end
 **Slidev frontmatter**:
 ```yaml
 layout: center
-class: big-statement
+class: skeleton-hero big-statement
 ```
 
 **When to use**:
@@ -236,7 +246,7 @@ class: big-statement
 ```markdown
 ---
 layout: center
-class: big-statement
+class: skeleton-hero big-statement
 ---
 
 <div class="statement">
@@ -261,7 +271,7 @@ class: big-statement
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: content-bullets
+class: skeleton-list content-bullets
 ```
 
 **When to use**:
@@ -284,12 +294,14 @@ class: content-bullets
 ```markdown
 ---
 layout: default
-class: content-bullets
+class: skeleton-list content-bullets
 ---
 
 # {{title}}
 
 {{subtitle}}
+
+<div class="content">
 
 <v-click>
 
@@ -308,6 +320,8 @@ class: content-bullets
 - {{bullet 3}}
 
 </v-click>
+
+</div>
 ```
 
 **Density tier default**: Normal
@@ -323,7 +337,7 @@ class: content-bullets
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: content-narrative
+class: skeleton-list content-narrative
 ```
 
 **When to use**:
@@ -345,14 +359,18 @@ class: content-narrative
 ```markdown
 ---
 layout: default
-class: content-narrative
+class: skeleton-list content-narrative
 ---
 
 # {{title}}
 
 {{subtitle}}
 
+<div class="content">
+
 {{body}}
+
+</div>
 ```
 
 **Density tier default**: Normal (switch to Compact only if body + subtitle is near ceiling)
@@ -368,7 +386,7 @@ class: content-narrative
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: three-metrics
+class: skeleton-data three-metrics
 ```
 
 **When to use**:
@@ -392,10 +410,12 @@ class: three-metrics
 ```markdown
 ---
 layout: default
-class: three-metrics
+class: skeleton-data three-metrics
 ---
 
 # {{title}}
+
+<div class="data-body">
 
 <div class="metrics-row">
   <div class="metric">
@@ -410,6 +430,8 @@ class: three-metrics
     <div class="metric-value">{{metrics[2].value}}</div>
     <div class="metric-caption">{{metrics[2].caption}}</div>
   </div>
+</div>
+
 </div>
 ```
 
@@ -426,7 +448,7 @@ class: three-metrics
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: data-table
+class: skeleton-data data-table
 ```
 
 **When to use**:
@@ -451,16 +473,20 @@ class: data-table
 ```markdown
 ---
 layout: default
-class: data-table
+class: skeleton-data data-table
 ---
 
 # {{title}}
+
+<div class="data-body">
 
 | {{col 1}} | {{col 2}} | {{col 3}} |
 |-----------|-----------|-----------|
 | {{r1c1}}  | {{r1c2}}  | {{r1c3}}  |
 | {{r2c1}}  | {{r2c2}}  | {{r2c3}}  |
 | {{r3c1}}  | {{r3c2}}  | {{r3c3}}  |
+
+</div>
 
 <div class="caption">{{caption}}</div>
 ```
@@ -478,7 +504,7 @@ class: data-table
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: timeline-horizontal
+class: skeleton-data timeline-horizontal
 ```
 
 **When to use**:
@@ -502,10 +528,12 @@ class: timeline-horizontal
 ```markdown
 ---
 layout: default
-class: timeline-horizontal
+class: skeleton-data timeline-horizontal
 ---
 
 # {{title}}
+
+<div class="data-body">
 
 <div class="timeline">
   <div class="node">
@@ -525,6 +553,8 @@ class: timeline-horizontal
     <div class="node-detail">{{nodes[3].detail}}</div>
   </div>
 </div>
+
+</div>
 ```
 
 **Density tier default**: Normal. Use Compact when 6 nodes are present with long labels.
@@ -540,7 +570,7 @@ class: timeline-horizontal
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: code-focus
+class: skeleton-code-diagram code-focus
 ```
 
 **When to use**:
@@ -566,16 +596,20 @@ class: code-focus
 ```markdown
 ---
 layout: default
-class: code-focus
+class: skeleton-code-diagram code-focus
 ---
 
 # {{title}}
 
 {{subtitle}}
 
+<div class="content-body">
+
 \`\`\`{{language}} {{line_highlight}}
 {{code}}
 \`\`\`
+
+</div>
 
 {{trailing_note}}
 ```
@@ -584,10 +618,12 @@ class: code-focus
 ```markdown
 ---
 layout: default
-class: code-focus
+class: skeleton-code-diagram code-focus
 ---
 
 # {{title}}
+
+<div class="content-body">
 
 ````md magic-move
 ```{{language}}
@@ -600,6 +636,8 @@ class: code-focus
 {{code_v2}}
 ```
 ````
+
+</div>
 ```
 
 **Density tier default**: Normal. Compact when code > 10 lines.
@@ -615,7 +653,7 @@ class: code-focus
 **Slidev frontmatter**:
 ```yaml
 layout: default
-class: diagram-primary
+class: skeleton-code-diagram diagram-primary
 ```
 
 **When to use**:
@@ -640,14 +678,18 @@ class: diagram-primary
 ```markdown
 ---
 layout: default
-class: diagram-primary
+class: skeleton-code-diagram diagram-primary
 ---
 
 # {{title}}
 
+<div class="content-body">
+
 \`\`\`mermaid {scale: {{scale}}}
 {{mermaid_code}}
 \`\`\`
+
+</div>
 
 <div class="caption">{{caption}}</div>
 ```
@@ -664,7 +706,7 @@ class: diagram-primary
 
 **Slidev frontmatter**:
 ```yaml
-layout: image
+layout: default
 class: image-focus
 ```
 
@@ -688,17 +730,20 @@ class: image-focus
 **Markdown template**:
 ```markdown
 ---
-layout: image
-image: {{image_path}}
+layout: default
 class: image-focus
 ---
+
+<div class="image-wrapper">
+  <img src="{{image_path}}" alt="{{alt_text}}" />
+</div>
 
 # {{title}}
 
 <div class="caption">{{caption}}</div>
 ```
 
-Note: Slidev's `image` layout uses `image:` as a frontmatter field (not a field in the body). The image fills the slide as background.
+Note: The image is rendered inline via `<img>` inside `.image-wrapper`; the theme's `.image-focus` CSS controls sizing and placement.
 
 **Density tier default**: Normal
 

@@ -64,7 +64,7 @@ EXPECTED_LAYOUT = {
     "timeline-horizontal": "default",
     "code-focus": "default",
     "diagram-primary": "default",
-    "image-focus": "image",
+    "image-focus": "default",
     "image-text-split": "image-left",  # or image-right
     "big-statement": "center",
     "closing": "end",
