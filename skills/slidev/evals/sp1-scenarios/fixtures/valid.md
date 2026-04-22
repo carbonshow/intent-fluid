@@ -13,21 +13,27 @@ A deck that exercises Check 10 cleanly.
 
 ---
 layout: default
-class: content-bullets
+class: skeleton-list content-bullets
 ---
 
 # Three Good Bullets
+
+<div class="content">
 
 - First bullet, short enough
 - Second bullet, also short
 - Third bullet, still within limit
 
+</div>
+
 ---
 layout: default
-class: three-metrics
+class: skeleton-data three-metrics
 ---
 
 # Three Metrics Look Right
+
+<div class="data-body">
 
 <div class="metrics-row">
   <div class="metric">
@@ -44,9 +50,11 @@ class: three-metrics
   </div>
 </div>
 
+</div>
+
 ---
 layout: center
-class: big-statement
+class: skeleton-hero big-statement
 ---
 
 <div class="statement">
@@ -55,6 +63,7 @@ We ship weekly, not quarterly.
 
 ---
 layout: end
+class: skeleton-hero
 ---
 
 # Thank You

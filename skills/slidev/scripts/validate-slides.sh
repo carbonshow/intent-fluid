@@ -300,30 +300,35 @@ for idx, (fm, slide_body) in enumerate(slides, start=1):
     expected_class = meta["expected_class"]
     expected_layout_map = meta["expected_layout"]
 
+    # Class may be compound (e.g. "skeleton-list agenda"). Tokenize it.
+    cls_tokens = set((cls or "").split())
+
     semantic = None
     for sem, exp_layout in expected_layout_map.items():
         if sem == "image-text-split" and layout in ("image-left", "image-right"):
             candidate_class = expected_class[sem]
-            if cls == candidate_class:
+            if candidate_class in cls_tokens:
                 semantic = sem
                 break
         elif exp_layout == layout:
             needed = expected_class[sem]
             if needed is None:
-                if cls is None or cls == "":
+                if not cls_tokens:
                     semantic = sem
                     break
             else:
-                if cls == needed:
+                if needed in cls_tokens:
                     semantic = sem
                     break
 
     if semantic is None:
-        if cls and cls in {v for v in expected_class.values() if v}:
+        known_classes = {v for v in expected_class.values() if v}
+        matched_class = next((c for c in known_classes if c in cls_tokens), None)
+        if matched_class:
             for sem, needed in expected_class.items():
-                if needed == cls:
+                if needed == matched_class:
                     expected = expected_layout_map[sem]
-                    fails.append(f"Slide {idx}: class '{cls}' requires layout '{expected}' but got '{layout}'")
+                    fails.append(f"Slide {idx}: class '{matched_class}' requires layout '{expected}' but got '{layout}'")
                     break
         SLIDEV_BUILTINS = {"default", "cover", "center", "two-cols", "two-cols-header",
                             "image", "image-left", "image-right", "section", "end",

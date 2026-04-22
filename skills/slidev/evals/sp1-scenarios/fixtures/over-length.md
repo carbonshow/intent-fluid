@@ -12,9 +12,13 @@ Cover slide.
 
 ---
 layout: default
-class: content-bullets
+class: skeleton-list content-bullets
 ---
 
 # Deliberately Too Long
 
+<div class="content">
+
 - This bullet is very very long on purpose to trigger the maxLength WARN for content-bullets; it runs well past the 90-character ceiling for bullets and should be flagged.
+
+</div>

@@ -20,22 +20,28 @@ Your Name · Date
 
 ---
 layout: default
-class: agenda
+class: skeleton-list agenda
 ---
 
 # Agenda
+
+<div class="content">
 
 1. What this deck demonstrates
 2. The layout catalog in action
 3. A visual variety tour
 4. Closing notes
 
+</div>
+
 ---
 layout: default
-class: content-bullets
+class: skeleton-list content-bullets
 ---
 
 # Content Bullets — the Workhorse
+
+<div class="content">
 
 Use this for a claim plus 3-5 short supporting points.
 
@@ -57,14 +63,16 @@ Use this for a claim plus 3-5 short supporting points.
 
 </v-click>
 
+</div>
+
 ---
 layout: default
-class: code-focus
+class: skeleton-code-diagram code-focus
 ---
 
 # Code Focus with Shiki
 
-Shiki syntax highlighting with progressive line reveal:
+<div class="content-body">
 
 ```typescript {1|3-4|all}
 // First click highlights line 1, then lines 3-4, then all
@@ -73,6 +81,8 @@ function greet(name: string): string {
   return message
 }
 ```
+
+</div>
 
 ---
 layout: two-cols-header
@@ -116,10 +126,12 @@ def hello():
 
 ---
 layout: default
-class: three-metrics
+class: skeleton-data three-metrics
 ---
 
 # Three Metrics in a Row
+
+<div class="data-body">
 
 <div class="metrics-row">
   <div class="metric">
@@ -136,12 +148,16 @@ class: three-metrics
   </div>
 </div>
 
+</div>
+
 ---
 layout: default
-class: diagram-primary
+class: skeleton-code-diagram diagram-primary
 ---
 
 # Diagram Primary (Mermaid)
+
+<div class="content-body">
 
 ```mermaid
 flowchart LR
@@ -149,10 +165,13 @@ flowchart LR
   B --> C[Output]
 ```
 
+</div>
+
 <div class="caption">A simple three-step flow</div>
 
 ---
 layout: end
+class: skeleton-hero
 ---
 
 # Thank You
