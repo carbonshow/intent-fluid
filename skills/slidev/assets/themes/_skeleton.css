@@ -120,6 +120,12 @@
   justify-content: center;
   text-align: center;
   padding: var(--space-6);
+  /* Override Slidev's end.vue scoped styles (bg-black, text-white, text-xl,
+   * tracking-widest) that would otherwise bleed through on closing slides. */
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  letter-spacing: normal;
+  font-size: var(--text-body);
 }
 /* Space between stacked children (h1 + subtitle + author etc.) */
 .slidev-layout.skeleton-hero > * + * {
