@@ -116,6 +116,10 @@ mkdir -p "$TARGET_DIR/public/fonts"
 
 # ── Copy template files ─────────────────────────────────────────────────────
 cp "$THEME_CSS" "$TARGET_DIR/style.css"
+# Also copy the shared design-token skeleton that themes @import
+if [[ -f "$SKILL_ROOT/assets/themes/_skeleton.css" ]]; then
+  cp "$SKILL_ROOT/assets/themes/_skeleton.css" "$TARGET_DIR/_skeleton.css"
+fi
 
 if [[ "$MINIMAL" == true ]]; then
   # Minimal: cover + one content slide + closing
