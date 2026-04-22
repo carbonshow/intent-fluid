@@ -114,19 +114,27 @@
 }
 
 .slidev-layout.diagram-primary {
-  display: flex; flex-direction: column; justify-content: center;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: 0.75rem;
 }
-.slidev-layout.diagram-primary h1 { text-align: center; }
 .slidev-layout.diagram-primary .mermaid {
-  display: flex; justify-content: center; align-items: center;
-  margin: 1.5rem auto; max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  margin: 0;
 }
 .slidev-layout.diagram-primary .mermaid svg {
-  max-width: 100%; max-height: 60vh; height: auto; width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  width: auto;
 }
 .slidev-layout.diagram-primary .caption {
-  color: var(--color-muted); font-size: 0.9rem;
-  text-align: center; margin-top: 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .image-focus img {
