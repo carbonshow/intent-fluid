@@ -316,6 +316,11 @@ This checks all Critical Gotchas automatically: frontmatter integrity, `colorSch
 > If validation fails, read `references/troubleshooting.md` for solutions to
 > common issues.
 
+> **Optional visual quality gate**: `bash "$SKILL_ROOT/scripts/audit-visual.sh"`
+> runs a Playwright-driven visual audit across all 6 themes × 15 layouts
+> (90 geometric checks, ~15 min). Run after theme or layout CSS changes.
+> Requires `npx --prefix <runner> playwright install chromium` on first use.
+
 ### Step 5: Review Quality
 
 Run the quality review to catch content-level issues that validation does not cover:

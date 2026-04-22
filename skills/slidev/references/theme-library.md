@@ -181,3 +181,43 @@
 - **No theme matches every signal** → pick the nearest on audience-scenario axis. If still ambiguous, default `tech-dark`. Note "default fallback, please override if needed".
 - **User overrides the brief's theme** → accept, do not re-infer.
 - **User asks for a theme not in the 6** → explain the 6 options, note that SP4 (future) may introduce more.
+
+---
+
+## Token System (v2)
+
+All 6 themes inherit from `assets/themes/_skeleton.css` via `@import` and override
+the per-theme tokens. The skeleton provides geometric layout classes (skeleton-hero,
+skeleton-list, skeleton-data, skeleton-code-diagram) + dedicated CSS for media
+layouts (image-focus, image-text-split, two-columns) — themes only differ in
+colors, fonts, and tiny aesthetic touches.
+
+### Color tokens (themes override)
+- `--color-primary` — headings, brand accent
+- `--color-accent` — subheadings, markers, links
+- `--color-text` — body text
+- `--color-bg` — slide background
+- `--color-muted` — captions, metadata
+- `--color-code-bg` — code block background
+- `--color-border` — table dividers, card borders
+- `--color-on-primary` — text laid on top of primary-color surfaces (e.g. image-focus title)
+- `--color-overlay` — image-focus gradient dimming
+
+### Typography tokens (inherited from skeleton; override only if theme needs different scale)
+- `--text-caption` (0.844rem) / `--text-body` (1.125rem) / `--text-subtitle` (1.5rem)
+- `--text-h3` (2rem) / `--text-h2` (2.667rem) / `--text-h1` (3.555rem) / `--text-hero` (4.741rem)
+- Perfect Fourth 1.333×, body=18px baseline
+
+### Spacing tokens (inherited; 0.5rem base)
+- `--space-1` (8px) / `--space-2` (16px) / `--space-3` (24px)
+- `--space-4` (32px) / `--space-5` (48px) / `--space-6` (64px)
+
+### Adding a new theme
+
+1. Create `assets/themes/<name>.css`
+2. First non-comment line: `@import url('./_skeleton.css');`
+3. Override `:root` with color + font tokens (9 color vars + 3 font stacks)
+4. Copy the "Theme Aesthetics" block from `tech-dark.css` (layout classes that consume tokens)
+5. Add `<name>` to `AVAILABLE_THEMES` in `scripts/new-presentation.sh`
+6. Add a section here documenting the theme's intent signals
+7. Run `bash scripts/test-sp1-static.sh` then `bash scripts/audit-visual.sh` to verify
