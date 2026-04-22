@@ -122,11 +122,17 @@ fi
 MISSING_CSS=()
 for cls in "${LAYOUT_CLASSES[@]}"; do
   FOUND=false
-  for t in "${THEMES[@]}"; do
-    if grep -q "\\.${cls}" "$THEMES_DIR/$t.css" 2>/dev/null; then
-      FOUND=true; break
-    fi
-  done
+  # Check skeleton first (v2: shared geometric skeletons live there)
+  if grep -q "\\.${cls}" "$THEMES_DIR/_skeleton.css" 2>/dev/null; then
+    FOUND=true
+  fi
+  if [[ "$FOUND" != true ]]; then
+    for t in "${THEMES[@]}"; do
+      if grep -q "\\.${cls}" "$THEMES_DIR/$t.css" 2>/dev/null; then
+        FOUND=true; break
+      fi
+    done
+  fi
   if [[ "$FOUND" != true ]]; then
     MISSING_CSS+=("$cls")
   fi

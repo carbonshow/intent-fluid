@@ -132,6 +132,12 @@
 }
 
 /* ── Skeleton: List (agenda, content-bullets, content-narrative) ── */
+/* content-bullets and content-narrative inherit geometry from skeleton-list; */
+/* their own class is applied for per-theme typography tweaks. */
+.slidev-layout.content-bullets,
+.slidev-layout.content-narrative,
+.slidev-layout.agenda { /* inherits skeleton-list */ }
+
 .slidev-layout.skeleton-list {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -163,6 +169,10 @@
 .slidev-layout.skeleton-data > .caption { grid-row: 3; }
 
 /* ── Skeleton: Code-Diagram (code-focus, diagram-primary) ── */
+/* code-focus and diagram-primary inherit geometry from skeleton-code-diagram. */
+.slidev-layout.code-focus,
+.slidev-layout.diagram-primary { /* inherits skeleton-code-diagram */ }
+
 .slidev-layout.skeleton-code-diagram {
   display: grid;
   grid-template-rows: auto 1fr auto;
