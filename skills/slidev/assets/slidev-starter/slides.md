@@ -20,177 +20,158 @@ Your Name · Date
 
 ---
 layout: default
+class: skeleton-list agenda
 ---
 
-# Content Page
+# Agenda
 
-This is the main content area, supporting standard Markdown:
+<div class="content">
+
+1. What this deck demonstrates
+2. The layout catalog in action
+3. A visual variety tour
+4. Closing notes
+
+</div>
+
+---
+layout: default
+class: skeleton-list content-bullets
+---
+
+# Content Bullets — the Workhorse
+
+<div class="content">
+
+Use this for a claim plus 3-5 short supporting points.
+
+<v-click>
 
 - First key point
+
+</v-click>
+
+<v-click>
+
 - Second key point
+
+</v-click>
+
+<v-click>
+
 - Third key point
 
-> Quote or emphasis
+</v-click>
+
+</div>
 
 ---
 layout: default
+class: skeleton-code-diagram code-focus
 ---
 
-# Step-by-Step Reveal (v-click)
+# Code Focus with Shiki
 
-Click mouse/spacebar to reveal content progressively:
-
-<v-click>
-
-**Step 1**: First content appears
-
-</v-click>
-
-<v-click>
-
-**Step 2**: Then this content appears
-
-</v-click>
-
-<v-click>
-
-**Step 3**: Finally this content appears
-
-</v-click>
-
----
-layout: default
----
-
-# Text Highlighting (v-mark)
-
-`v-mark` adds underlines, circles, or highlights on click - great for emphasizing points during presentations:
-
-This is regular text where <v-mark type="underline" color="orange">this part is underlined</v-mark> on click.
-
-<v-click>
-
-Click again to see <v-mark type="circle" color="red">circle highlight</v-mark> effect.
-
-</v-click>
-
-<v-click>
-
-You can also use <v-mark type="highlight" color="yellow">bright highlights</v-mark> like a marker.
-
-</v-click>
-
-<!-- v-mark type options: underline / circle / highlight / strike-through / box -->
-
----
-layout: default
----
-
-# Code with Line Highlighting (Shiki)
-
-Shiki syntax highlighting with progressive line reveal; click to step through highlighted lines:
+<div class="content-body">
 
 ```typescript {1|3-4|all}
-// First click highlights line 1, second click lines 3-4, third click all
+// First click highlights line 1, then lines 3-4, then all
 function greet(name: string): string {
   const message = `Hello, ${name}!`
   return message
 }
 ```
 
----
-layout: default
----
-
-# Code Animation (Shiki Magic Move)
-
-Magic Move smoothly animates transitions between code snippets — perfect for showing evolution or refactoring:
-
-````md magic-move
-```typescript
-// Step 1: Initial version
-function add(a, b) {
-  return a + b
-}
-```
-
-```typescript
-// Step 2: Add type annotations
-function add(a: number, b: number): number {
-  return a + b
-}
-```
-
-```typescript
-// Step 3: Add validation
-function add(a: number, b: number): number {
-  if (typeof a !== 'number' || typeof b !== 'number') throw new Error('invalid')
-  return a + b
-}
-```
-````
-
-<!-- Each click transitions smoothly to next code snapshot -->
+</div>
 
 ---
-layout: default
+layout: two-cols-header
+class: two-columns
+left:
+  pattern: bullets
+  items:
+    - Left-side claim one
+    - Left-side claim two
+    - Left-side claim three
+right:
+  pattern: code
+  language: python
+  code: |
+    def hello():
+        return "right column"
 ---
 
-# Two-Column Layout
+# Two Columns — bullets × code
 
-<div class="grid grid-cols-2 gap-8">
+::left::
 
-<div>
+<div class="pattern-bullets">
 
-**Left: Text & bullets**
-
-- Point A
-- Point B
-- Point C
+- Left-side claim one
+- Left-side claim two
+- Left-side claim three
 
 </div>
 
-<div>
+::right::
 
-**Right: Code or diagram**
+<div class="pattern-code">
 
 ```python
 def hello():
-    print("right column")
+    return "right column"
 ```
 
+</div>
+
+---
+layout: default
+class: skeleton-data three-metrics
+---
+
+# Three Metrics in a Row
+
+<div class="data-body">
+
+<div class="metrics-row">
+  <div class="metric">
+    <div class="metric-value">42%</div>
+    <div class="metric-caption">First metric</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">1.2M</div>
+    <div class="metric-caption">Second metric</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">99.9%</div>
+    <div class="metric-caption">Third metric</div>
+  </div>
 </div>
 
 </div>
 
 ---
 layout: default
+class: skeleton-code-diagram diagram-primary
 ---
 
-# Interactive Vue Component
+# Diagram Primary (Mermaid)
 
-Slidev runs on Vite + Vue 3 - write interactive components directly in slides:
+<div class="content-body">
 
-<script setup>
-import { ref } from 'vue'
-const count = ref(0)
-</script>
+```mermaid
+flowchart LR
+  A[Input] --> B[Process]
+  B --> C[Output]
+```
 
-<div class="flex items-center gap-4 mt-8">
-  <button
-    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    @click="count++"
-  >
-    Click +1
-  </button>
-  <span class="text-2xl font-bold">{{ count }}</span>
 </div>
 
-<!-- Great for live demos, real-time data, or interactive examples -->
+<div class="caption">A simple three-step flow</div>
 
 ---
-layout: center
-class: text-center
+layout: end
+class: skeleton-hero
 ---
 
 # Thank You

@@ -19,8 +19,12 @@ STARTER="$SKILL_ROOT/assets/slidev-starter"
 TITLE="My Presentation"
 AUTHOR=""
 DATE="$(date +%Y-%m-%d)"
+THEME="tech-dark"
 MINIMAL=false
 FORCE=false
+
+# List of valid themes — must stay in sync with files under assets/themes/*.css
+AVAILABLE_THEMES=(tech-dark code-focus-light corporate-navy minimal-exec edu-warm playful-bright)
 
 # ── Parse arguments ──────────────────────────────────────────────────────────
 usage() {
@@ -30,6 +34,8 @@ Usage: bash scripts/new-presentation.sh <target_dir> [options]
 Options:
   --title "Title"   Set presentation title (default: "My Presentation")
   --author "Name"   Set author name
+  --theme "Name"    Select theme: tech-dark (default) / code-focus-light /
+                    corporate-navy / minimal-exec / edu-warm / playful-bright
   --minimal         Use minimal template (cover + one content + closing)
   --force           Overwrite existing target directory
   -h, --help        Show this help
@@ -46,6 +52,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --title)   TITLE="$2"; shift 2 ;;
     --author)  AUTHOR="$2"; shift 2 ;;
+    --theme)   THEME="$2"; shift 2 ;;
     --minimal) MINIMAL=true; shift ;;
     --force)   FORCE=true; shift ;;
     -h|--help) usage ;;
@@ -66,6 +73,31 @@ if [[ -z "$TARGET_DIR" ]]; then
   exit 1
 fi
 
+# ── Validate theme name ──────────────────────────────────────────────────────
+VALID_THEME=false
+for T in "${AVAILABLE_THEMES[@]}"; do
+  if [[ "$T" == "$THEME" ]]; then
+    VALID_THEME=true
+    break
+  fi
+done
+if [[ "$VALID_THEME" != true ]]; then
+  echo "Error: unknown theme '$THEME'." >&2
+  echo "Available themes:" >&2
+  for T in "${AVAILABLE_THEMES[@]}"; do
+    echo "  - $T" >&2
+  done
+  exit 1
+fi
+
+# Verify the CSS file actually exists
+THEME_CSS="$SKILL_ROOT/assets/themes/$THEME.css"
+if [[ ! -f "$THEME_CSS" ]]; then
+  echo "Error: theme CSS file not found: $THEME_CSS" >&2
+  echo "Check skill install integrity." >&2
+  exit 1
+fi
+
 # ── Validate starter template ───────────────────────────────────────────────
 if [[ ! -f "$STARTER/slides.md" ]]; then
   echo "Error: starter template not found at $STARTER/slides.md" >&2
@@ -83,7 +115,11 @@ fi
 mkdir -p "$TARGET_DIR/public/fonts"
 
 # ── Copy template files ─────────────────────────────────────────────────────
-cp "$STARTER/style.css" "$TARGET_DIR/style.css"
+cp "$THEME_CSS" "$TARGET_DIR/style.css"
+# Also copy the shared design-token skeleton that themes @import
+if [[ -f "$SKILL_ROOT/assets/themes/_skeleton.css" ]]; then
+  cp "$SKILL_ROOT/assets/themes/_skeleton.css" "$TARGET_DIR/_skeleton.css"
+fi
 
 if [[ "$MINIMAL" == true ]]; then
   # Minimal: cover + one content slide + closing

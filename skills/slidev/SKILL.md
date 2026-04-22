@@ -202,46 +202,98 @@ the `public/fonts/` directory, symlinks the shared runner's `node_modules` into
 the target directory (so Slidev can find Mermaid, themes, and other plugins),
 and ensures the runner is ready.
 
-### Step 2: Content Strategy
+### Step 2: Content Strategy & Style Decisions
 
-Before writing any slides, analyze the source material and produce a design brief.
-This prevents the most common failure mode: creating a faithful text dump of the
-source instead of an effective presentation.
+Before writing any slides, produce a **design brief** with both content strategy
+AND explicit style decisions (theme, layout per slide, density). This is the
+single hardest gate in the workflow — getting it right saves hours of rework.
 
-If the user provides a document, directory, or URL as source material, read it
-and assess across five dimensions:
+#### Step 2a: Five-dimension analysis (existing)
+Assess the source material across: audience / purpose / key messages /
+visual strategy / pacing. Read `references/content-strategy.md` for the framework.
 
-1. **Audience** — who will see this? (technical peers / executives / students / general)
-2. **Purpose** — what should the audience do after? (inform / persuade / teach / report)
-3. **Key messages** — the 3-5 things the audience must remember
-4. **Visual strategy** — mix of slide types (text, diagram, code, image, table)
-5. **Pacing** — estimated slide count and rhythm (deep dives, breathers, transitions)
+#### Step 2b: Three-parameter capture
+Extract three explicit style parameters (defined in detail in
+`content-strategy.md §6`):
+- **tone** — 1 of: casual / professional / academic / technical / playful / inspirational
+- **verbosity** — 1 of: concise / standard / text-heavy
+- **style_keywords** — 2-5 free-form tags; infer from source if user didn't supply
 
-Then produce a **design brief** with an outline table (one row per slide) and
-show it to the user. Wait for confirmation or adjustments before writing slides.
-If the user's intent is simple enough ("just make it quick"), you can propose the
-brief and proceed without waiting, but always show the brief.
+#### Step 2c: Theme inference
+Read `references/theme-library.md`. Match audience + purpose + tone +
+style_keywords against the "Use when / Avoid when" lists for the 6 themes.
+Choose exactly 1 theme. Note the rationale in the brief.
 
-> For the full analysis framework, design brief template, and pacing guidelines,
-> read `references/content-strategy.md`.
+Fallback: if no theme matches every signal, default to `tech-dark` and
+flag "default fallback" in the brief.
+
+#### Step 2d: Per-slide layout assignment
+Read `references/layout-catalog.md`. For each slide in the outline, pick
+one of the 15 layouts based on the slide's semantic content + the layout's
+"When to use / Avoid when" notes. Record the layout choice in the outline
+table.
+
+Hard rules (enforced):
+- First slide must be `cover`
+- `closing` is optional
+- `section-divider` only when deck > 20 slides
+- `agenda`, if used, within first 3 slides; skip for decks < 5 slides
+- `big-statement` ≤ ~10% of deck
+
+#### Step 2e: Design Brief (enriched)
+Produce the brief including:
+- Audience / Purpose / Language / Estimated slides
+- **Style Decisions** section (theme + tone + verbosity + keywords + density tier)
+- Key messages (3-5)
+- Outline table with columns: # / Heading / Layout / Type / Content summary / Density / Features
+- Source material notes (Keep / Compress / Cut / Add)
+
+Show the brief to the user.
+
+#### HARD GATE: user must explicitly confirm
+Regardless of how simple the user's intent seems, **wait for explicit user
+confirmation** before starting Step 3. Acceptable: "OK", "go", "continue",
+"可以", "好的", etc. Silence does NOT count. On modifications, update the
+brief and re-display.
+
+> For the full analysis framework, design brief template, pacing guidelines,
+> and the Step 2b-e details, read `references/content-strategy.md`.
+> For the 6 themes and their selection signals, read `references/theme-library.md`.
+> For the 15 layouts and their schemas, read `references/layout-catalog.md`.
 
 ### Step 3: Write Content
 
-This is the most important step. Edit `slides.md` based on the user's materials.
+This is the most important step. Edit `slides.md` based on the approved brief.
+
+**Setup first**: run `new-presentation.sh --theme <chosen-theme>` (from the
+brief's Style Decisions) to initialize the deck directory with the correct
+theme CSS. Then edit `slides.md` in that directory.
 
 **Do:**
-1. Start with the narrative arc — what story do these slides tell?
-2. One idea per slide. If a slide needs two sentences to describe, split it.
-3. Write headings as assertions ("Revenue Up 23%") not labels ("Q3 Results").
-4. Use `v-click` for step-by-step reveals on complex slides (aim for 30-50% of
-   content slides to use animations).
-5. Keep text density at 40-80 words per content slide.
+1. Follow the outline from the brief row-by-row — each row is one slide.
+2. Use the `layout:` and `class:` values from the outline as-is. Look up the
+   layout's schema in `layout-catalog.md` for field names + `maxLength`.
+3. **Before writing each field, check its `maxLength`**. If your draft exceeds,
+   rewrite it shorter. Don't rely on `validate-slides.sh` to catch overflow;
+   that's the last-line-of-defense WARN. Aim for the verbosity target:
+   concise 30-50% / standard 50-75% / text-heavy 75-100% of maxLength.
+4. Array fields (bullets / metrics / nodes): pick the count per verbosity —
+   low end for concise, mid for standard, high end for text-heavy.
+5. Write headings as assertions ("Revenue Up 23%") not labels ("Q3 Results").
+6. Use `v-click` for step-by-step reveals (30-50% of content slides).
+7. For `two-columns`, specify `left.pattern` and `right.pattern` (one of:
+   text / bullets / code / image / table / metric) in the slide's
+   frontmatter, and use the matching `.pattern-<name>` div inside.
+8. When a field genuinely cannot be shortened without losing meaning, add
+   `schema-override: true` + a `<!-- note: ... -->` explaining why.
 
 **Don't:**
 - Dump all user content onto slides verbatim. Distill and restructure.
-- Use more than 5 bullet points per slide.
+- Use layouts that aren't in `layout-catalog.md`.
+- Invent new `class:` values. Every layout has one prescribed class (or none).
+- Nest layouts. Use `two-columns` with content patterns instead.
 - Add animations to every slide — it slows delivery.
-- Exceed 120 words on any single slide without good reason.
+- Ignore `maxLength` — WARN from Check 10 is a signal your self-check failed.
 
 > For detailed content design principles (narrative arcs, audience adaptation,
 > when to use code vs diagrams, visual hierarchy), read `references/content-design.md`.
@@ -263,6 +315,11 @@ This checks all Critical Gotchas automatically: frontmatter integrity, `colorSch
 
 > If validation fails, read `references/troubleshooting.md` for solutions to
 > common issues.
+
+> **Optional visual quality gate**: `bash "$SKILL_ROOT/scripts/audit-visual.sh"`
+> runs a Playwright-driven visual audit across all 6 themes × 15 layouts
+> (90 geometric checks, ~15 min). Run after theme or layout CSS changes.
+> Requires `npx --prefix <runner> playwright install chromium` on first use.
 
 ### Step 5: Review Quality
 
@@ -395,9 +452,14 @@ bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
 
 ## Completion Checklist
 
-- [ ] `validate-slides.sh` reports 0 failures
+- [ ] Design Brief was shown AND explicitly confirmed by the user (hard gate)
+- [ ] Theme from the brief was used with `new-presentation.sh --theme <name>`
+- [ ] All slides use layouts from `references/layout-catalog.md`
+- [ ] `validate-slides.sh` reports 0 failures (0 FAIL entries; WARNs acceptable with justification)
+- [ ] Any remaining WARN entries are documented (e.g., "WARN: bullet 5 over
+  maxLength — kept intentionally because it's a direct quote; see schema-override")
 - [ ] `review-presentation.sh` scores >= 70
-- [ ] Cover slide has title, subtitle/author, and date
+- [ ] Cover slide is `layout: cover`; has title, subtitle/author, date
 - [ ] Content follows one-idea-per-slide principle
 - [ ] User has been shown dev/export/build commands
 - [ ] If exporting PDF: Playwright installed and export verified
