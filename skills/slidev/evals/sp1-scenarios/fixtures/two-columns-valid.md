@@ -11,7 +11,7 @@ highlighter: shiki
 Cover slide.
 
 ---
-layout: two-cols
+layout: two-cols-header
 class: two-columns
 left:
   pattern: bullets

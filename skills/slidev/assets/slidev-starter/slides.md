@@ -75,7 +75,7 @@ function greet(name: string): string {
 ```
 
 ---
-layout: two-cols
+layout: two-cols-header
 class: two-columns
 left:
   pattern: bullets

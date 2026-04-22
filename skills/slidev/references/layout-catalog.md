@@ -782,9 +782,11 @@ class: image-text-split
 
 **Slidev frontmatter**:
 ```yaml
-layout: two-cols
+layout: two-cols-header
 class: two-columns
 ```
+
+> Uses Slidev's `two-cols-header` built-in (NOT plain `two-cols`). `two-cols-header` has three slots — `default` (top header, holds the `# title`), `::left::`, and `::right::`. Plain `two-cols` only has `::left::` / `::right::` and would push the `# title` into the left column, which is wrong for heterogeneous comparisons.
 
 **When to use**:
 - Classic before/after, A/B, pros/cons comparisons
@@ -844,7 +846,7 @@ Single headline number.
 **Markdown template** (example: `bullets × table`):
 ```markdown
 ---
-layout: two-cols
+layout: two-cols-header
 class: two-columns
 ---
 
@@ -878,7 +880,7 @@ class: two-columns
 **Markdown template** (example: `text × image`):
 ```markdown
 ---
-layout: two-cols
+layout: two-cols-header
 class: two-columns
 ---
 
@@ -903,7 +905,7 @@ class: two-columns
 </div>
 ```
 
-Note: Slidev's `two-cols` layout uses the `::left::` and `::right::` column markers. Any of the 6 patterns can appear on either side.
+Note: Slidev's `two-cols-header` layout has three slots — the `# title` lives in the top header (default slot, before any `::` marker), and the two columns go under `::left::` / `::right::`. Any of the 6 patterns can appear on either side.
 
 ### Canonical pairings (for Claude's layout decisions)
 

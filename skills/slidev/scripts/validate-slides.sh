@@ -325,8 +325,9 @@ for idx, (fm, slide_body) in enumerate(slides, start=1):
                     expected = expected_layout_map[sem]
                     fails.append(f"Slide {idx}: class '{cls}' requires layout '{expected}' but got '{layout}'")
                     break
-        SLIDEV_BUILTINS = {"default", "cover", "center", "two-cols", "image", "image-left",
-                            "image-right", "section", "end", "fact", "quote", "statement", "intro"}
+        SLIDEV_BUILTINS = {"default", "cover", "center", "two-cols", "two-cols-header",
+                            "image", "image-left", "image-right", "section", "end",
+                            "fact", "quote", "statement", "intro", "full", "none"}
         if layout not in SLIDEV_BUILTINS:
             fails.append(f"Slide {idx}: unknown layout '{layout}'; not in catalog or Slidev built-ins")
         continue

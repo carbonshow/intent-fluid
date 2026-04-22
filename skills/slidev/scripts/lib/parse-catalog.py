@@ -58,7 +58,7 @@ EXPECTED_LAYOUT = {
     "section-divider": "section",
     "content-bullets": "default",
     "content-narrative": "default",
-    "two-columns": "two-cols",
+    "two-columns": "two-cols-header",
     "three-metrics": "default",
     "data-table": "default",
     "timeline-horizontal": "default",
