@@ -67,18 +67,14 @@ fi
 # Extract body (everything after frontmatter closing ---)
 BODY="$(tail -n +"$((CLOSE_LINE + 1))" "$SLIDES")"
 
-# Count slides by splitting on --- at start of line (excluding frontmatter)
-# First slide is the content between frontmatter and first ---
-SLIDE_COUNT=1
-while IFS= read -r line; do
-  # shellcheck disable=SC2001  # sed is clearest for leading-whitespace trim here
-  if [[ "$(echo "$line" | sed 's/^[[:space:]]*//')" == "---" ]]; then
-    SLIDE_COUNT=$((SLIDE_COUNT + 1))
-  fi
-done <<< "$BODY"
-
 # ── Per-slide analysis ───────────────────────────────────────────────────────
-# Split body into slides and analyze each
+# We walk the body with a two-state machine (BODY ↔ FM) that mirrors
+# scripts/lib/slides-parser.js. In Slidev, a slide separator `---` that lands
+# in BODY state MAY be immediately followed by a per-slide frontmatter block,
+# whose closing `---` is NOT a slide separator. The previous implementation
+# counted every `---` in the body as a separator, which double-counted slides
+# with per-slide FM and leaked FM keys (title:, image_prompt:, etc.) into the
+# body-level heading/word/empty checks.
 EMPTY_SLIDES=0
 TEXT_HEAVY_SLIDES=0
 NO_HEADING_SLIDES=0
@@ -92,28 +88,21 @@ MIN_WORDS=999999
 ALL_HEADINGS=""
 HAS_NOTES=0
 SLIDES_WITH_ZOOM=0
-
-# Process each slide
-CURRENT_SLIDE=""
-SLIDE_INDEX=0
 SLIDE_WORDS_LIST=""
 
 process_slide() {
-  local slide_content="$1"
-  # $2 (slide index) is reserved for future per-slide reporting; intentionally unused.
+  local body="$1"
+  local fm="$2"
+  # $3 (slide index) is reserved for future per-slide reporting; intentionally unused.
 
-  # Skip per-slide frontmatter lines (layout:, class:, zoom:, etc.)
-  local content_lines
-  content_lines="$(echo "$slide_content" | grep -v '^\s*layout:' | grep -v '^\s*class:' | grep -v '^\s*zoom:' | grep -v '^\s*$' || true)"
-
-  # Check if this slide uses zoom (density control)
-  if echo "$slide_content" | grep -qE '^\s*zoom:\s*[0-9]'; then
+  # Density control: `zoom:` only appears in per-slide FM.
+  if echo "$fm" | grep -qE '^\s*zoom:\s*[0-9]'; then
     SLIDES_WITH_ZOOM=$((SLIDES_WITH_ZOOM + 1))
   fi
 
-  # Word count (strip HTML tags and markdown syntax for counting)
+  # Word count — body only, with HTML tags and markdown sigils stripped.
   local clean_text
-  clean_text="$(echo "$content_lines" | sed 's/<[^>]*>//g' | sed 's/[#*`>|_~\[\]]//g')"
+  clean_text="$(echo "$body" | sed 's/<[^>]*>//g' | sed 's/[#*`>|_~\[\]]//g')"
   local words
   words=$(echo "$clean_text" | wc -w | tr -d ' ')
   TOTAL_WORDS=$((TOTAL_WORDS + words))
@@ -122,71 +111,110 @@ process_slide() {
   if [[ $words -lt $MIN_WORDS ]]; then MIN_WORDS=$words; fi
   SLIDE_WORDS_LIST="${SLIDE_WORDS_LIST}${words} "
 
-  # Empty slide (less than 3 words of actual content)
   if [[ $words -lt 3 ]]; then
     EMPTY_SLIDES=$((EMPTY_SLIDES + 1))
   fi
-
-  # Text-heavy slide (more than 200 words — with zoom/compact, 150-200 is acceptable)
   if [[ $words -gt 200 ]]; then
     TEXT_HEAVY_SLIDES=$((TEXT_HEAVY_SLIDES + 1))
   fi
 
-  # Has heading?
-  if ! echo "$slide_content" | grep -qE '^\s*#{1,3}\s'; then
+  # Has heading? Body only — title: in FM is metadata, not a visible heading.
+  if ! echo "$body" | grep -qE '^\s*#{1,3}\s'; then
     NO_HEADING_SLIDES=$((NO_HEADING_SLIDES + 1))
   fi
 
-  # Animations
+  # Animations (body only).
   local vclicks
-  vclicks=$(echo "$slide_content" | grep -c '<v-click' || true)
+  vclicks=$(echo "$body" | grep -c '<v-click' || true)
   local vmarks
-  vmarks=$(echo "$slide_content" | grep -c '<v-mark' || true)
+  vmarks=$(echo "$body" | grep -c '<v-mark' || true)
   TOTAL_VCLICKS=$((TOTAL_VCLICKS + vclicks))
   TOTAL_VMARKS=$((TOTAL_VMARKS + vmarks))
   if [[ $((vclicks + vmarks)) -gt 0 ]]; then
     SLIDES_WITH_ANIMATIONS=$((SLIDES_WITH_ANIMATIONS + 1))
   fi
 
-  # Code blocks
+  # Code blocks (body only).
   local code_blocks
-  code_blocks=$(echo "$slide_content" | grep -c '```' || true)
+  code_blocks=$(echo "$body" | grep -c '```' || true)
   code_blocks=$((code_blocks / 2))  # opening + closing = 1 block
   TOTAL_CODE_BLOCKS=$((TOTAL_CODE_BLOCKS + code_blocks))
 
-  # Collect headings for duplicate detection
+  # First heading for duplicate detection (body only).
   local heading
-  heading="$(echo "$slide_content" | grep -E '^\s*#{1,3}\s' | head -1 | sed 's/^[[:space:]#]*//' || true)"
+  heading="$(echo "$body" | grep -E '^\s*#{1,3}\s' | head -1 | sed 's/^[[:space:]#]*//' || true)"
   if [[ -n "$heading" ]]; then
     ALL_HEADINGS="${ALL_HEADINGS}${heading}\n"
   fi
 
-  # Presenter notes (HTML comments)
-  if echo "$slide_content" | grep -q '<!--'; then
+  # Presenter notes (body only) — `<!--` in FM would be unusual and is ignored.
+  if echo "$body" | grep -q '<!--'; then
     HAS_NOTES=$((HAS_NOTES + 1))
   fi
 }
 
-# Iterate through slides
+# State machine walk over body lines.
+CURRENT_BODY=""
+CURRENT_FM=""
+LAST_BODY=""
+SLIDE_INDEX=1
+IN_FM=false
+PEEK_FM=false
+
+flush_slide() {
+  process_slide "$CURRENT_BODY" "$CURRENT_FM" "$SLIDE_INDEX"
+  LAST_BODY="$CURRENT_BODY"
+  CURRENT_BODY=""
+  CURRENT_FM=""
+}
+
 while IFS= read -r line; do
   # shellcheck disable=SC2001  # sed is clearest for leading-whitespace trim here
-  if [[ "$(echo "$line" | sed 's/^[[:space:]]*//')" == "---" ]]; then
-    if [[ -n "$CURRENT_SLIDE" ]]; then
-      SLIDE_INDEX=$((SLIDE_INDEX + 1))
-      process_slide "$CURRENT_SLIDE" "$SLIDE_INDEX"
-    fi
-    CURRENT_SLIDE=""
-  else
-    CURRENT_SLIDE="${CURRENT_SLIDE}${line}
+  TRIMMED="$(echo "$line" | sed 's/^[[:space:]]*//')"
+
+  if [[ "$IN_FM" == true ]]; then
+    # Inside a per-slide FM block. `---` closes it (NOT a slide separator).
+    if [[ "$TRIMMED" == "---" ]]; then
+      IN_FM=false
+    else
+      CURRENT_FM="${CURRENT_FM}${line}
 "
+    fi
+    continue
   fi
+
+  # BODY state.
+  if [[ "$TRIMMED" == "---" ]]; then
+    # Real slide separator. Flush current slide, start next.
+    flush_slide
+    SLIDE_INDEX=$((SLIDE_INDEX + 1))
+    PEEK_FM=true
+    continue
+  fi
+
+  if [[ "$PEEK_FM" == true ]]; then
+    PEEK_FM=false
+    # Per slides-parser.js: FM must open IMMEDIATELY after `---`, with the first
+    # line matching `key:` at column 0. A blank line means no FM for this slide.
+    if [[ -n "$TRIMMED" ]] && [[ "$TRIMMED" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*: ]]; then
+      CURRENT_FM="${CURRENT_FM}${line}
+"
+      IN_FM=true
+      continue
+    fi
+    # Not FM-shaped — fall through and treat this line as body.
+  fi
+
+  CURRENT_BODY="${CURRENT_BODY}${line}
+"
 done <<< "$BODY"
 
-# Process last slide
-if [[ -n "$CURRENT_SLIDE" ]]; then
-  SLIDE_INDEX=$((SLIDE_INDEX + 1))
-  process_slide "$CURRENT_SLIDE" "$SLIDE_INDEX"
-fi
+# Flush the trailing slide.
+flush_slide
+
+SLIDE_COUNT=$SLIDE_INDEX
+# If the file ends with a bare `---` followed by nothing, the last flush
+# processed an empty slide. That's a degenerate case and still counts.
 
 if [[ $MIN_WORDS -eq 999999 ]]; then MIN_WORDS=0; fi
 
@@ -205,7 +233,7 @@ if [[ -n "$FIRST_SLIDE_HEADING" ]]; then
 fi
 
 # Check for closing slide (last slide contains common closing patterns)
-LAST_SLIDE="$CURRENT_SLIDE"
+LAST_SLIDE="$LAST_BODY"
 HAS_CLOSING=false
 if echo "$LAST_SLIDE" | grep -qiE '(thank|questions|discussion|Q&A|the end|summary|recap|conclusion|takeaway|谢谢|感谢|提问|讨论|总结|回顾|ありがとう|danke|merci|gracias)'; then
   HAS_CLOSING=true
