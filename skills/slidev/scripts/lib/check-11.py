@@ -151,7 +151,15 @@ def parse_columns_from_body(body_lines):
     return result
 
 
-IMAGE_LAYOUTS = {'image-focus', 'image-left', 'image-right'}
+IMAGE_LAYOUTS = {'image-left', 'image-right'}
+
+
+def class_tokens(cls):
+    return set((cls or '').split())
+
+
+def is_image_focus_slide(layout, cls):
+    return layout == 'default' and 'image-focus' in class_tokens(cls)
 
 
 def main():
@@ -172,18 +180,33 @@ def main():
     any_image_slide = False
     for idx, (fm, body) in enumerate(slides, start=1):
         layout = fm.get('layout')
+        cls = fm.get('class')
         is_image_slide = False
         prompt_source = None
         path_source = None
         label = None
 
-        if layout in IMAGE_LAYOUTS:
+        if is_image_focus_slide(layout, cls):
+            is_image_slide = True
+            prompt_source = fm.get('image_prompt')
+            path_source = fm.get('image_path') or fm.get('image')
+            label = f"slide {idx} (image-focus)"
+        elif layout in IMAGE_LAYOUTS:
             is_image_slide = True
             prompt_source = fm.get('image_prompt')
             path_source = fm.get('image_path') or fm.get('image')
             label = f"slide {idx} ({layout})"
         elif layout == 'two-cols-header':
-            cols = parse_columns_from_body(body)
+            # Column patterns can live in frontmatter (fm.left / fm.right nested objects,
+            # authoritative per SP1) OR as fallback in ::left:: / ::right:: body markers.
+            # Frontmatter wins when both are present.
+            body_cols = parse_columns_from_body(body)
+            fm_left = fm.get('left') if isinstance(fm.get('left'), dict) else None
+            fm_right = fm.get('right') if isinstance(fm.get('right'), dict) else None
+            cols = {
+                'left': fm_left if fm_left else body_cols.get('left'),
+                'right': fm_right if fm_right else body_cols.get('right'),
+            }
             for side in ('left', 'right'):
                 if cols.get(side) and cols[side].get('pattern') == 'image':
                     is_image_slide = True

@@ -179,13 +179,30 @@ function parseColumnsFromBody(bodyLines) {
   return result;
 }
 
-export const IMAGE_LAYOUT_NAMES = new Set(['image-focus', 'image-left', 'image-right']);
+// Detect image-consuming layouts per the catalog semantics.
+// Three catalog semantics:
+//   image-focus        — Slidev `layout: default` + class includes `image-focus`
+//   image-text-split   — Slidev `layout: image-left` or `layout: image-right`
+//                        (class `image-text-split` is optional reinforcement)
+//   two-columns.image  — Slidev `layout: two-cols-header` + column `pattern: image`
 
-function sizeForSlide(layout, columnsType) {
+// Flat-layout image names retained for backwards compatibility with any direct
+// importer that probed this set; it now represents ONLY the direct Slidev layout
+// values that unambiguously imply an image slide (image-left / image-right).
+export const IMAGE_LAYOUT_NAMES = new Set(['image-left', 'image-right']);
+
+function classTokens(cls) {
+  return new Set((cls || '').split(/\s+/).filter(Boolean));
+}
+
+function sizeForSlide(layout, columnsType, cls) {
   if (layout === 'two-cols-header' && columnsType === 'image') {
     return { width: 800, height: 900 };
   }
   if (IMAGE_LAYOUT_NAMES.has(layout)) {
+    return { width: 1600, height: 900 };
+  }
+  if (layout === 'default' && classTokens(cls).has('image-focus')) {
     return { width: 1600, height: 900 };
   }
   return null;
@@ -196,33 +213,45 @@ export function parseSlides(md) {
   const result = [];
   raw.forEach((slide, idx) => {
     const layout = slide.frontmatter.layout;
+    const cls = slide.frontmatter.class;
     let isImageSlide = false;
     let columnsType = null;
     let imageSize = null;
     let imageFields = {};
 
-    if (IMAGE_LAYOUT_NAMES.has(layout)) {
+    const isImageFocus = layout === 'default' && classTokens(cls).has('image-focus');
+    const isFlatImageLayout = IMAGE_LAYOUT_NAMES.has(layout);
+
+    if (isImageFocus || isFlatImageLayout) {
       isImageSlide = true;
-      imageSize = sizeForSlide(layout, null);
+      imageSize = sizeForSlide(layout, null, cls);
       imageFields = {
         image_prompt: slide.frontmatter.image_prompt,
-        // Accept both image_path: and image: for image-left / image-right layouts
+        // image-left / image-right accept both image_path: and image: frontmatter keys
         image_path: slide.frontmatter.image_path || slide.frontmatter.image,
       };
     } else if (layout === 'two-cols-header') {
-      const cols = parseColumnsFromBody(slide.bodyLines);
-      if (cols.left && cols.left.pattern === 'image') {
+      // Column patterns can live in frontmatter (`left:` / `right:` nested objects,
+      // authoritative per SP1) OR as fallback, in `::left::` / `::right::` body
+      // markers with `pattern:` lines. Frontmatter wins when both are present.
+      const fmLeft = slide.frontmatter.left;
+      const fmRight = slide.frontmatter.right;
+      const bodyCols = parseColumnsFromBody(slide.bodyLines);
+      const leftCol = (fmLeft && typeof fmLeft === 'object') ? fmLeft : bodyCols.left;
+      const rightCol = (fmRight && typeof fmRight === 'object') ? fmRight : bodyCols.right;
+
+      if (leftCol && leftCol.pattern === 'image') {
         columnsType = 'image';
         imageFields = {
-          image_prompt: cols.left.image_prompt,
-          image_path: cols.left.image_path,
+          image_prompt: leftCol.image_prompt,
+          image_path: leftCol.image_path,
           column: 'left',
         };
-      } else if (cols.right && cols.right.pattern === 'image') {
+      } else if (rightCol && rightCol.pattern === 'image') {
         columnsType = 'image';
         imageFields = {
-          image_prompt: cols.right.image_prompt,
-          image_path: cols.right.image_path,
+          image_prompt: rightCol.image_prompt,
+          image_path: rightCol.image_path,
           column: 'right',
         };
       }
