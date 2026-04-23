@@ -160,3 +160,69 @@ cd "$RUNNER" && DEBUG=* npx @slidev/cli /path/to/slides.md
 For support, check:
 - Official docs: https://sli.dev/
 - GitHub issues: https://github.com/slidevjs/slidev/issues
+
+## SP1 Theme & Layout Issues
+
+### Theme CSS not applied
+
+**Problem**: deck renders with browser default fonts / no color variables seem to take effect.
+
+**Diagnosis**:
+1. Check the deck's `style.css` matches the theme file:
+   ```bash
+   diff <target>/style.css <skill-root>/assets/themes/<name>.css
+   ```
+   If they differ, the initialization was wrong or the user manually edited.
+2. Check the deck's Slidev frontmatter does NOT override `class` with something that breaks the theme selectors.
+3. Check browser DevTools "Elements" tab — the `.slidev-layout` element should show `background`, `color`, and `--color-primary` from the theme.
+
+**Fix**:
+- Re-run initialization: `bash scripts/new-presentation.sh <target> --theme <name> --force`
+- This overwrites `style.css` with the theme's current version.
+
+### Switching themes on an existing deck
+
+**Problem**: user decides mid-work to switch from `tech-dark` to `corporate-navy`.
+
+**Fix**:
+- Re-run `new-presentation.sh <target> --theme corporate-navy --force`
+- The `--force` flag tells the script to overwrite `style.css` while preserving `slides.md` (but back up `slides.md` yourself first to be safe — the script does not preserve `slides.md` if it's inside the overwritten tree in earlier versions).
+- Alternative (safer): manually replace `<target>/style.css` with a copy of `assets/themes/corporate-navy.css`.
+
+### Check 10: FAIL — "unknown layout"
+
+**Problem**: a slide uses `layout: foobar` and Check 10 rejects it.
+
+**Fix**:
+- Change `layout:` to one of the 15 catalog layouts (see `references/layout-catalog.md`).
+- If the content truly doesn't fit any layout, this is a signal to rethink the slide's purpose.
+- If the layout is a Slidev built-in you want to use without a class, it's permitted as long as it's one of: `default`, `cover`, `center`, `two-cols`, `image`, `image-left`, `image-right`, `section`, `end`. But prefer catalog layouts for consistency.
+
+### Check 10: FAIL — "class X requires layout Y but got Z"
+
+**Problem**: a slide has `class: three-metrics` but `layout: center` (mismatch).
+
+**Fix**:
+- Fix the pair — `class: three-metrics` requires `layout: default`. See the mapping table in §6.3 of the SP1 spec / `layout-catalog.md`.
+
+### Check 10: WARN — field exceeds maxLength
+
+**Problem**: a bullet or paragraph goes over the layout's field `maxLength`.
+
+**Fix (preferred)**: shorten the field. Check the verbosity setting in the deck's brief — maybe the deck is "concise" and the bullet should be much shorter.
+
+**Fix (alternative)**: switch to a layout with a looser limit. For example, a 110-character bullet doesn't fit in `content-bullets` (maxLength 90) but fits in `content-narrative` (body maxLength 300).
+
+**Fix (escape hatch)**: add `schema-override: true` to the slide's frontmatter plus `<!-- note: ... -->` explaining why. Use sparingly.
+
+### Check 10: FAIL — two-columns pattern missing or invalid
+
+**Problem**: a `two-columns` slide has `left.pattern: paragraphs` (not in the enum).
+
+**Fix**: use one of the 6 valid patterns: `text`, `bullets`, `code`, `image`, `table`, `metric`. "paragraphs" is close to `text`; use `text` with a 250-char maxLength content field.
+
+### Check 10: WARN — code pattern > 8 lines or table pattern > 6 rows
+
+**Problem**: content pattern inside `two-columns` exceeds its sub-limit.
+
+**Fix**: promote to a standalone layout. For code > 8 lines, use `code-focus` as its own slide. For table > 6 rows, use `data-table` as its own slide.

@@ -71,6 +71,7 @@ BODY="$(tail -n +"$((CLOSE_LINE + 1))" "$SLIDES")"
 # First slide is the content between frontmatter and first ---
 SLIDE_COUNT=1
 while IFS= read -r line; do
+  # shellcheck disable=SC2001  # sed is clearest for leading-whitespace trim here
   if [[ "$(echo "$line" | sed 's/^[[:space:]]*//')" == "---" ]]; then
     SLIDE_COUNT=$((SLIDE_COUNT + 1))
   fi
@@ -99,7 +100,7 @@ SLIDE_WORDS_LIST=""
 
 process_slide() {
   local slide_content="$1"
-  local idx="$2"
+  # $2 (slide index) is reserved for future per-slide reporting; intentionally unused.
 
   # Skip per-slide frontmatter lines (layout:, class:, zoom:, etc.)
   local content_lines
@@ -168,6 +169,7 @@ process_slide() {
 
 # Iterate through slides
 while IFS= read -r line; do
+  # shellcheck disable=SC2001  # sed is clearest for leading-whitespace trim here
   if [[ "$(echo "$line" | sed 's/^[[:space:]]*//')" == "---" ]]; then
     if [[ -n "$CURRENT_SLIDE" ]]; then
       SLIDE_INDEX=$((SLIDE_INDEX + 1))

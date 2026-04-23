@@ -1,0 +1,271 @@
+/* _skeleton.css — Shared design tokens, base element rules, and geometric
+ * skeletons. Each theme @imports this file and overrides color/font tokens.
+ *
+ * See: docs/superpowers/specs/2026-04-22-sp1-v2-design-tokens-design.md
+ */
+
+/* ── Design Tokens (defaults; themes override :root) ───────────── */
+:root {
+  /* Typography scale (Perfect Fourth 1.333x, body=18px) */
+  --text-caption:  0.844rem;
+  --text-body:     1.125rem;
+  --text-subtitle: 1.5rem;
+  --text-h3:       2rem;
+  --text-h2:       2.667rem;
+  --text-h1:       3.555rem;
+  --text-hero:     4.741rem;
+
+  /* Spacing scale (0.5rem base) */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --space-6: 4rem;
+
+  /* Line-height scale */
+  --lh-tight: 1.25;
+  --lh-body:  1.6;
+  --lh-loose: 1.8;
+
+  /* Color tokens (themes override) */
+  --color-primary:      #0066CC;
+  --color-accent:       #9933CC;
+  --color-text:         #1A1A1A;
+  --color-bg:           #FFFFFF;
+  --color-muted:        #6B7280;
+  --color-code-bg:      #F3F4F6;
+  --color-border:       rgba(0, 0, 0, 0.08);
+  --color-on-primary:   #FFFFFF;
+  --color-overlay:      rgba(0, 0, 0, 0.45);
+
+  /* Font stacks (themes override) */
+  --font-heading: "Inter", "Noto Sans SC", system-ui, sans-serif;
+  --font-body:    "Inter", "Noto Sans SC", system-ui, sans-serif;
+  --font-code:    "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+/* ── Slidev base elements ──────────────────────────────────────── */
+.slidev-layout {
+  padding: var(--space-5);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
+.slidev-layout h1 {
+  font-size: var(--text-h1);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-3) 0;
+}
+.slidev-layout h2 {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  margin: 0 0 var(--space-2) 0;
+}
+.slidev-layout h3 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  margin: 0 0 var(--space-2) 0;
+}
+.slidev-layout p {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  margin: 0 0 var(--space-2) 0;
+}
+.slidev-layout p:last-child { margin-bottom: 0; }
+.slidev-layout .subtitle {
+  font-size: var(--text-subtitle);
+  color: var(--color-muted);
+  margin-top: var(--space-2);
+}
+.slidev-layout .caption {
+  font-size: var(--text-caption);
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: var(--space-1);
+}
+.slidev-layout a { color: var(--color-accent); }
+.slidev-layout code { font-family: var(--font-code); }
+.slidev-layout .shiki {
+  background: var(--color-code-bg) !important;
+  border-radius: 6px;
+}
+
+/* Mermaid safety net */
+.mermaid svg { max-width: 100%; height: auto; }
+
+/* Density utilities (inherited behavior) */
+.compact-table { font-size: 0.8rem; line-height: 1.4; }
+.compact-table th, .compact-table td { padding: 0.25rem 0.5rem; }
+.dense-table { font-size: 0.7rem; line-height: 1.3; }
+.dense-table th, .dense-table td { padding: 0.15rem 0.4rem; }
+
+/* ── Skeleton: Hero (cover, section-divider, big-statement, closing) ── */
+.slidev-layout.skeleton-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  /* Override Slidev's end.vue scoped styles (bg-black, text-white, text-xl,
+   * tracking-widest) that would otherwise bleed through on closing slides. */
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  letter-spacing: normal;
+  font-size: var(--text-body);
+}
+/* Space between stacked children (h1 + subtitle + author etc.) */
+.slidev-layout.skeleton-hero > * + * {
+  margin-top: var(--space-3);
+}
+.slidev-layout.skeleton-hero h1 {
+  color: var(--color-primary);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Skeleton: List (agenda, content-bullets, content-narrative) ── */
+/* content-bullets and content-narrative inherit geometry from skeleton-list; */
+/* their own class is applied for per-theme typography tweaks. */
+.slidev-layout.content-bullets,
+.slidev-layout.content-narrative,
+.slidev-layout.agenda { /* inherits skeleton-list */ }
+
+.slidev-layout.skeleton-list {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  row-gap: var(--space-4);
+}
+.slidev-layout.skeleton-list > h1 { grid-row: 1; }
+.slidev-layout.skeleton-list > .content {
+  grid-row: 2;
+  align-self: center;
+  max-width: 48em;
+  width: 100%;
+}
+
+/* ── Skeleton: Data (three-metrics, data-table, timeline-horizontal) ── */
+.slidev-layout.skeleton-data {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: var(--space-4);
+}
+.slidev-layout.skeleton-data > h1 { grid-row: 1; }
+.slidev-layout.skeleton-data > .data-body {
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+.slidev-layout.skeleton-data > .caption { grid-row: 3; }
+
+/* ── Skeleton: Code-Diagram (code-focus, diagram-primary) ── */
+/* code-focus and diagram-primary inherit geometry from skeleton-code-diagram. */
+.slidev-layout.code-focus,
+.slidev-layout.diagram-primary { /* inherits skeleton-code-diagram */ }
+
+.slidev-layout.skeleton-code-diagram {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: var(--space-3);
+}
+.slidev-layout.skeleton-code-diagram > h1 { grid-row: 1; }
+.slidev-layout.skeleton-code-diagram > .content-body {
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+.slidev-layout.skeleton-code-diagram > .content-body > * {
+  max-width: 100%;
+  max-height: 100%;
+}
+.slidev-layout.skeleton-code-diagram > .caption { grid-row: 3; }
+
+/* ── Media: image-focus ───────────────────────────────────────── */
+.slidev-layout.image-focus {
+  position: relative;
+  padding: 0;
+}
+.slidev-layout.image-focus > .image-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.slidev-layout.image-focus > .image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slidev-layout.image-focus > .image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    var(--color-overlay) 0%,
+    transparent 40%,
+    transparent 70%,
+    var(--color-overlay) 100%);
+}
+.slidev-layout.image-focus > h1 {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-on-primary);
+  margin: 0;
+}
+.slidev-layout.image-focus > .caption {
+  position: absolute;
+  left: var(--space-5);
+  right: var(--space-5);
+  bottom: var(--space-4);
+  z-index: 2;
+  color: var(--color-on-primary);
+  text-align: left;
+  margin: 0;
+}
+
+/* ── Media: image-text-split (Slidev image-left / image-right) ─── */
+/* Body half (default slot) gets flex center so text doesn't stick to top */
+.slidev-layout.image-text-split {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-5);
+}
+.slidev-layout.image-text-split h1 { margin-bottom: var(--space-3); }
+.slidev-layout.image-text-split .caption {
+  text-align: left;
+  margin-top: var(--space-2);
+}
+
+/* ── Media: two-columns (Slidev two-cols-header) ─────────────── */
+.slidev-layout.two-columns {
+  padding: var(--space-5);
+}
+.slidev-layout.two-columns .col-header {
+  padding-bottom: var(--space-3);
+}
+.slidev-layout.two-columns .col-left,
+.slidev-layout.two-columns .col-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--space-2);
+}

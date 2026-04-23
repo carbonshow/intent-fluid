@@ -102,6 +102,47 @@ Rough pacing guidelines:
 - **20-minute talk**: 14-22 slides. Two section breaks with breather slides.
 - **30+ minute talk**: Consider splitting into chapters with recap slides.
 
+### 6. Three Explicit Style Parameters (tone / verbosity / style_keywords)
+
+After the 5-dimension analysis, capture three explicit parameters that drive
+theme and layout choice downstream:
+
+#### `tone` — 1 of 6
+The emotional register of the deck:
+- `casual` — conversational, first-person, lower stakes (internal team updates, retros)
+- `professional` — balanced, default for most work contexts
+- `academic` — thesis-style, citations, measured claims (research talks)
+- `technical` — precise, terminology-heavy, deep-implementation (engineering reviews)
+- `playful` — light, energetic, visual (workshops, icebreakers)
+- `inspirational` — story-driven, emotional peaks (keynotes, manifestos)
+
+If unclear, default to `professional`.
+
+#### `verbosity` — 1 of 3
+How densely each slide should be populated:
+- `concise` — each slide carries minimal text, generous whitespace (executive readouts)
+- `standard` — balanced default (most decks)
+- `text-heavy` — slides that also serve as a handout or reference document (lectures, playbooks)
+
+If unclear, default to `standard`.
+
+**Coupling with `maxLength`**: verbosity controls how much of each field Claude
+fills (target fill-ratio: concise 30-50%, standard 50-75%, text-heavy 75-100%).
+`maxLength` itself is a hard ceiling and does NOT scale with verbosity —
+see `layout-catalog.md` for the rules.
+
+#### `style_keywords` — array of 2-5 tags
+Free-form style signals the user supplies or Claude infers. Examples:
+- `[科技感, 深色, 精准]` — suggests `tech-dark` theme
+- `[企业感, 数据向, 稳重]` — suggests `corporate-navy`
+- `[温暖, 讲故事, 长时间阅读]` — suggests `edu-warm`
+
+If user does not supply keywords, Claude infers 2-3 from the source material
+and audience/purpose. These drive the theme-inference step in `theme-library.md`.
+
+If none can be reasonably inferred, pass an empty array `[]` and note the
+fallback in the brief.
+
 ## The Design Brief
 
 After analyzing the source material, produce a design brief with this structure
@@ -115,6 +156,14 @@ and show it to the user for confirmation before writing slides:
 **Language**: [language of the slides]
 **Estimated slides**: [N] (~[M] minutes)
 
+### Style Decisions
+- **Theme**: `[theme-name from theme-library.md]`
+  - Rationale: [one sentence explaining the match against audience/purpose/tone/keywords]
+- **Tone**: `[enum from section 6]`
+- **Verbosity**: `[concise | standard | text-heavy]`
+- **Style keywords**: [list, or empty if not supplied]
+- **Density tier default**: [Normal | Compact | Dense]
+
 ### Key Messages
 1. [message 1]
 2. [message 2]
@@ -122,13 +171,15 @@ and show it to the user for confirmation before writing slides:
 
 ### Outline
 
-| # | Heading | Type | Content summary | Slidev features |
-|---|---------|------|-----------------|-----------------|
-| 1 | [Title] | cover | Title, subtitle, author | — |
-| 2 | [Heading] | text | [what goes here] | v-click |
-| 3 | [Heading] | diagram | [what the diagram shows] | mermaid flowchart LR |
-| ... | ... | ... | ... | ... |
-| N | [Thank You] | closing | Takeaway + contact | layout: center |
+| # | Heading | Layout | Type | Content summary | Density | Features |
+|---|---------|--------|------|-----------------|---------|----------|
+| 1 | [Title] | cover | cover | Title + author | Normal | — |
+| 2 | [Heading] | content-bullets | text | 3 bullets on X | Normal | v-click |
+| 3 | [Heading] | diagram-primary | diagram | Flow: A → B → C | Normal | — |
+| 4 | [Heading] | three-metrics | data | 3 KPIs | Normal | — |
+| 5 | [Heading] | two-columns | mixed | bullets × table | Compact | — |
+| ... | ... | ... | ... | ... | ... | ... |
+| N | [Closing] | closing | closing | Q&A | Normal | — |
 
 ### Source Material Notes
 - **Keep**: [sections/ideas worth featuring]
@@ -143,11 +194,29 @@ writing.
 
 ## After User Confirms
 
-Once the user approves (or modifies) the design brief:
-1. Write `slides.md` following the outline row by row
-2. Each row maps to exactly one slide
-3. Use the Slidev features noted in the outline
-4. Refer to `references/content-design.md` for space budget and formatting rules
+### Hard gate
 
-If the user changes the outline significantly, update the key messages to match
-before writing — the messages and the outline should always be consistent.
+The brief is a **hard gate**. Regardless of how simple the user's intent seems,
+display the complete Design Brief (with Style Decisions + full outline) and
+wait for an **explicit** user confirmation before proceeding to Step 3.
+
+Acceptable confirmations: any clear affirmation — "OK", "continue", "go ahead",
+"looks good", "可以", "开始", "好的", etc. Silence does NOT count.
+
+If the user proposes modifications, update the brief and re-display. Only once
+the user affirms do you proceed.
+
+### Writing slides
+
+Once confirmed:
+1. Run `new-presentation.sh --theme <chosen-theme>` to initialize the deck
+2. Write `slides.md` following the outline row by row
+3. Each row maps to exactly one slide — with the `layout:` value from the outline
+4. Use the Slidev features noted in the outline
+5. For each field, check the `maxLength` in `layout-catalog.md` before writing.
+   Rewrite shorter if needed; don't rely on `validate-slides.sh` to catch overflow
+6. Refer to `references/content-design.md` for space budget and formatting rules
+
+If the user changes the outline significantly, update the key messages and
+Style Decisions to match before writing — messages, theme, layouts, and
+outline should always be consistent.
