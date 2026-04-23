@@ -169,17 +169,6 @@ def main():
     text = slides_path.read_text(encoding='utf-8')
     slides = extract_slide_chunks(text)
 
-    # 4. image-style.txt present
-    image_style = deck_dir / 'image-style.txt'
-    if not image_style.exists():
-        print(f"FAIL: image-style.txt missing in deck: {image_style}")
-    else:
-        content = image_style.read_text(encoding='utf-8').strip()
-        if len(content) < 10:
-            print(f"FAIL: image-style.txt too short (<10 chars)")
-        else:
-            print(f"OK: image-style.txt ({len(content)} chars)")
-
     any_image_slide = False
     for idx, (fm, body) in enumerate(slides, start=1):
         layout = fm.get('layout')
@@ -232,7 +221,18 @@ def main():
         else:
             print(f"OK: {label} prompt ({len(prompt_source)} chars), auto image_path")
 
-    if not any_image_slide:
+    if any_image_slide:
+        # image-style.txt is only required when the deck has image-consuming slides.
+        image_style = deck_dir / 'image-style.txt'
+        if not image_style.exists():
+            print(f"FAIL: image-style.txt missing in deck: {image_style}")
+        else:
+            content = image_style.read_text(encoding='utf-8').strip()
+            if len(content) < 10:
+                print(f"FAIL: image-style.txt too short (<10 chars)")
+            else:
+                print(f"OK: image-style.txt ({len(content)} chars)")
+    else:
         print("OK: no image-consuming slides in deck")
 
 
