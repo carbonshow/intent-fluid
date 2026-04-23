@@ -120,6 +120,11 @@ cp "$THEME_CSS" "$TARGET_DIR/style.css"
 if [[ -f "$SKILL_ROOT/assets/themes/_skeleton.css" ]]; then
   cp "$SKILL_ROOT/assets/themes/_skeleton.css" "$TARGET_DIR/_skeleton.css"
 fi
+# SP2: Copy the theme's image-style.txt for Gemini prompt injection
+THEME_IMAGE_STYLE="$SKILL_ROOT/assets/themes/$THEME.image-style.txt"
+if [[ -f "$THEME_IMAGE_STYLE" ]]; then
+  cp "$THEME_IMAGE_STYLE" "$TARGET_DIR/image-style.txt"
+fi
 
 if [[ "$MINIMAL" == true ]]; then
   # Minimal: cover + one content slide + closing
@@ -222,6 +227,12 @@ if [[ ! -f "$TARGET_DIR/package.json" ]]; then
 PKG_EOF
 fi
 
+# SP2: Ensure .env is gitignored so users' GEMINI_API_KEY doesn't leak
+GITIGNORE="$TARGET_DIR/.gitignore"
+if [[ ! -f "$GITIGNORE" ]] || ! grep -qxF '.env' "$GITIGNORE"; then
+  echo '.env' >> "$GITIGNORE"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 TARGET_ABS="$(cd "$TARGET_DIR" && pwd)"
 echo "Presentation created at: $TARGET_ABS"
@@ -243,3 +254,11 @@ echo "  bash $SKILL_ROOT/scripts/validate-slides.sh $TARGET_ABS/slides.md"
 echo ""
 echo "  # Review presentation quality"
 echo "  bash $SKILL_ROOT/scripts/review-presentation.sh $TARGET_ABS/slides.md"
+echo ""
+echo "SP2 — Image generation:"
+echo "  If your deck uses image-focus / image-text-split / two-columns(image) layouts,"
+echo "  images are auto-generated when you run build-deck.sh (requires GEMINI_API_KEY)."
+echo "  See skills/slidev/references/image-generation.md for key setup."
+echo ""
+echo "  # Build with SP1 validation + SP2 image generation"
+echo "  bash $SKILL_ROOT/scripts/build-deck.sh $TARGET_ABS"
