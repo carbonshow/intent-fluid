@@ -463,3 +463,60 @@ bash "$SKILL_ROOT/scripts/run.sh" dev slides.md --port 3031
 - [ ] Content follows one-idea-per-slide principle
 - [ ] User has been shown dev/export/build commands
 - [ ] If exporting PDF: Playwright installed and export verified
+
+---
+
+## SP2: Image Generation Pipeline
+
+Slidev auto-generates images for three image-consuming layouts (image-focus, image-text-split, and two-columns with `image` pattern) using Google Gemini 2.5 Flash Image.
+
+### Prerequisites
+
+- Set `GEMINI_API_KEY` environment variable. Without it, images become theme-aware placeholder SVGs.
+- Images are produced during `build-deck.sh`; `run.sh dev` never calls the API.
+- Generated images live at `<deck>/public/generated/<hash>.png`. Commit them (hash is stable).
+
+### Claude's Job When Authoring Slides
+
+When choosing `layout: default` + `class: image-focus`, `layout: image-left` / `image-right`, or the `image` pattern inside a `two-cols-header` column, you MUST add:
+
+```yaml
+image_prompt: >
+  <describe the subject + composition + mood, in English, 40–150 chars,
+  include "no text, no logos", do NOT describe theme style>
+```
+
+The theme's `image-style.txt` automatically appends style direction. Don't duplicate it.
+
+### One-Line Build
+
+```bash
+bash scripts/build-deck.sh <deck>
+```
+
+This runs validate → generate-images → slidev build, produces `dist/`.
+
+Flags:
+- `--skip-images` — skip SP2 (use when iterating slides without burning tokens)
+- `--force-images` — regenerate all images, ignore cache
+
+### Key Setup (if GEMINI_API_KEY not set)
+
+The pipeline prints instructions on first run. Quick reference:
+1. Get a key: https://aistudio.google.com/app/apikey
+2. `export GEMINI_API_KEY=AIza...`
+3. Re-run `build-deck.sh`.
+
+### Testing & Mock
+
+`gemini-client.js` exports `createMockClient(scenario)` (scenarios: `success`, `timeout`, `content_policy`, `network`, `api`). Invoke via:
+```bash
+bash scripts/generate-images.sh <deck> --mock success
+```
+
+Full docs: `references/image-generation.md` §9.
+Static test suite: `bash scripts/test-sp2-static.sh`.
+
+### Troubleshooting
+
+See `references/image-generation.md` §11.

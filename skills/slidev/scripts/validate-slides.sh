@@ -406,6 +406,32 @@ PYEOF
   fi
 fi
 
+# ── Check 11: SP2 image prompt validation ──────────────────────────────────
+# Applies only when slides.md contains image-consuming layouts.
+SCRIPT_DIR_C11="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_ROOT_C11="$(cd "$SCRIPT_DIR_C11/.." && pwd)"
+CHECK11_PY="$SKILL_ROOT_C11/scripts/lib/check-11.py"
+DECK_DIR_C11="$(cd "$(dirname "$SLIDES")" && pwd)"
+
+if [[ ! -f "$CHECK11_PY" ]]; then
+  warn "Check 11 skipped: helper not found at $CHECK11_PY" \
+       "Reinstall the slidev skill."
+else
+  C11_OUTPUT=$(python3 "$CHECK11_PY" "$SLIDES" "$DECK_DIR_C11" 2>&1 || true)
+
+  if echo "$C11_OUTPUT" | grep -q '^FAIL: '; then
+    while IFS= read -r line; do
+      fail "Check 11 — ${line#FAIL: }" "Add image_prompt (≥20 non-whitespace chars) or fix image_path."
+    done < <(echo "$C11_OUTPUT" | grep '^FAIL: ')
+  fi
+  # OK: lines are informational — just count them for the single PASS summary
+  OK_COUNT=$(echo "$C11_OUTPUT" | grep -c '^OK: ' || true)
+  FAIL_COUNT=$(echo "$C11_OUTPUT" | grep -c '^FAIL: ' || true)
+  if [[ "$FAIL_COUNT" -eq 0 ]]; then
+    pass "Check 11: image prompt validation ($OK_COUNT OK)"
+  fi
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo "Result: $PASS passed, $FAIL failed, $WARN warnings"

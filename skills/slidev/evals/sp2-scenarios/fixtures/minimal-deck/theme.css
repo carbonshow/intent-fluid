@@ -1,0 +1,9 @@
+@import url('./_skeleton.css');
+
+:root {
+  --color-primary: #7DD3FC;
+  --color-accent:  #C084FC;
+  --color-text:    #E5E7EB;
+  --color-bg:      #0B1220;
+  --color-muted:   #9CA3AF;
+}
