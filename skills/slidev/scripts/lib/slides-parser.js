@@ -80,20 +80,39 @@ function splitSlides(md) {
     cursor++; // move past closing ---
   }
 
-  // Attempt to consume a frontmatter block starting at the current cursor.
-  // Heuristic: if the first non-blank line looks like "key: value", scan
-  // forward to the next --- and treat everything in between as FM.
+  // Attempt to consume a frontmatter block starting EXACTLY at `cursor`
+  // (no skipping of leading blank lines — FM must open immediately).
   // Returns { frontmatter, newCursor } or null if not detected as FM.
   function tryConsumeFM() {
-    let peek = cursor;
-    while (peek < lines.length && !lines[peek].trim()) peek++;
-    if (peek >= lines.length) return null;
-    // The first real line must start a key:value pair to be considered FM.
-    if (!/^[a-zA-Z_][a-zA-Z0-9_-]*:/.test(lines[peek])) return null;
-    // Scan forward from peek to find the closing ---.
-    let dashPos = peek;
+    // Look for a tight FM block starting exactly at `cursor`:
+    //   line at cursor must be a `key: value` pattern (no leading blank lines)
+    //   a closing --- must exist before any body-shape content
+    if (cursor >= lines.length) return null;
+    const firstLine = lines[cursor];
+    if (!/^[a-zA-Z_][a-zA-Z0-9_-]*:/.test(firstLine)) return null;
+
+    // Scan forward to the closing ---
+    let dashPos = cursor;
     while (dashPos < lines.length && lines[dashPos].trim() !== '---') dashPos++;
-    if (dashPos >= lines.length) return null; // no closing --- found
+    if (dashPos >= lines.length) return null;
+
+    // All lines between cursor and dashPos must look like valid FM:
+    //   - blank
+    //   - comment (# ...)
+    //   - top-level key: (with or without value) — keyAtCol0
+    //   - 2-indented continuation (for nested objects / block scalars)
+    for (let j = cursor; j < dashPos; j++) {
+      const l = lines[j];
+      if (l.trim() === '') continue;
+      if (l.trim().startsWith('#')) continue;
+      if (/^[a-zA-Z_][a-zA-Z0-9_-]*:/.test(l)) continue;    // key: at col 0
+      if (/^  [a-zA-Z_]/.test(l)) continue;                  // 2-indented nested
+      if (/^    /.test(l)) continue;                          // 4-indented (list under nested)
+      if (/^  -/.test(l)) continue;                           // 2-indented list item
+      // Not FM-shaped — bail
+      return null;
+    }
+
     const fmLines = lines.slice(cursor, dashPos);
     return {
       frontmatter: parseFrontmatter(fmLines.join('\n')),
@@ -103,22 +122,18 @@ function splitSlides(md) {
 
   let currentSlide = { frontmatter: {}, bodyLines: [] };
 
-  // The first slide may have its own frontmatter immediately after the deck FM.
-  const firstFM = tryConsumeFM();
-  if (firstFM) {
-    currentSlide.frontmatter = firstFM.frontmatter;
-    cursor = firstFM.newCursor;
-  }
-
   while (cursor < lines.length) {
     const line = lines[cursor];
 
     if (line.trim() === '---') {
-      // Slide separator: finalise current slide, start the next.
-      slides.push(currentSlide);
+      // Flush current slide (if it has content)
+      const hasContent = currentSlide.bodyLines.some(l => l.trim() !== '')
+                      || Object.keys(currentSlide.frontmatter).length > 0;
+      if (hasContent) slides.push(currentSlide);
       currentSlide = { frontmatter: {}, bodyLines: [] };
       cursor++;
-      // The separator may double as the frontmatter opener for the next slide.
+
+      // The separator may open the next slide's FM.
       const fm = tryConsumeFM();
       if (fm) {
         currentSlide.frontmatter = fm.frontmatter;
@@ -131,10 +146,10 @@ function splitSlides(md) {
     cursor++;
   }
 
-  // Flush the last slide if it has any content.
-  if (currentSlide.bodyLines.length > 0 || Object.keys(currentSlide.frontmatter).length > 0) {
-    slides.push(currentSlide);
-  }
+  // Flush the last slide if it has any non-blank content or any frontmatter.
+  const hasContent = currentSlide.bodyLines.some(l => l.trim() !== '')
+                  || Object.keys(currentSlide.frontmatter).length > 0;
+  if (hasContent) slides.push(currentSlide);
 
   return slides;
 }
@@ -162,7 +177,7 @@ function parseColumnsFromBody(bodyLines) {
   return result;
 }
 
-const IMAGE_LAYOUT_NAMES = new Set(['image-focus', 'image-left', 'image-right']);
+export const IMAGE_LAYOUT_NAMES = new Set(['image-focus', 'image-left', 'image-right']);
 
 function sizeForSlide(layout, columnsType) {
   if (layout === 'two-cols-header' && columnsType === 'image') {

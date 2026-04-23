@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // test-slides-parser.mjs — inline test for slides-parser.js
 
-import { parseSlides } from './slides-parser.js';
+import { parseSlides, IMAGE_LAYOUT_NAMES } from './slides-parser.js';
 
 const FIXTURE = `---
 title: Demo
@@ -67,5 +67,57 @@ assert(slides[3].layout === 'two-cols-header', 'slide 4 layout two-cols-header')
 assert(slides[3].isImageSlide === true, 'slide 4 is image slide (left.pattern=image)');
 assert(slides[3].columnsType === 'image', 'slide 4 columnsType image');
 assert(slides[3].imageSize.width === 800 && slides[3].imageSize.height === 900, 'slide 4 size 800x900');
+
+// ---- Edge case tests (bug fixes from spec review) ----
+
+// Bug 1: IMAGE_LAYOUT_NAMES export
+assert(IMAGE_LAYOUT_NAMES instanceof Set, 'IMAGE_LAYOUT_NAMES is exported and is a Set');
+assert(IMAGE_LAYOUT_NAMES.size === 3, 'IMAGE_LAYOUT_NAMES has 3 members');
+assert(IMAGE_LAYOUT_NAMES.has('image-focus') && IMAGE_LAYOUT_NAMES.has('image-left') && IMAGE_LAYOUT_NAMES.has('image-right'),
+       'IMAGE_LAYOUT_NAMES contains the 3 expected layouts');
+
+// Bug 2: body starting with key:value must not be misread as FM
+const BODY_KV_FIXTURE = `---
+title: Deck
+---
+
+# Cover
+
+---
+
+a: b
+
+more content
+
+---
+
+# Third Slide
+`;
+const bodyKvSlides = parseSlides(BODY_KV_FIXTURE);
+assert(bodyKvSlides.length === 3, `body-starts-with-kv: expected 3 slides, got ${bodyKvSlides.length}`);
+assert(Object.keys(bodyKvSlides[1].frontmatter).length === 0, 'slide 2 has no frontmatter (was misread as {a:b})');
+assert(bodyKvSlides[2].frontmatter !== undefined, 'slide 3 exists');
+
+// Bug 3: empty input
+const empty = parseSlides('');
+assert(empty.length === 0, `empty input should return [], got ${empty.length} slides`);
+
+// Regression: only deck FM (no slides) → 0 slides
+const onlyDeckFm = parseSlides(`---
+title: Deck
+---
+`);
+assert(onlyDeckFm.length === 0, `only-deck-fm: expected 0 slides, got ${onlyDeckFm.length}`);
+
+// Regression: only one slide (no separators at all after deck FM) → 1 slide
+const oneSlide = parseSlides(`---
+title: Deck
+---
+
+# Cover
+
+body text
+`);
+assert(oneSlide.length === 1, `one-slide: expected 1, got ${oneSlide.length}`);
 
 console.log('\nAll assertions passed.');
