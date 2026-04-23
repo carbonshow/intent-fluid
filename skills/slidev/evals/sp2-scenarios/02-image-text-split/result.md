@@ -12,7 +12,7 @@
 
 ## Design Brief (summary)
 
-_(fill in)_
+_(fill in: audience / purpose / language / key messages / layout mix)_
 
 ## Expectation results
 
