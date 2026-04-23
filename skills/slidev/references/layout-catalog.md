@@ -723,7 +723,8 @@ class: image-focus
 
 **Fields schema**:
 - `title`: string, optional, maxLength 60 — omit for pure visual-anchor slides
-- `image_path`: string, required — relative to the deck's `public/` directory, e.g., `/screenshots/dashboard.png`
+- `image_path`: string, optional (SP2) — relative to the deck's `public/` directory, e.g., `/screenshots/dashboard.png`. Omit to auto-generate via SP2 (defaults to `public/generated/<hash>.png`). If set, must start with `public/`; files outside `public/generated/` are treated as user-provided and must exist.
+- `image_prompt`: string, required (SP2), minLength 20 non-whitespace chars — content description for Gemini image generation; theme auto-injects style. See `references/image-generation.md` for the prompt-writing guide.
 - `alt_text`: string, required, maxLength 120 — accessibility; must describe the image content
 - `caption`: string, optional, maxLength 80 — one-line caption below the image
 
@@ -773,7 +774,8 @@ class: image-text-split
 
 **Fields schema**:
 - `title`: string, required, maxLength 60
-- `image_path`: string, required — relative to deck's `public/`
+- `image_path`: string, optional (SP2) — relative to deck's `public/`. Omit to auto-generate via SP2 (defaults to `public/generated/<hash>.png`). Same user-override rules as `image-focus`.
+- `image_prompt`: string, required (SP2), minLength 20 non-whitespace chars — content description for Gemini image generation; theme auto-injects style. See `references/image-generation.md`.
 - `image_side`: enum, optional, default `left` — either `left` or `right`; maps to Slidev layout `image-left` vs `image-right`
 - `alt_text`: string, required, maxLength 120
 - `body`: markdown string, required, maxLength 300 — supports inline formatting and short bullets (`- item`), but no fenced code blocks
@@ -871,7 +873,8 @@ Small code snippet (≤ 8 lines).
 ### Pattern: `image`
 Small inline image (height-capped via `max-h-64` CSS).
 - `pattern`: must be the string `image`
-- `image_path`: string, required
+- `image_path`: string, optional (SP2) — relative to deck's `public/`. Omit to auto-generate via SP2 (defaults to `public/generated/<hash>.png`). Same user-override rules as `image-focus`.
+- `image_prompt`: string, required (SP2), minLength 20 non-whitespace chars — content description for Gemini image generation; theme auto-injects style.
 - `alt_text`: string, required, maxLength 120
 - `caption`: string, optional, maxLength 40
 
