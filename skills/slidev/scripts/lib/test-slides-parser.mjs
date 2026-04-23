@@ -54,7 +54,7 @@ const assert = (cond, msg) => {
 };
 
 assert(slides.length === 4, `expected 4 slides, got ${slides.length}`);
-assert(slides[0].layout === undefined || slides[0].layout === null, 'slide 1 (cover) has no explicit layout');
+assert(slides[0].layout === undefined, 'slide 1 (cover) layout is undefined (not null)');
 assert(slides[0].isImageSlide === false, 'slide 1 is not image slide');
 assert(slides[1].layout === 'image-focus', 'slide 2 layout image-focus');
 assert(slides[1].isImageSlide === true, 'slide 2 is image slide');
@@ -63,6 +63,7 @@ assert(slides[1].imageSize.width === 1600 && slides[1].imageSize.height === 900,
 assert(slides[2].layout === 'image-left', 'slide 3 layout image-left');
 assert(slides[2].isImageSlide === true, 'slide 3 is image slide');
 assert(slides[2].imageSize.width === 1600, 'slide 3 size 1600x900');
+assert(slides[2].imageFields.image_path === '/hero.png', 'slide 3 image_path aliased from image: key');
 assert(slides[3].layout === 'two-cols-header', 'slide 4 layout two-cols-header');
 assert(slides[3].isImageSlide === true, 'slide 4 is image slide (left.pattern=image)');
 assert(slides[3].columnsType === 'image', 'slide 4 columnsType image');
@@ -119,5 +120,30 @@ title: Deck
 body text
 `);
 assert(oneSlide.length === 1, `one-slide: expected 1, got ${oneSlide.length}`);
+
+// Bug 4 coverage: two-cols-header with no image column → isImageSlide false
+const TEXT_COLS_FIXTURE = `---
+title: Deck
+---
+
+---
+layout: two-cols-header
+class: two-columns
+---
+
+# Comparison
+
+::left::
+pattern: text
+content: A
+
+::right::
+pattern: text
+content: B
+`;
+const textCols = parseSlides(TEXT_COLS_FIXTURE);
+assert(textCols.length === 1, `two-cols no-image: expected 1 slide, got ${textCols.length}`);
+assert(textCols[0].isImageSlide === false, 'two-cols with no image column: isImageSlide=false');
+assert(textCols[0].columnsType === null, 'two-cols with no image column: columnsType=null');
 
 console.log('\nAll assertions passed.');

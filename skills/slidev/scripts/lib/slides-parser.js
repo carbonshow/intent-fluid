@@ -2,6 +2,8 @@
 // Lightweight YAML frontmatter parser (handles the subset we use).
 // Zero deps; Node 18+.
 
+const SEP = '---';
+
 // Parse one frontmatter block (already stripped of --- delimiters) into an object.
 // Supports: scalar (key: value), nested object (key:\n  subkey: value),
 //           folded block scalar (key: >\n  line1\n  line2),
@@ -74,9 +76,9 @@ function splitSlides(md) {
   let cursor = 0;
 
   // Skip the deck-level frontmatter (opening ---...--- block).
-  if (lines[0] && lines[0].trim() === '---') {
+  if (lines[0] && lines[0].trim() === SEP) {
     cursor = 1;
-    while (cursor < lines.length && lines[cursor].trim() !== '---') cursor++;
+    while (cursor < lines.length && lines[cursor].trim() !== SEP) cursor++;
     cursor++; // move past closing ---
   }
 
@@ -93,7 +95,7 @@ function splitSlides(md) {
 
     // Scan forward to the closing ---
     let dashPos = cursor;
-    while (dashPos < lines.length && lines[dashPos].trim() !== '---') dashPos++;
+    while (dashPos < lines.length && lines[dashPos].trim() !== SEP) dashPos++;
     if (dashPos >= lines.length) return null;
 
     // All lines between cursor and dashPos must look like valid FM:
@@ -125,7 +127,7 @@ function splitSlides(md) {
   while (cursor < lines.length) {
     const line = lines[cursor];
 
-    if (line.trim() === '---') {
+    if (line.trim() === SEP) {
       // Flush current slide (if it has content)
       const hasContent = currentSlide.bodyLines.some(l => l.trim() !== '')
                       || Object.keys(currentSlide.frontmatter).length > 0;
