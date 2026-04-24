@@ -31,7 +31,8 @@
 Run from the repository root.
 
 ```bash
-cd /Users/wenzhitao/Projects/github/intent-fluid
+set -o pipefail
+cd "$(git rev-parse --show-toplevel)"
 SKILL_ROOT="$PWD/skills/slidev"
 DECK=/tmp/sp2-scenario-01-image-focus
 rm -rf "$DECK"
@@ -205,7 +206,7 @@ rm -rf "$DECK"
 ## Expectations (10 items)
 
 - [ ] **E1** Deck contains exactly 2 slides with `class: image-focus` (one auto, one override).
-  Evidence: `grep -c "^class: image-focus\|class: image-focus$" "$DECK/slides.md"` = 2, OR `grep -c "class:.*image-focus" "$DECK/slides.md"` = 2.
+  Evidence: `grep -c "^class: image-focus$" "$DECK/slides.md"` = 2.
 
 - [ ] **E2** Every image-* slide has a valid `image_prompt` (40–150 chars, includes "no text"/"no logos").
   Evidence: Check 11 line in `validate.log` reads `PASS  Check 11: image prompt validation (2 OK)`.
