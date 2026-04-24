@@ -209,7 +209,7 @@ rm -rf "$DECK"
   Evidence: `grep -c "^class: image-focus$" "$DECK/slides.md"` = 2.
 
 - [ ] **E2** Every image-* slide has a valid `image_prompt` (40–150 chars, includes "no text"/"no logos").
-  Evidence: Check 11 line in `validate.log` reads `PASS  Check 11: image prompt validation (2 OK)`.
+  Evidence: Check 11 line in `validate.log` reads `PASS  Check 11: image prompt validation (3 OK)`.
 
 - [ ] **E3** `image_path` fields comply: one slide omitted (auto), one points to `public/hero.jpg` which exists.
   Evidence: `ls -la "$DECK/public/hero.jpg"` succeeds; no `FAIL.*Check 11` line in `validate.log`.

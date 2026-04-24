@@ -42,6 +42,7 @@ rm -rf "$DECK"
      --theme corporate-navy \
      --minimal
    ```
+   Expect: `Presentation created at: /tmp/sp2-scenario-02-image-text-split` printed; deck directory contains `image-style.txt`.
 
 2) **Write `slides.md`** — overwrite with this exact content:
 
@@ -226,7 +227,7 @@ rm -rf "$DECK"
   Evidence: `grep -cE "^layout: (image-left|image-right)$" "$DECK/slides.md"` = 3.
 
 - [ ] **E2** Every image-* slide has a valid `image_prompt`.
-  Evidence: Check 11 line in `validate.log` reads `PASS  Check 11: image prompt validation (3 OK)`.
+  Evidence: Check 11 line in `validate.log` reads `PASS  Check 11: image prompt validation (4 OK)`.
 
 - [ ] **E3** No `image_path` overrides used; all images are auto.
   Evidence: `grep -c "image_path:" "$DECK/slides.md"` = 0.
