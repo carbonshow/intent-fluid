@@ -84,6 +84,31 @@ function reasonTextFromCode(code) {
   return map[code] || code;
 }
 
+// Patch "public/generated/auto.png" src references in slides.md to the correct Vite
+// public-directory path "/generated/<actual-file>".
+//
+// Vite's public/ directory convention: files under public/ are served at the root URL,
+// so the correct <img src> is "/generated/hash.png", NOT "public/generated/hash.png".
+// Using the relative "public/generated/" form causes Rollup to attempt to resolve it as
+// a module import and fail at build time with "failed to resolve import".
+//
+// Called once per image slide (in index order); replaces the first remaining
+// "public/generated/auto.png" occurrence so repeated calls handle multi-image decks.
+function patchAutoSrc(slidesPath, actualRel) {
+  // actualRel is "public/generated/<hash>.png" (or .svg) — strip the "public/" prefix
+  // to get the correct Vite public-directory URL.
+  const publicUrl = actualRel.replace(/^public\//, '/');
+  const AUTO_REL = 'public/generated/auto.png';
+  const AUTO_URL = '/generated/auto.png';
+  const content = fs.readFileSync(slidesPath, 'utf8');
+  // Patch whichever form is present (relative or already-url).
+  if (content.includes(AUTO_REL)) {
+    fs.writeFileSync(slidesPath, content.replace(AUTO_REL, publicUrl), 'utf8');
+  } else if (content.includes(AUTO_URL)) {
+    fs.writeFileSync(slidesPath, content.replace(AUTO_URL, publicUrl), 'utf8');
+  }
+}
+
 function writePlaceholderTo(targetPath, { title, reason, colors, width, height }) {
   const svg = renderPlaceholder({ title, reason, colors, width, height });
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -225,6 +250,7 @@ async function main() {
     if ((cacheHitPng || cacheHitSvg) && !args.force) {
       const existing = cacheHitPng ? targetRel : targetRel.replace(/\.png$/, '.svg');
       console.log(`[SP2] ✓ slide ${slide.index} (${slide.layout}) cached: ${existing}`);
+      patchAutoSrc(slidesPath, existing);
       cached++;
       continue;
     }
@@ -239,6 +265,7 @@ async function main() {
         title, reason: reasonTextFromCode('no_key'), colors, width, height,
       });
       console.warn(`[SP2] ⚠ slide ${slide.index} placeholder: ${path.relative(deckDir, p)} (no key)`);
+      patchAutoSrc(slidesPath, path.relative(deckDir, p));
       placeholder++;
       continue;
     }
@@ -250,6 +277,7 @@ async function main() {
       fs.mkdirSync(path.dirname(targetAbs), { recursive: true });
       fs.writeFileSync(targetAbs, buf);
       console.log(`[SP2] ✓ slide ${slide.index} (${slide.layout}) generated: ${targetRel}`);
+      patchAutoSrc(slidesPath, targetRel);
       generated++;
     } catch (err) {
       const code = (err instanceof GeminiError) ? err.code : 'api';
@@ -257,6 +285,7 @@ async function main() {
         title, reason: reasonTextFromCode(code), colors, width, height,
       });
       console.warn(`[SP2] ⚠ slide ${slide.index} placeholder: ${path.relative(deckDir, p)} (${code}: ${err.message})`);
+      patchAutoSrc(slidesPath, path.relative(deckDir, p));
       placeholder++;
     }
   }
