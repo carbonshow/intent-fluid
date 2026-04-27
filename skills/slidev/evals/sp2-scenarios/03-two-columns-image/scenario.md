@@ -83,9 +83,13 @@ rm -rf "$DECK"
    title: The Two Shapes
    left:
      pattern: image
+     image_path: public/generated/auto.png
+     alt_text: Linked list diagram
      image_prompt: Hand-drawn educational illustration of a linked list with 5 rounded boxes connected by curved arrows, warm friendly style, no text, no logos
    right:
      pattern: image
+     image_path: public/generated/auto.png
+     alt_text: Array diagram
      image_prompt: Hand-drawn educational illustration of an array as 5 equal rectangles in a row with index labels implied by position, warm friendly style, no text, no logos
    ---
 
@@ -109,6 +113,8 @@ rm -rf "$DECK"
    title: Memory Layout
    left:
      pattern: image
+     image_path: public/generated/auto.png
+     alt_text: Scattered pointer chain
      image_prompt: Hand-drawn educational illustration of scattered memory cells connected by arrows showing pointer chains, warm friendly style, no text, no logos
    right:
      pattern: text
@@ -245,8 +251,8 @@ rm -rf "$DECK"
 - [ ] **E2** Every image-column has a valid `image_prompt`.
   Evidence: Check 11 line in `validate.log` matches `PASS  Check 11: image prompt validation (3 OK)`.
 
-- [ ] **E3** No `image_path` overrides used.
-  Evidence: `grep -c "image_path:" "$DECK/slides.md"` = 0.
+- [ ] **E3** All `image_path` values point to `public/generated/auto.png` (SP2 pipeline placeholder — no user-provided overrides).
+  Evidence: `grep -c "image_path:" "$DECK/slides.md"` = 3; all 3 values are `public/generated/auto.png`.
 
 - [ ] **E4** `validate-slides.sh` reports 0 FAIL, 0 WARN.
   Evidence: `grep -E "Result: [0-9]+ passed, 0 failed, 0 warnings" "$DECK/validate.log"` matches.
