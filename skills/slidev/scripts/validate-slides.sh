@@ -350,6 +350,10 @@ for idx, (fm, slide_body) in enumerate(slides, start=1):
                 fails.append(f"Slide {idx}: two-columns.{side}.pattern '{pat}' not in {meta['two_columns_patterns']}")
                 continue
             for rf in meta["pattern_required"][pat]:
+                # SP2 exemption: image_path is optional when image_prompt is present
+                # (generate-images.js will auto-generate and assign the path).
+                if rf == "image_path" and pat == "image" and "image_prompt" in obj:
+                    continue
                 if rf not in obj:
                     fails.append(f"Slide {idx}: two-columns.{side}.{pat} missing required '{rf}'")
             if pat == "code" and "code" in obj:
