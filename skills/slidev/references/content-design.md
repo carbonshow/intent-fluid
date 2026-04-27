@@ -270,6 +270,44 @@ sequenceDiagram
 Key takeaway: the round-trip adds ~40ms latency.
 ```
 
+### Image Sizing Guide
+
+When embedding existing images (screenshots, data charts, concept art), choose
+the right size tier to avoid overflow or wasted space. Slidev's viewport is
+980×552 px — after title and padding, the usable content area is ~450px tall.
+
+| Tier | CSS class | Height | Best for |
+|------|-----------|--------|----------|
+| Small | `max-h-48` | 192px | Supplementary icon, badge, small inline visual |
+| Medium | `max-h-72` | 288px | Data chart, cost table screenshot, concept sketch |
+| Large | `max-h-96` | 384px | Detailed diagram, wide screenshot, UI mockup |
+| Full | `image-focus` layout | ~500px+ | Hero photo, branding, full-bleed visual anchor |
+
+**Always combine with**: `object-contain` (prevent cropping) + `mx-auto` (center).
+Optional: `rounded shadow` for polished look on light backgrounds.
+
+```html
+<!-- Medium: most common for data/chart images -->
+<div class="flex justify-center mt-4">
+  <img src="/chart.png" alt="description"
+       class="max-h-72 object-contain rounded shadow" />
+</div>
+
+<!-- Large: detailed diagrams needing more space -->
+<div class="flex justify-center mt-2">
+  <img src="/architecture.png" alt="description"
+       class="max-h-96 object-contain" />
+</div>
+```
+
+**Decision tree**:
+- Is the image the *only* content on the slide? → `image-focus` layout (Full)
+- Does the image need explanation text beside it? → `image-text-split` layout
+- Is the image a data table/chart with a title above? → Medium (`max-h-72`)
+- Is the image inside a `two-columns` column? → Small (`max-h-48`) or the
+  `image` content pattern (`max-h-64`)
+- Is the image detailed and needs study time? → Large (`max-h-96`)
+
 ## Visual Hierarchy
 
 Guide the eye with size and weight:

@@ -281,8 +281,15 @@ while k < len(rest):
     slides.append((fm, body_chunk))
     k += 2
 
+def strip_md(s):
+    """Strip markdown inline formatting to measure visible text length."""
+    s = re.sub(r'\*\*(.+?)\*\*', r'\1', s)   # bold
+    s = re.sub(r'\*(.+?)\*', r'\1', s)         # italic
+    s = re.sub(r'`(.+?)`', r'\1', s)           # inline code
+    return s
+
 def char_count(s):
-    return len(s)
+    return len(strip_md(s))
 
 fails = []
 warns = []
