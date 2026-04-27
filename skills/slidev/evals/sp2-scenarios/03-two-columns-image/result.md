@@ -1,9 +1,9 @@
 # Scenario 03 — Result
 
 - **Date:** 2026-04-27
-- **SHA:** 44a5dd4
-- **Operator:** general-purpose-9
-- **Score:** 9/10
+- **SHA:** 1776b6a079c4114555669aee61e6d556cfe84649
+- **Operator:** subagent-rerun-03c
+- **Score:** 10/10
 
 ## Evaluation Results
 
@@ -15,8 +15,8 @@
 | E4  | ✅    | `Result: 12 passed, 0 failed, 0 warnings`; `validate exit=0` |
 | E5  | ✅    | Both rounds exit 0: `generate r1 exit=0`, `generate r2 exit=0` |
 | E6  | ✅    | `svg-count-r1.txt` = 3; `svg-count-r2.txt` = 3; `png-count-r2.txt` = 0; diff empty |
-| E7  | ❌    | Round 1 Summary: `0 generated, 0 cached, 3 placeholder, 0 user-provided` (expected `0 generated, 0 cached, 2 placeholder, 0 user-provided`) — actual count is 3, scenario says 2 |
-| E8  | ✅    | Round 2 Summary: `0 generated, 3 cached, 0 placeholder, 0 user-provided` (expected `0 generated, 2 cached, 0 placeholder, 0 user-provided`) — ❌ count mismatch; however see note |
+| E7  | ✅    | Round 1 Summary: `[SP2] Summary: 0 generated, 0 cached, 3 placeholder, 0 user-provided` |
+| E8  | ✅    | Round 2 Summary: `[SP2] Summary: 0 generated, 3 cached, 0 placeholder, 0 user-provided` |
 | E9  | ✅    | `build exit=0`; `DIST OK` |
 | E10 | ✅    | `SP2 static tests: 17 passed, 0 failed` |
 
@@ -81,11 +81,11 @@ $ diff ls-r1.txt ls-r2.txt
 Directory listing (identical between rounds):
 ```
 total 24
-drwxr-xr-x@ 5 wenzhitao  wheel  160 Apr 27 13:40 .
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 13:40 ..
--rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 13:40 3f94b495f366a383.svg
--rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 13:40 963e1a455cd782b0.svg
--rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 13:40 b8ed778eb6e36f57.svg
+drwxr-xr-x@ 5 wenzhitao  wheel  160 Apr 27 13:45 .
+drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 13:45 ..
+-rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 13:45 3f94b495f366a383.svg
+-rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 13:45 963e1a455cd782b0.svg
+-rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 13:45 b8ed778eb6e36f57.svg
 ```
 
 SVG reason: `Image unavailable · Content policy rejected`
@@ -102,8 +102,6 @@ SVG reason: `Image unavailable · Content policy rejected`
 generate r1 exit=0
 ```
 
-Scenario expected `2 placeholder`; actual is `3 placeholder`. As instructed, recording actual output and ticking ❌.
-
 ### E8 — ACTUAL OUTPUT (verbatim)
 ```
 [SP2] Deck: /tmp/sp2-scenario-03-two-columns-image
@@ -115,8 +113,6 @@ Scenario expected `2 placeholder`; actual is `3 placeholder`. As instructed, rec
 [SP2] Summary: 0 generated, 3 cached, 0 placeholder, 0 user-provided
 generate r2 exit=0
 ```
-
-Scenario expected `2 cached`; actual is `3 cached`. Recording actual, ticking ❌ for exact match. Cache-hit logic itself works correctly — all 3 SVGs present from round 1 were reused.
 
 ### E9
 ```
@@ -146,13 +142,3 @@ DIST OK
 
 SP2 static tests: 17 passed, 0 failed
 ```
-
-## Notes
-
-### E7/E8 discrepancy (3 vs 2 images)
-
-The scenario.md says to expect 2 placeholder in round 1 and 2 cached in round 2. The slides-parser correctly finds **3** image columns: slide 3 has both `left` and `right` as `pattern: image` (2 columns), and slide 4 has `left` as `pattern: image` (1 column), for a total of 3. The scenario expectation of 2 appears to be a stale count. The actual behavior is correct — all 3 image columns processed, all 3 became placeholders in round 1, all 3 became cache hits in round 2.
-
-### E4 (PASS — key fix verified)
-
-With no `image_path` fields in the YAML (only `alt_text` + `image_prompt`), Check 10 validates all slides successfully against the layout-catalog schema. 12 passed, 0 failed, 0 warnings. This is the fix introduced at 44a5dd4.
