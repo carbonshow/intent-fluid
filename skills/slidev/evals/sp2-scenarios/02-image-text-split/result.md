@@ -1,8 +1,8 @@
 # Scenario 02 — Result
 
 **Date run**: 2026-04-27
-**Skill commit SHA**: 880efead2e14a14d6afe2bd9ab59e97e8c42279c
-**Operator**: general-purpose-1 (subagent)
+**Skill commit SHA**: 420de9e0db8b855c7b985b80b06accc35820e575
+**Operator**: subagent-rerun-02
 
 ## Actual outputs
 
@@ -12,7 +12,7 @@
 
 ## Brief summary
 
-8-slide architecture intro deck for a new engineering manager, describing a 1B events/day event pipeline (Ingest → Enrichment → Fanout). Three image-text-split slides (alternating image-left / image-right) + cover + agenda + 2 × content-bullets + closing. Initialization and validation succeeded; generate-images correctly fell back to placeholders when no GEMINI_API_KEY was set; static regression suite passed 17/17. Build step failed with a Vite/Rollup path error caused by macOS `/tmp` → `/private/tmp` symlink resolution.
+8-slide architecture intro deck for a new engineering manager, describing a 1B events/day event pipeline (Ingest → Enrichment → Fanout). Three image-text-split slides (alternating image-left / image-right) + cover + agenda + 2 × content-bullets + closing. Initialization and validation succeeded; generate-images correctly fell back to placeholders when no GEMINI_API_KEY was set; static regression suite passed 17/17. Build step (E9) now exits 0 and produces dist/index.html — the /tmp symlink fix in run.sh (using realpath) resolved the prior Vite/Rollup path validation error on macOS.
 
 ## Expectation results
 
@@ -24,12 +24,12 @@
 - ✅ **E6** `public/generated/` contains 0 PNG, 3 SVG.
 - ✅ **E7** Summary line equals `[SP2] Summary: 0 generated, 0 cached, 3 placeholder, 0 user-provided`.
 - ✅ **E8** Key-setup hint and `aistudio.google.com/app/apikey` URL both present in generate.log.
-- ❌ **E9** `run.sh build` exits 1; `dist/index.html` not created — Vite path error on macOS /tmp symlink.
+- ✅ **E9** `run.sh build` exits 0; `dist/index.html` exists (DIST OK).
 - ✅ **E10** `test-sp2-static.sh` reports `17 passed, 0 failed`.
 
 ## Score
 
-**9 / 10**
+**10 / 10**
 
 ## Evidence log
 
@@ -56,11 +56,11 @@ generate exit=0
 **E6** — svg-count.txt = `3`; png-count.txt = `0`
 ```
 total 24
-drwxr-xr-x@ 5 wenzhitao  wheel  160 Apr 27 11:49 .
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 11:49 ..
--rw-r--r--@ 1 wenzhitao  wheel  586 Apr 27 11:49 2d3366ca70f83c3b.svg
--rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 11:49 b0de26f77e06bc66.svg
--rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 11:49 f4249a7028cc21dc.svg
+drwxr-xr-x@ 5 wenzhitao  wheel  160 Apr 27 13:14 .
+drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 13:14 ..
+-rw-r--r--@ 1 wenzhitao  wheel  586 Apr 27 13:14 2d3366ca70f83c3b.svg
+-rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 13:14 b0de26f77e06bc66.svg
+-rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 13:14 f4249a7028cc21dc.svg
 ```
 
 **E7** — generate.log:
@@ -75,17 +75,14 @@ Matches expected string verbatim. ✅
 [SP2]   1. Get a key:  https://aistudio.google.com/app/apikey
 ```
 
-**E9** — ❌ ACTUAL build.log (key lines):
+**E9** — build.log (key lines):
 ```
-✗ Build failed in 1.65s
-[vite:build-html] The "fileName" or "name" properties of emitted chunks and assets must be strings that are neither absolute nor relative paths, received "../../private/tmp/sp2-scenario-02-image-text-split/index.html".
-    code: 'PLUGIN_ERROR',
-    pluginCode: 'VALIDATION_ERROR',
-    plugin: 'vite:build-html',
-    hook: 'generateBundle'
-build exit=1
+✓ 444 modules transformed.
+✓ built in 2.00s
+build exit=0
+DIST OK
 ```
-`dist/index.html` was not created (DIST MISSING). Expected: `build exit=0` and `DIST OK`.
+`dist/index.html` exists. The prior /tmp symlink error is resolved — run.sh now uses `realpath` so Vite receives the canonical `/private/tmp/…` path and the fileName validation passes.
 
 **E10** — static.log:
 ```
@@ -94,5 +91,5 @@ SP2 static tests: 17 passed, 0 failed
 
 ## Notes
 
-**E9 — Build failure (macOS /tmp symlink):**
-`/tmp` on macOS is a symlink to `/private/tmp`. Vite/Rollup validates that the resolved `fileName` is neither absolute nor relative; after symlink resolution the path becomes `../../private/tmp/…` relative to the project root, triggering a VALIDATION_ERROR in the `vite:build-html` plugin. `run.sh` exits 1 (build error detected), and `dist/index.html` is never produced. This is an environment-specific issue on macOS that does not affect slide content or image generation correctness. Workaround: place the deck under `/private/tmp/` directly or under a non-symlinked path (e.g. `~/tmp/`). Suggested fix: resolve deck path with `realpath` in `run.sh` before passing to `slidev build`.
+**E9 — Build now PASSES (was ❌ in prior run):**
+The `/tmp symlink fix in run.sh (commit 420de9e) resolves macOS's `/tmp` → `/private/tmp` symlink before passing the slides path to `slidev build`. Vite/Rollup no longer sees a path that looks like a relative traversal (`../../private/tmp/…`), so the `vite:build-html` VALIDATION_ERROR is gone. `build exit=0` and `dist/index.html` is produced. Score improves from 9/10 → 10/10.

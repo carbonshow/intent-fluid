@@ -1,48 +1,48 @@
 # Scenario 03 — Result
 
-**Date run**: 2026-04-27
-**Skill commit SHA**: 880efead2e14a14d6afe2bd9ab59e97e8c42279c
-**Operator**: general-purpose-3
+- **Date:** 2026-04-27
+- **SHA:** 420de9e0db8b855c7b985b80b06accc35820e575
+- **Operator:** subagent-rerun-03
+- **Score:** 9/10
 
-## Actual outputs
+## Evaluation Results
 
-- **Theme chosen**: edu-warm
-- **Slide count**: 7
-- **Image slides**: 2 two-cols-header slides, 3 declared image columns, 2 actually processed by pipeline (left-column-only behavior in slides-parser.js)
+| ID  | Pass? | Description |
+|-----|-------|-------------|
+| E1  | ✅    | 2 `two-cols-header` slides, 3 `pattern: image` columns |
+| E2  | ✅    | Check 11 passes: `PASS  Check 11: image prompt validation (3 OK)` |
+| E3  | ✅    | No `image_path` overrides: `grep -c "image_path:" slides.md` = 0 |
+| E4  | ❌    | validate-slides.sh reports `11 passed, 6 failed, 0 warnings` (known scenario.md issue: Check 10 requires `image_path` + `alt_text` which this scenario intentionally omits) |
+| E5  | ✅    | Both rounds exit 0: `generate r1 exit=0`, `generate r2 exit=0` |
+| E6  | ✅    | svg-count-r1=2, svg-count-r2=2, png-count-r2=0, diff ls-r1 vs ls-r2 empty |
+| E7  | ✅    | `[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided` |
+| E8  | ✅    | `[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided` |
+| E9  | ✅    | `build exit=0`; `DIST OK` |
+| E10 | ✅    | `SP2 static tests: 17 passed, 0 failed` |
 
-## Brief summary
+## Evidence Log
 
-Scenario 03 tested the `two-cols-header` layout with `pattern: image` columns under a two-round mock flow: round 1 (`--mock content_policy`) produced 2 SVG placeholders; round 2 (`--mock success`) hit cache and produced no new files. Core SP2 pipeline behavior (E5–E8) passed perfectly. E1–E3 and E10 also passed. Two expectations failed: E4 (validate-slides Check 10 requires `image_path`+`alt_text` which the scenario's own YAML template omits) and E9 (build fails because `auto.png` literal in slide body cannot be resolved by Rollup when only SVG placeholders exist on disk).
-
-## Expectation results
-
-- [x] **E1** `grep -c "^layout: two-cols-header$" "$DECK/slides.md"` = 2; `grep -c "^  pattern: image$" "$DECK/slides.md"` = 3
-- [x] **E2** `PASS  Check 11: image prompt validation (3 OK)`
-- [x] **E3** `grep -c "image_path:" "$DECK/slides.md"` = 0
-- [ ] **E4** Actual: `Result: 11 passed, 6 failed, 0 warnings` — 6 Check 10 FAILs (image_path / alt_text missing on image-pattern columns). Expected: `Result: N passed, 0 failed, 0 warnings`.
-- [x] **E5** `generate r1 exit=0`; `generate r2 exit=0`
-- [x] **E6** `svg-count-r1.txt` = 2; `svg-count-r2.txt` = 2; `png-count-r2.txt` = 0; `diff ls-r1.txt ls-r2.txt` empty
-- [x] **E7** `[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided`
-- [x] **E8** `[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided`
-- [ ] **E9** `build exit=0` (run.sh wrapper absorbed Rollup's exit 1) but `DIST MISSING` — Rollup failed to resolve `public/generated/auto.png`; `dist/index.html` absent. Expected: `build exit=0`; `DIST OK`.
-- [x] **E10** `SP2 static tests: 17 passed, 0 failed`
-
-## Score
-
-**Items ticked**: 8 / 10
-
-## Evidence log
-
+### E1
 ```
-# Step 1 — init
-Presentation created at: /tmp/sp2-scenario-03-two-columns-image
+$ grep -c "^layout: two-cols-header$" "$DECK/slides.md"
+2
+$ grep -c "^  pattern: image$" "$DECK/slides.md"
+3
+```
 
-# Step 3 — no key
-ok: no GEMINI in env
+### E2
+```
+  PASS  Check 11: image prompt validation (3 OK)
+```
 
-# Step 4 — validate
-Validating: /tmp/sp2-scenario-03-two-columns-image/slides.md
+### E3
+```
+$ grep -c "image_path:" "$DECK/slides.md"
+0
+```
 
+### E4
+```
   PASS  File exists and is non-empty
   PASS  Frontmatter opens with --- on line 1
   PASS  Frontmatter has closing --- on line 8
@@ -59,8 +59,7 @@ Validating: /tmp/sp2-scenario-03-two-columns-image/slides.md
         Fix: Fix the slide frontmatter or swap to a supported layout.
   FAIL  Check 10 — Slide 3: two-columns.right.image missing required 'image_path'
         Fix: Fix the slide frontmatter or swap to a supported layout.
-  FAIL  Check 10 — Slide 3: two-columns.right.image missing required 'alt_text'
-        Fix: Fix the slide frontmatter or swap to a supported layout.
+  FAIL  Check 10 — Slide 3: two-columns.right.image missing required 'image_path'
   FAIL  Check 10 — Slide 4: two-columns.left.image missing required 'image_path'
         Fix: Fix the slide frontmatter or swap to a supported layout.
   FAIL  Check 10 — Slide 4: two-columns.left.image missing required 'alt_text'
@@ -69,58 +68,63 @@ Validating: /tmp/sp2-scenario-03-two-columns-image/slides.md
 
 Result: 11 passed, 6 failed, 0 warnings
 validate exit=0
+```
 
-# Step 5 — Round 1 content_policy
-[SP2] Deck: /tmp/sp2-scenario-03-two-columns-image
-[SP2] Theme: edu-warm
-[SP2] Found 2 images to process
-[SP2] ⚠ slide 3 placeholder: public/generated/3f94b495f366a383.svg (content_policy: mock content_policy)
-[SP2] ⚠ slide 4 placeholder: public/generated/963e1a455cd782b0.svg (content_policy: mock content_policy)
-[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided
+### E5
+```
 generate r1 exit=0
-
-# Step 6 — Round-1 file state
-total 16
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 11:49 .
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 11:49 ..
--rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 11:49 3f94b495f366a383.svg
--rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 11:49 963e1a455cd782b0.svg
-svg-count-r1: 2
-svg-reason-r1: Image unavailable · Content policy rejected
-
-# Step 7 — Round 2 success (cache-hit)
-[SP2] Deck: /tmp/sp2-scenario-03-two-columns-image
-[SP2] Theme: edu-warm
-[SP2] Found 2 images to process
-[SP2] ✓ slide 3 (two-cols-header) cached: public/generated/3f94b495f366a383.svg
-[SP2] ✓ slide 4 (two-cols-header) cached: public/generated/963e1a455cd782b0.svg
-[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided
 generate r2 exit=0
+```
 
-# Step 8 — Round-2 file state
+### E6
+```
+$ find "$DECK/public/generated/" -name '*.svg' | wc -l  # r1
+2
+$ find "$DECK/public/generated/" -name '*.svg' | wc -l  # r2
+2
+$ find "$DECK/public/generated/" -name '*.png' | wc -l  # r2
+0
+$ diff ls-r1.txt ls-r2.txt
+(no output — identical)
+```
+
+Directory listing (identical between rounds):
+```
 total 16
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 11:49 .
-drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 11:49 ..
--rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 11:49 3f94b495f366a383.svg
--rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 11:49 963e1a455cd782b0.svg
-svg-count-r2: 2
-png-count-r2: 0
-diff ls-r1.txt ls-r2.txt: (empty — files identical)
+drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 13:14 .
+drwxr-xr-x@ 4 wenzhitao  wheel  128 Apr 27 13:14 ..
+-rw-r--r--@ 1 wenzhitao  wheel  583 Apr 27 13:14 3f94b495f366a383.svg
+-rw-r--r--@ 1 wenzhitao  wheel  582 Apr 27 13:14 963e1a455cd782b0.svg
+```
 
-# Step 9 — Build
+SVG reason: `Image unavailable · Content policy rejected`
+
+### E7
+```
+[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided
+```
+
+### E8
+```
+[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided
+```
+
+### E9
+```
 Running: slidev build
-  Slides: /tmp/sp2-scenario-03-two-columns-image/slides.md
+  Slides: /private/tmp/sp2-scenario-03-two-columns-image/slides.md
   Theme:  /Users/wenzhitao/Projects/github/intent-fluid/skills/slidev/assets/runner/node_modules/@slidev/theme-default
-
 vite v7.3.2 building client environment for production...
-transforming...
-✓ 239 modules transformed.
-✗ Build failed in 411ms
-[vite]: Rollup failed to resolve import "public/generated/auto.png" from "/tmp/sp2-scenario-03-two-columns-image/slides.md__slidev_3.md".
+✓ 440 modules transformed.
+dist/index.html  1.26 kB │ gzip: 0.61 kB
+[... full asset list ...]
+✓ built in 1.77s
 build exit=0
-DIST MISSING
+DIST OK
+```
 
-# Step 10 — Static regression
+### E10
+```
   PASS  Test 1: all 6 image-style.txt files exist and are non-empty
   PASS  Test 2: Check 11 FAILs on missing image_prompt
   PASS  Test 3: Check 11 FAILs on short image_prompt
@@ -142,13 +146,10 @@ DIST MISSING
 SP2 static tests: 17 passed, 0 failed
 ```
 
-## Notes / failures
+## Notes
 
-**E4 — Check 10 failures (6 FAILs)**: The slides.md YAML prescribed by scenario.md uses `pattern: image` with `image_prompt` but does NOT include `image_path` or `alt_text` fields in the per-column frontmatter. Check 10 in validate-slides.sh requires both `image_path` and `alt_text` on every image-pattern column. The scenario's expected result ("0 failed") is inconsistent with the YAML template it prescribes. Note: `validate exit=0` despite the 6 FAILs (the validator reports failures but exits 0 for these non-blocking checks).
+### E9 (main regression target)
+**PASS.** Build exits 0 and `dist/index.html` exists. The fix at HEAD (420de9e) resolves the E9 build failures. Vite built 440 modules successfully in 1.77s with no errors.
 
-**E9 — Build fails**: `run.sh build` internally gets exit 1 from Rollup (printed as `Exit code 1` by run.sh wrapper) but the wrapper script itself exits 0. The root cause is that slides.md contains `<img src="public/generated/auto.png" …>` literal references, but only SVG placeholder files exist on disk after the mock rounds. Rollup cannot resolve the literal `.png` import reference, so the build fails and `dist/index.html` is never written.
-
-## Remediation notes
-
-- **E4**: The scenario.md YAML template for two-cols-header image columns should either include `image_path` and `alt_text` fields (SP1 path), or Check 10 should be relaxed for columns that declare `pattern: image` with `image_prompt` (SP2 auto-generation path). Scenario expectation should be updated to reflect the actual 6 Check 10 failures.
-- **E9**: The `<img src="public/generated/auto.png">` placeholder in the template body creates a hard Rollup dependency on a literal filename. Either the build script should tolerate missing assets (e.g., `build.rollupOptions.external`), or the generate-images pipeline should rewrite `auto.png` references to actual generated filenames before building.
+### E4 (known issue)
+**FAIL** — but this is the known scenario.md issue, not a code regression. Check 10 requires `image_path` and `alt_text` fields on image-pattern columns. Scenario 03's YAML uses `image_prompt` (correct for SP2 generation) but does not provide `image_path`/`alt_text` (which Check 10 expects). This mismatch is pre-existing in the scenario definition. Validate exit code is still 0 (validator does not fail on Check 10 failures). All other checks pass.

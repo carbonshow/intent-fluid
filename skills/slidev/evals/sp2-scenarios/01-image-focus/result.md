@@ -1,8 +1,8 @@
 # Scenario 01 — Result
 
 **Date run**: 2026-04-27
-**Skill commit SHA**: 880efead2e14a14d6afe2bd9ab59e97e8c42279c
-**Operator**: subagent-scenario-01
+**Skill commit SHA**: 44a713f504a953f8f768c547bc8bd10769354d17
+**Operator**: subagent-rerun-01b
 
 ## Actual outputs
 
@@ -28,12 +28,12 @@ image-focus (auto-generated vision + user-override hero photo) + 2× content-bul
 - [x] E6 `public/generated/` contains exactly 1 PNG, 0 SVG.
 - [x] E7 Summary line equals `[SP2] Summary: 1 generated, 0 cached, 0 placeholder, 1 user-provided`.
 - [x] E8 User-provided `hero.jpg` file is byte-identical before and after the pipeline run.
-- [ ] E9 `run.sh build` completes and `dist/index.html` exists. (actual: `✗ Build failed in 433ms` — Rollup failed to resolve import `"public/generated/auto.png"` from the image-focus slide; the generated file is named by content-hash `a3a7404ed50d443e.png` not `auto.png`; `dist/index.html` was NOT created; `DIST OK` not printed; `build exit=0` was captured from the tee shell, not from slidev which exited 1)
+- [x] E9 `run.sh build` completes and `dist/index.html` exists.
 - [x] E10 `test-sp2-static.sh` reports `17 passed, 0 failed`.
 
 ## Score
 
-**Items ticked**: 9 / 10
+**Items ticked**: 10 / 10
 
 ## Evidence log
 
@@ -45,7 +45,7 @@ E2: grep "Check 11" "$DECK/validate.log"
   PASS  Check 11: image prompt validation (3 OK)
 
 E3: ls -la "$DECK/public/hero.jpg"
--rw-r--r--@ 1 wenzhitao  wheel  1 Apr 27 11:48 /tmp/sp2-scenario-01-image-focus/public/hero.jpg
+-rw-r--r--@ 1 wenzhitao  wheel  1 Apr 27 13:21 /tmp/sp2-scenario-01-image-focus/public/hero.jpg
 (no FAIL.*Check 11 line in validate.log)
 
 E4: grep -E "Result: [0-9]+ passed, 0 failed, 0 warnings" "$DECK/validate.log"
@@ -65,24 +65,31 @@ E8: sha256sum before: 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db0225871792
     diff produced no output
     HERO UNCHANGED
 
-E9: ✗ Build failed in 433ms
-[vite]: Rollup failed to resolve import "public/generated/auto.png" from "/tmp/sp2-scenario-01-image-focus/slides.md__slidev_3.md".
-This is most likely unintended because it can break your application at runtime.
-If you do want to externalize this module explicitly add it to
-`build.rollupOptions.external`
-build exit=0  (captured from tee shell; slidev process itself exited 1)
-test -f "$DECK/dist/index.html"  →  DIST MISSING
+E9 — PASS:
+Running: slidev build
+  Slides: /private/tmp/sp2-scenario-01-image-focus/slides.md
+  Theme:  /Users/wenzhitao/Projects/github/intent-fluid/skills/slidev/assets/runner/node_modules/@slidev/theme-default
 
-E10: grep "17 passed, 0 failed" "$DECK/static.log"
+✓ 437 modules transformed.
+dist/index.html   1.27 kB │ gzip:  0.62 kB
+✓ built in 1.80s
+build exit=0
+DIST OK
+
+Slides.md src= rewrites after generate-images.sh:
+  <img src="/generated/a3a7404ed50d443e.png" alt="Converging tracks into one pipeline" />  (was: public/generated/auto.png)
+  <img src="/hero.jpg" alt="Platform team portrait" />  (was: public/hero.jpg)
+Neither "public/generated/auto.png" nor "public/hero.jpg" found in img src= attributes — both correctly rewritten to "/" form.
+
+E10: grep "SP2 static tests" "$DECK/static.log"
 SP2 static tests: 17 passed, 0 failed
 ```
 
-## Notes / failures
+## Notes
 
-- **E9 failure root cause**: The scenario's prescribed `slides.md` (Step 3 exact YAML) hard-codes `<img src="public/generated/auto.png" ...>` in the image-focus slide body. However `generate-images.sh` saves files under a content-hash filename (`a3a7404ed50d443e.png`), not `auto.png`. Vite/Rollup (vite 7.3.2, Slidev v52.14.2) attempts to resolve `public/generated/auto.png` as a static asset import and fails because the file does not exist, causing the build to abort with `✗ Build failed` and produce no `dist/index.html`.
-- The `echo "build exit=$?"` in the transcript printed `build exit=0` because `$?` captures the exit of `tee` (which exited 0), not of `run.sh`/slidev (which exited 1). The Bash tool itself returned exit code 1 for the pipeline.
-- All other steps (validate, generate, sha256, static regression) passed cleanly.
-
-## Remediation
-
-- **E9**: The Step 3 YAML in scenario.md hard-codes `public/generated/auto.png` in the `<img src>` attribute; the skill generates hash-named files. scenario.md should either: (a) instruct operators to replace `auto.png` with the actual hash filename after step 6, (b) use an absolute public-asset URL path (e.g. `/generated/<hash>.png`) that Rollup won't try to bundle, or (c) have `generate-images.sh` also create a stable `auto.png` symlink/alias alongside the hash file. Scenario expectation cannot be ticked as-is when the slides.md references a filename that does not exist at build time.
+- **E9 now PASSES** at HEAD 44a713f. The fix (`patchPublicSrcs`) correctly rewrites both:
+  - auto-generated image: `src="public/generated/auto.png"` → `src="/generated/<hash>.png"`
+  - user-override image: `src="public/hero.jpg"` → `src="/hero.jpg"`
+  Both paths are now absolute `/`-form references, which Vite/Rollup treats as static public-dir assets rather than module imports — build completes cleanly.
+- `hero.jpg` byte content is unchanged (SHA-256 identical before/after); `patchPublicSrcs` only edits slides.md, not the image file itself.
+- All 10 expectations pass. Full 10/10 score achieved.
