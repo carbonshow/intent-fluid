@@ -84,28 +84,37 @@ function reasonTextFromCode(code) {
   return map[code] || code;
 }
 
-// Patch "public/generated/auto.png" src references in slides.md to the correct Vite
-// public-directory path "/generated/<actual-file>".
+// Rewrite all src/href attributes that reference Vite's public/ directory from the
+// relative form ("public/foo.png") to the correct absolute-root URL ("/foo.png").
 //
-// Vite's public/ directory convention: files under public/ are served at the root URL,
+// Vite's public/ directory convention: files under public/ are served at the site root,
 // so the correct <img src> is "/generated/hash.png", NOT "public/generated/hash.png".
-// Using the relative "public/generated/" form causes Rollup to attempt to resolve it as
-// a module import and fail at build time with "failed to resolve import".
+// Using the relative "public/..." form causes Rollup to treat it as a module import and
+// fail at build time with "failed to resolve import" — for both generated images and
+// user-provided assets (e.g. public/hero.jpg).
 //
-// Called once per image slide (in index order); replaces the first remaining
-// "public/generated/auto.png" occurrence so repeated calls handle multi-image decks.
+// patchAutoSrc: called per-slide (in index order) to replace the first remaining
+//   "public/generated/auto.png" literal with the actual hash filename.
+//   Must run before patchPublicSrcs so the hash name is in place first.
+// patchPublicSrcs: called once after the loop to normalise any remaining
+//   src="public/..." or href="public/..." to src="/...". Covers user-provided
+//   paths (e.g. public/hero.jpg) that patchAutoSrc does not touch.
+
 function patchAutoSrc(slidesPath, actualRel) {
-  // actualRel is "public/generated/<hash>.png" (or .svg) — strip the "public/" prefix
-  // to get the correct Vite public-directory URL.
+  // actualRel is "public/generated/<hash>.png" (or .svg) — strip the "public/" prefix.
   const publicUrl = actualRel.replace(/^public\//, '/');
   const AUTO_REL = 'public/generated/auto.png';
-  const AUTO_URL = '/generated/auto.png';
   const content = fs.readFileSync(slidesPath, 'utf8');
-  // Patch whichever form is present (relative or already-url).
   if (content.includes(AUTO_REL)) {
     fs.writeFileSync(slidesPath, content.replace(AUTO_REL, publicUrl), 'utf8');
-  } else if (content.includes(AUTO_URL)) {
-    fs.writeFileSync(slidesPath, content.replace(AUTO_URL, publicUrl), 'utf8');
+  }
+}
+
+function patchPublicSrcs(slidesPath) {
+  const content = fs.readFileSync(slidesPath, 'utf8');
+  const patched = content.replace(/\b(src|href)="public\//g, '$1="/');
+  if (patched !== content) {
+    fs.writeFileSync(slidesPath, patched, 'utf8');
   }
 }
 
@@ -289,6 +298,10 @@ async function main() {
       placeholder++;
     }
   }
+
+  // Rewrite all src="public/..." references to src="/..." (Vite public-dir convention).
+  // Covers auto-generated images, cached images, placeholders, and user-provided assets.
+  if (!isDryRun) patchPublicSrcs(slidesPath);
 
   console.log(`[SP2] Summary: ${generated} generated, ${cached} cached, ${placeholder} placeholder, ${userProvided} user-provided`);
 }
