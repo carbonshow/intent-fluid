@@ -46,24 +46,24 @@ Legend: ✅ passed
 
 ### Issue A — `auto.png` literal reference breaks Rollup (E9, all scenarios)
 
-**Affected:** Scenario 01 E9, Scenario 03 E9  
-**Root cause:** `src="public/generated/..."` is a relative path; Vite/Rollup treats it as a module import and fails. Vite's `public/` convention requires the root-relative form `src="/generated/..."`.  
+**Affected:** Scenario 01 E9, Scenario 03 E9
+**Root cause:** `src="public/generated/..."` is a relative path; Vite/Rollup treats it as a module import and fails. Vite's `public/` convention requires the root-relative form `src="/generated/..."`.
 **✅ Fixed in `44a713f`** — `generate-images.js` now runs a two-step patch after the image loop: (1) `patchAutoSrc` replaces `auto.png` with the actual hash filename per-slide; (2) `patchPublicSrcs` rewrites all remaining `src="public/..."` to `src="/..."`, covering user-provided assets (`public/hero.jpg`) as well.
 
 ---
 
 ### Issue B — macOS `/tmp` → `/private/tmp` symlink breaks Vite build (E9, Scenario 02)
 
-**Affected:** Scenario 02 E9  
-**Root cause:** On macOS `/tmp` is a symlink to `/private/tmp`. After symlink resolution Vite's `vite:build-html` plugin receives a fileName of `../../private/tmp/…` relative to the project root and rejects it.  
+**Affected:** Scenario 02 E9
+**Root cause:** On macOS `/tmp` is a symlink to `/private/tmp`. After symlink resolution Vite's `vite:build-html` plugin receives a fileName of `../../private/tmp/…` relative to the project root and rejects it.
 **✅ Fixed in `420de9e`** — `run.sh` now runs `realpath "$SLIDES_ABS"` (when `realpath` is available) after the `cd + pwd` path construction, resolving symlinks before passing to `slidev build`.
 
 ---
 
 ### Issue C — Scenario 03 Check 10 / double-image column (E4)
 
-**Affected:** Scenario 03 E4  
-**Root cause:** (a) Check 10 required `image_path` even when `image_prompt` was present (SP2 auto-gen path); (b) `slides-parser.js` only processed the left column of a `two-cols-header` slide when both columns were `pattern: image`, leaving the right column's `auto.png` unpatched.  
+**Affected:** Scenario 03 E4
+**Root cause:** (a) Check 10 required `image_path` even when `image_prompt` was present (SP2 auto-gen path); (b) `slides-parser.js` only processed the left column of a `two-cols-header` slide when both columns were `pattern: image`, leaving the right column's `auto.png` unpatched.
 **✅ Fixed in `44a5dd4`** — Three co-ordinated changes: (1) `validate-slides.sh` Check 10 exempts `image_path` when `image_prompt` is set; (2) `slides-parser.js` emits two image-slide records for dual-image columns; (3) scenario 03 YAML uses only `alt_text` + `image_prompt` (no fake `image_path` placeholder).
 
 **Fix options (not in scope for this eval pass):**

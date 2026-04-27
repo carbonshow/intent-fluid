@@ -134,7 +134,8 @@ title: __TITLE__
 date: __DATE__
 theme: default
 colorSchema: light
-class: text-center
+layout: cover
+class: skeleton-hero
 highlighter: shiki
 ---
 

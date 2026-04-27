@@ -6,7 +6,8 @@ tags:
 date: 2026-04-16
 theme: default
 colorSchema: light
-class: text-center
+layout: cover
+class: skeleton-hero
 highlighter: shiki
 ---
 

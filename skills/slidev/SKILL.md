@@ -22,9 +22,10 @@ You are a presentation engineer specializing in Slidev. You create Markdown-base
 slide decks with animations, code highlighting, and Vue interactivity, using a
 centralized runner that avoids per-project npm installs.
 
-This skill bundles four scripts for deterministic operations (initialization,
-validation, quality review, running). Your job is to make content design decisions
-and orchestrate these scripts — not to re-implement their logic in natural language.
+This skill bundles scripts for deterministic operations (initialization,
+validation, quality review, image generation, build/export, and visual audit).
+Your job is to make content design decisions and orchestrate these scripts —
+not to re-implement their logic in natural language.
 
 ## Resolving Paths
 
@@ -39,6 +40,7 @@ bash "$SKILL_ROOT/scripts/new-presentation.sh" ...
 bash "$SKILL_ROOT/scripts/validate-slides.sh" ...
 bash "$SKILL_ROOT/scripts/run.sh" ...
 bash "$SKILL_ROOT/scripts/review-presentation.sh" ...
+bash "$SKILL_ROOT/scripts/build-deck.sh" ...
 ```
 
 All scripts accept absolute paths for the slides file. Always resolve paths to
@@ -172,9 +174,9 @@ Combined with CSS utilities (`text-sm`, `compact-table`, `max-h-*`,
 
 ## Workflow
 
-### Step 1: Initialize Presentation
+### Step 1: Capture Inputs
 
-Before creating the presentation, confirm two things with the user:
+Before creating files, confirm two things with the user:
 
 1. **Output directory** — where to create the presentation files. Suggest a
    reasonable default based on context (e.g., `./presentations/<topic>/` for
@@ -184,20 +186,16 @@ Before creating the presentation, confirm two things with the user:
    in Chinese, write the slides in Chinese; if in English, use English; for
    mixed content, follow the dominant language. When in doubt, ask.
 
-Then run:
+Do not initialize the deck yet unless the user explicitly supplied a theme and
+approved the outline. Theme selection happens in Step 2; scaffolding happens
+once in Step 3 with the chosen theme.
 
-```bash
-bash "$SKILL_ROOT/scripts/new-presentation.sh" <target_dir> \
-  --title "Presentation Title" \
-  --author "Author Name"
-```
-
-Options:
+Useful initialization options for Step 3:
 - `--minimal` — generates a stripped-down template (cover + one content + closing)
   instead of the full demo template. Good when the user already has an outline.
 - `--force` — overwrites an existing directory.
 
-The script copies the starter template, substitutes title/date/author, creates
+When run, the script copies the starter template, substitutes title/date/author, creates
 the `public/fonts/` directory, symlinks the shared runner's `node_modules` into
 the target directory (so Slidev can find Mermaid, themes, and other plugins),
 and ensures the runner is ready.
@@ -265,9 +263,18 @@ brief and re-display.
 
 This is the most important step. Edit `slides.md` based on the approved brief.
 
-**Setup first**: run `new-presentation.sh --theme <chosen-theme>` (from the
-brief's Style Decisions) to initialize the deck directory with the correct
-theme CSS. Then edit `slides.md` in that directory.
+**Setup first**: after the user confirms the brief, initialize the deck exactly
+once with the chosen theme:
+
+```bash
+bash "$SKILL_ROOT/scripts/new-presentation.sh" <target_dir> \
+  --title "Presentation Title" \
+  --author "Author Name" \
+  --theme <chosen-theme>
+```
+
+If the user is editing an existing `slides.md`, skip initialization and preserve
+their files. Then edit `slides.md` in that directory.
 
 **Do:**
 1. Follow the outline from the brief row-by-row — each row is one slide.
@@ -491,7 +498,7 @@ The theme's `image-style.txt` automatically appends style direction. Don't dupli
 ### One-Line Build
 
 ```bash
-bash scripts/build-deck.sh <deck>
+bash "$SKILL_ROOT/scripts/build-deck.sh" <deck>
 ```
 
 This runs validate → generate-images → slidev build, produces `dist/`.

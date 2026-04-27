@@ -175,10 +175,13 @@ async function main() {
     process.exit(2);
   }
 
-  const themePath = path.join(deckDir, 'theme.css');
+  const stylePath = path.join(deckDir, 'style.css');
+  const legacyThemePath = path.join(deckDir, 'theme.css');
   let colors;
-  if (fs.existsSync(themePath)) {
-    colors = extractThemeColors(fs.readFileSync(themePath, 'utf8'));
+  if (fs.existsSync(stylePath)) {
+    colors = extractThemeColors(fs.readFileSync(stylePath, 'utf8'));
+  } else if (fs.existsSync(legacyThemePath)) {
+    colors = extractThemeColors(fs.readFileSync(legacyThemePath, 'utf8'));
   } else {
     colors = extractThemeColors('');
   }

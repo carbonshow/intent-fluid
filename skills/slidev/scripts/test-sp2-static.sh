@@ -121,6 +121,39 @@ else
 fi
 rm -rf "$DECK"
 
+# ── Test 4b: Check 11 validates both two-column image sides ───────────────
+DECK=$(make_deck)
+cat > "$DECK/slides.md" <<'EOF'
+---
+title: T
+colorSchema: light
+---
+
+# Cover
+
+---
+layout: two-cols-header
+class: two-columns
+left:
+  pattern: image
+  image_prompt: Long enough prompt for the left image side
+  alt_text: Left image
+right:
+  pattern: image
+  image_path: public/generated/auto.png
+  alt_text: Right image
+---
+
+# demo
+EOF
+OUT=$(bash "$VAL" "$DECK/slides.md" 2>&1 || true)
+if echo "$OUT" | grep -q 'two-cols-header.right.image) image_prompt missing'; then
+  pass 4b "Check 11 validates both image columns"
+else
+  fail 4b "expected right-column missing prompt, got: $OUT"
+fi
+rm -rf "$DECK"
+
 # ── Test 5: Check 11 PASSes on fixture deck ───────────────────────────────
 OUT=$(bash "$VAL" "$FIXTURE/slides.md" 2>&1 || true)
 if echo "$OUT" | grep -q 'PASS  Check 11'; then
@@ -225,14 +258,45 @@ rm -rf "$DECK"
 # ── Test 11: --force bypasses cache ────────────────────────────────────────
 DECK=$(make_deck)
 bash "$GEN" "$DECK" --mock success > /dev/null 2>&1
-FIRST_MTIME=$(find "$DECK/public/generated" -name '*.png' -print0 2>/dev/null | xargs -0 stat -f '%m' 2>/dev/null | head -1 || find "$DECK/public/generated" -name '*.png' -print0 2>/dev/null | xargs -0 stat -c '%Y' 2>/dev/null | head -1)
+first_png_mtime() {
+  local dir="$1"
+  local first
+  first=$(find "$dir/public/generated" -name '*.png' -print -quit 2>/dev/null || true)
+  [[ -n "$first" ]] || return 1
+  if stat -f '%m' "$first" >/dev/null 2>&1; then
+    stat -f '%m' "$first"
+  else
+    stat -c '%Y' "$first"
+  fi
+}
+FIRST_MTIME=$(first_png_mtime "$DECK" || true)
 sleep 2
 bash "$GEN" "$DECK" --mock success --force > /dev/null 2>&1
-SECOND_MTIME=$(find "$DECK/public/generated" -name '*.png' -print0 2>/dev/null | xargs -0 stat -f '%m' 2>/dev/null | head -1 || find "$DECK/public/generated" -name '*.png' -print0 2>/dev/null | xargs -0 stat -c '%Y' 2>/dev/null | head -1)
+SECOND_MTIME=$(first_png_mtime "$DECK" || true)
 if [[ -n "$FIRST_MTIME" ]] && [[ -n "$SECOND_MTIME" ]] && [[ "$SECOND_MTIME" -gt "$FIRST_MTIME" ]]; then
   pass 11 "--force regenerates (mtime advanced)"
 else
   fail 11 "mtime did not advance ($FIRST_MTIME → $SECOND_MTIME)"
+fi
+rm -rf "$DECK"
+
+# ── Test 11b: placeholders read generated style.css, not only theme.css ───
+DECK=$(make_deck)
+rm -f "$DECK/theme.css"
+cat > "$DECK/style.css" <<'EOF'
+:root {
+  --color-bg: #123456;
+  --color-text: #abcdef;
+  --color-accent: #fedcba;
+}
+EOF
+rm -rf "$DECK/public/generated" 2>/dev/null || true
+bash "$GEN" "$DECK" --mock timeout > /dev/null 2>&1
+FIRST_SVG=$(find "$DECK/public/generated" -name '*.svg' -print -quit 2>/dev/null || true)
+if [[ -n "$FIRST_SVG" ]] && grep -q '#123456' "$FIRST_SVG"; then
+  pass 11b "placeholder colors come from style.css"
+else
+  fail 11b "expected placeholder SVG to use #123456 from style.css"
 fi
 rm -rf "$DECK"
 

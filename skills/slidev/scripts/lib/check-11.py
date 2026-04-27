@@ -181,21 +181,20 @@ def main():
     for idx, (fm, body) in enumerate(slides, start=1):
         layout = fm.get('layout')
         cls = fm.get('class')
-        is_image_slide = False
-        prompt_source = None
-        path_source = None
-        label = None
+        image_targets = []
 
         if is_image_focus_slide(layout, cls):
-            is_image_slide = True
-            prompt_source = fm.get('image_prompt')
-            path_source = fm.get('image_path') or fm.get('image')
-            label = f"slide {idx} (image-focus)"
+            image_targets.append((
+                f"slide {idx} (image-focus)",
+                fm.get('image_prompt'),
+                fm.get('image_path') or fm.get('image'),
+            ))
         elif layout in IMAGE_LAYOUTS:
-            is_image_slide = True
-            prompt_source = fm.get('image_prompt')
-            path_source = fm.get('image_path') or fm.get('image')
-            label = f"slide {idx} ({layout})"
+            image_targets.append((
+                f"slide {idx} ({layout})",
+                fm.get('image_prompt'),
+                fm.get('image_path') or fm.get('image'),
+            ))
         elif layout == 'two-cols-header':
             # Column patterns can live in frontmatter (fm.left / fm.right nested objects,
             # authoritative per SP1) OR as fallback in ::left:: / ::right:: body markers.
@@ -209,40 +208,41 @@ def main():
             }
             for side in ('left', 'right'):
                 if cols.get(side) and cols[side].get('pattern') == 'image':
-                    is_image_slide = True
-                    prompt_source = cols[side].get('image_prompt')
-                    path_source = cols[side].get('image_path')
-                    label = f"slide {idx} (two-cols-header.{side}.image)"
-                    break
+                    image_targets.append((
+                        f"slide {idx} (two-cols-header.{side}.image)",
+                        cols[side].get('image_prompt'),
+                        cols[side].get('image_path'),
+                    ))
 
-        if not is_image_slide:
+        if not image_targets:
             continue
         any_image_slide = True
 
-        # Check image_prompt required + length
-        if not prompt_source or not prompt_source.strip():
-            print(f"FAIL: {label} image_prompt missing")
-            continue
-        nonspace = re.sub(r'\s', '', prompt_source)
-        if len(nonspace) < 20:
-            print(f"FAIL: {label} image_prompt too short ({len(nonspace)} non-whitespace chars, need ≥20)")
-            continue
-
-        # Check image_path constraints
-        if path_source:
-            if not path_source.startswith('public/'):
-                print(f"FAIL: {label} image_path must start with public/ (got {path_source})")
+        for label, prompt_source, path_source in image_targets:
+            # Check image_prompt required + length
+            if not prompt_source or not prompt_source.strip():
+                print(f"FAIL: {label} image_prompt missing")
                 continue
-            if path_source.startswith('public/generated/'):
-                print(f"OK: {label} prompt ({len(prompt_source)} chars), auto image_path")
-            else:
-                abs_user = deck_dir / path_source
-                if not abs_user.exists():
-                    print(f"FAIL: {label} image_path {path_source} does not exist")
+            nonspace = re.sub(r'\s', '', prompt_source)
+            if len(nonspace) < 20:
+                print(f"FAIL: {label} image_prompt too short ({len(nonspace)} non-whitespace chars, need ≥20)")
+                continue
+
+            # Check image_path constraints
+            if path_source:
+                if not path_source.startswith('public/'):
+                    print(f"FAIL: {label} image_path must start with public/ (got {path_source})")
+                    continue
+                if path_source.startswith('public/generated/'):
+                    print(f"OK: {label} prompt ({len(prompt_source)} chars), auto image_path")
                 else:
-                    print(f"OK: {label} prompt ({len(prompt_source)} chars), user-provided image")
-        else:
-            print(f"OK: {label} prompt ({len(prompt_source)} chars), auto image_path")
+                    abs_user = deck_dir / path_source
+                    if not abs_user.exists():
+                        print(f"FAIL: {label} image_path {path_source} does not exist")
+                    else:
+                        print(f"OK: {label} prompt ({len(prompt_source)} chars), user-provided image")
+            else:
+                print(f"OK: {label} prompt ({len(prompt_source)} chars), auto image_path")
 
     if any_image_slide:
         # image-style.txt is only required when the deck has image-consuming slides.

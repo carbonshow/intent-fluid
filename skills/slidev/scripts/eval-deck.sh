@@ -58,7 +58,6 @@ DECK_DIR="$(cd "$1" && pwd)"
 SCENARIO_ID="$2"
 shift 2
 
-MOCK_ARG=""
 MOCK_SCENARIO=""
 while [[ $# -gt 0 ]]; do
   case "$1" in

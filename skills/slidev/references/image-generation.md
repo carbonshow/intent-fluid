@@ -180,7 +180,7 @@ When real generation is unavailable (no key, API error, content policy block), a
 | Network error | `Network error` | err.message |
 | Other API error | `API error` | HTTP status + body excerpt |
 
-If `theme.css` can't be parsed, placeholders use safe defaults (`#f5f5f5` / `#222` / `#888`).
+If `style.css` can't be parsed, placeholders use safe defaults (`#f5f5f5` / `#222` / `#888`). Older fixture decks that still use `theme.css` are supported as a fallback.
 
 ## 8. API Key Configuration
 
