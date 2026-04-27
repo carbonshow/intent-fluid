@@ -218,6 +218,7 @@ export function parseSlides(md) {
     let columnsType = null;
     let imageSize = null;
     let imageFields = {};
+    let skipDefaultPush = false;
 
     const isImageFocus = layout === 'default' && classTokens(cls).has('image-focus');
     const isFlatImageLayout = IMAGE_LAYOUT_NAMES.has(layout);
@@ -240,14 +241,54 @@ export function parseSlides(md) {
       const leftCol = (fmLeft && typeof fmLeft === 'object') ? fmLeft : bodyCols.left;
       const rightCol = (fmRight && typeof fmRight === 'object') ? fmRight : bodyCols.right;
 
-      if (leftCol && leftCol.pattern === 'image') {
+      const leftIsImage = leftCol && leftCol.pattern === 'image';
+      const rightIsImage = rightCol && rightCol.pattern === 'image';
+
+      if (leftIsImage && rightIsImage) {
+        // Both columns need images — emit two separate image slide records so that
+        // generate-images.js processes each column independently and patchAutoSrc
+        // replaces the correct auto.png occurrence for each.
+        columnsType = 'image';
+        isImageSlide = true;
+        imageSize = sizeForSlide(layout, columnsType);
+        imageFields = {
+          image_prompt: leftCol.image_prompt,
+          image_path: leftCol.image_path,
+          column: 'left',
+        };
+        // Push the left-column record now, then continue the loop with the right column.
+        result.push({
+          index: idx + 1,
+          layout,
+          frontmatter: slide.frontmatter,
+          isImageSlide: true,
+          columnsType,
+          imageSize,
+          imageFields,
+        });
+        // Right-column record: same slide index, but imageFields points to the right col.
+        result.push({
+          index: idx + 1,
+          layout,
+          frontmatter: slide.frontmatter,
+          isImageSlide: true,
+          columnsType,
+          imageSize,
+          imageFields: {
+            image_prompt: rightCol.image_prompt,
+            image_path: rightCol.image_path,
+            column: 'right',
+          },
+        });
+        skipDefaultPush = true;  // both records already pushed above
+      } else if (leftIsImage) {
         columnsType = 'image';
         imageFields = {
           image_prompt: leftCol.image_prompt,
           image_path: leftCol.image_path,
           column: 'left',
         };
-      } else if (rightCol && rightCol.pattern === 'image') {
+      } else if (rightIsImage) {
         columnsType = 'image';
         imageFields = {
           image_prompt: rightCol.image_prompt,
@@ -261,15 +302,17 @@ export function parseSlides(md) {
       }
     }
 
-    result.push({
-      index: idx + 1,
-      layout,
-      frontmatter: slide.frontmatter,
-      isImageSlide,
-      columnsType,
-      imageSize,
-      imageFields,
-    });
+    if (!skipDefaultPush) {
+      result.push({
+        index: idx + 1,
+        layout,
+        frontmatter: slide.frontmatter,
+        isImageSlide,
+        columnsType,
+        imageSize,
+        imageFields,
+      });
+    }
   });
   return result;
 }

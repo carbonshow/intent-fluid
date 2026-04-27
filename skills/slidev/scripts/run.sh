@@ -67,6 +67,11 @@ if [[ ! -f "$SLIDES" ]]; then
   exit 1
 fi
 SLIDES_ABS="$(cd "$(dirname "$SLIDES")" && pwd)/$(basename "$SLIDES")"
+# Resolve symlinks (e.g. macOS /tmp → /private/tmp) so Vite's build-html plugin
+# does not reject the path as "not relative to project root".
+if command -v realpath &>/dev/null; then
+  SLIDES_ABS="$(realpath "$SLIDES_ABS")"
+fi
 
 # ── Ensure runner is ready ───────────────────────────────────────────────────
 if [[ ! -d "$RUNNER/node_modules/@slidev/cli" ]]; then

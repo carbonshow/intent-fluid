@@ -84,6 +84,40 @@ function reasonTextFromCode(code) {
   return map[code] || code;
 }
 
+// Rewrite all src/href attributes that reference Vite's public/ directory from the
+// relative form ("public/foo.png") to the correct absolute-root URL ("/foo.png").
+//
+// Vite's public/ directory convention: files under public/ are served at the site root,
+// so the correct <img src> is "/generated/hash.png", NOT "public/generated/hash.png".
+// Using the relative "public/..." form causes Rollup to treat it as a module import and
+// fail at build time with "failed to resolve import" — for both generated images and
+// user-provided assets (e.g. public/hero.jpg).
+//
+// patchAutoSrc: called per-slide (in index order) to replace the first remaining
+//   "public/generated/auto.png" literal with the actual hash filename.
+//   Must run before patchPublicSrcs so the hash name is in place first.
+// patchPublicSrcs: called once after the loop to normalise any remaining
+//   src="public/..." or href="public/..." to src="/...". Covers user-provided
+//   paths (e.g. public/hero.jpg) that patchAutoSrc does not touch.
+
+function patchAutoSrc(slidesPath, actualRel) {
+  // actualRel is "public/generated/<hash>.png" (or .svg) — strip the "public/" prefix.
+  const publicUrl = actualRel.replace(/^public\//, '/');
+  const AUTO_REL = 'public/generated/auto.png';
+  const content = fs.readFileSync(slidesPath, 'utf8');
+  if (content.includes(AUTO_REL)) {
+    fs.writeFileSync(slidesPath, content.replace(AUTO_REL, publicUrl), 'utf8');
+  }
+}
+
+function patchPublicSrcs(slidesPath) {
+  const content = fs.readFileSync(slidesPath, 'utf8');
+  const patched = content.replace(/\b(src|href)="public\//g, '$1="/');
+  if (patched !== content) {
+    fs.writeFileSync(slidesPath, patched, 'utf8');
+  }
+}
+
 function writePlaceholderTo(targetPath, { title, reason, colors, width, height }) {
   const svg = renderPlaceholder({ title, reason, colors, width, height });
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -225,6 +259,7 @@ async function main() {
     if ((cacheHitPng || cacheHitSvg) && !args.force) {
       const existing = cacheHitPng ? targetRel : targetRel.replace(/\.png$/, '.svg');
       console.log(`[SP2] ✓ slide ${slide.index} (${slide.layout}) cached: ${existing}`);
+      patchAutoSrc(slidesPath, existing);
       cached++;
       continue;
     }
@@ -239,6 +274,7 @@ async function main() {
         title, reason: reasonTextFromCode('no_key'), colors, width, height,
       });
       console.warn(`[SP2] ⚠ slide ${slide.index} placeholder: ${path.relative(deckDir, p)} (no key)`);
+      patchAutoSrc(slidesPath, path.relative(deckDir, p));
       placeholder++;
       continue;
     }
@@ -250,6 +286,7 @@ async function main() {
       fs.mkdirSync(path.dirname(targetAbs), { recursive: true });
       fs.writeFileSync(targetAbs, buf);
       console.log(`[SP2] ✓ slide ${slide.index} (${slide.layout}) generated: ${targetRel}`);
+      patchAutoSrc(slidesPath, targetRel);
       generated++;
     } catch (err) {
       const code = (err instanceof GeminiError) ? err.code : 'api';
@@ -257,9 +294,14 @@ async function main() {
         title, reason: reasonTextFromCode(code), colors, width, height,
       });
       console.warn(`[SP2] ⚠ slide ${slide.index} placeholder: ${path.relative(deckDir, p)} (${code}: ${err.message})`);
+      patchAutoSrc(slidesPath, path.relative(deckDir, p));
       placeholder++;
     }
   }
+
+  // Rewrite all src="public/..." references to src="/..." (Vite public-dir convention).
+  // Covers auto-generated images, cached images, placeholders, and user-provided assets.
+  if (!isDryRun) patchPublicSrcs(slidesPath);
 
   console.log(`[SP2] Summary: ${generated} generated, ${cached} cached, ${placeholder} placeholder, ${userProvided} user-provided`);
 }

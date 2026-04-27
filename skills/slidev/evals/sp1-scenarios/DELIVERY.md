@@ -59,7 +59,7 @@ This can only be done by a human with a browser; it wasn't automated because it 
 
 - **Theme inference works**: all three scenarios picked the most-fit theme from theme-library.md on the first attempt. No scenarios fell through to the `tech-dark` default fallback.
 - **Layout discipline holds**: all three decks are 100% Check-10-clean (0 FAIL / 0 WARN). Subagents used schema-override sparingly (once, for a justified case in Scenario 1).
-- **review-presentation.sh has a known counting artifact**: it counts each per-slide `---` frontmatter boundary as a separate "slide", which inflates empty-slides and no-heading counts. All three scenarios scored 82/100 (Good) because of this, not because of real content defects. Candidate follow-up for a later maintenance pass (not blocking SP1).
+- **review-presentation.sh has a known counting artifact**: it counts each per-slide `---` frontmatter boundary as a separate "slide", which inflates empty-slides and no-heading counts. All three scenarios scored 82/100 (Good) because of this, not because of real content defects. ~~Candidate follow-up for a later maintenance pass (not blocking SP1).~~ **Fixed 2026-04-23** — parser rewritten as a BODY ↔ FM state machine (mirrors `scripts/lib/slides-parser.js`); regression guarded by `evals/sp1-scenarios/fixtures/review-count-tests.sh` (9 tests). Starter/fixture decks now score 95–100 (Excellent).
 
 ## What's next (SP2-5)
 
@@ -149,7 +149,7 @@ Source: `docs/superpowers/research/2026-04-22-sp1-ux-audit.md`
 
 - **The visual weight rebalanced itself**. v1 had the "content pile at top-left, empty bottom-right" pattern on 8 layouts. v2 fixes this everywhere by making `align-self: center` / flex-center / grid row `1fr` the default at the skeleton level.
 - **Theme drift eliminated**. h1 font-size is now identical across 6 themes (all consume `var(--text-h1)`); previously 4/6 themes didn't declare it and inherited Slidev defaults. Same for spacing.
-- **review-presentation.sh still has its known counting bug** — all 3 scenarios score 82/100 because of per-slide `---` false-positive slide counting. This is a pre-existing artifact, not a v2 regression. Candidate follow-up for a maintenance pass.
+- **review-presentation.sh still has its known counting bug** — all 3 scenarios score 82/100 because of per-slide `---` false-positive slide counting. This is a pre-existing artifact, not a v2 regression. ~~Candidate follow-up for a maintenance pass.~~ **Fixed 2026-04-23** (see top section).
 
 ### Breaking changes vs SP1 v1
 
