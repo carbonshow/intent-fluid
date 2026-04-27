@@ -196,7 +196,7 @@ rm -rf "$DECK"
      | tee "$DECK/generate-round1.log"
    echo "generate r1 exit=$?"
    ```
-   Expect: Summary `[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided`; `generate r1 exit=0`.
+   Expect: Summary `[SP2] Summary: 0 generated, 0 cached, 3 placeholder, 0 user-provided`; `generate r1 exit=0`.
 
 6) **Capture round-1 state:**
    ```bash
@@ -213,7 +213,7 @@ rm -rf "$DECK"
      | tee "$DECK/generate-round2.log"
    echo "generate r2 exit=$?"
    ```
-   Expect: Summary `[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided`; `generate r2 exit=0`.
+   Expect: Summary `[SP2] Summary: 0 generated, 3 cached, 0 placeholder, 0 user-provided`; `generate r2 exit=0`.
 
 8) **Verify cache-hit didn't create new files:**
    ```bash
@@ -242,7 +242,7 @@ rm -rf "$DECK"
 
 ## Expectations (10 items)
 
-- [ ] **E1** Deck contains 2 `two-cols-header` slides with at least one column `pattern: image` each (total 3 image columns: slide-3 has 2, slide-4 has 1).
+- [ ] **E1** Deck contains 2 `two-cols-header` slides with at least one column `pattern: image` each (total 3 image columns: slide-3 has 2 image cols, slide-4 has 1; all 3 are processed by generate-images.js).
   Evidence: `grep -c "^layout: two-cols-header$" "$DECK/slides.md"` = 2; `grep -c "^  pattern: image$" "$DECK/slides.md"` = 3 _(note: frontmatter 2-space indent)_.
 
 - [ ] **E2** Every image-column has a valid `image_prompt`.
@@ -257,13 +257,13 @@ rm -rf "$DECK"
 - [ ] **E5** Both `generate-images.sh` rounds exit 0.
   Evidence: `generate r1 exit=0` and `generate r2 exit=0` lines.
 
-- [ ] **E6** After round 1, `public/generated/` contains 0 PNG, 2 SVG, and stays that way after round 2 (identical file list).
-  Evidence: `svg-count-r1.txt` = 2; `svg-count-r2.txt` = 2; `png-count-r2.txt` = 0; `diff ls-r1.txt ls-r2.txt` empty.
+- [ ] **E6** After round 1, `public/generated/` contains 0 PNG, 3 SVG, and stays that way after round 2 (identical file list).
+  Evidence: `svg-count-r1.txt` = 3; `svg-count-r2.txt` = 3; `png-count-r2.txt` = 0; `diff ls-r1.txt ls-r2.txt` empty.
 
-- [ ] **E7** Round 1 Summary = `[SP2] Summary: 0 generated, 0 cached, 2 placeholder, 0 user-provided`.
+- [ ] **E7** Round 1 Summary = `[SP2] Summary: 0 generated, 0 cached, 3 placeholder, 0 user-provided`.
   Evidence: `grep "Summary:" "$DECK/generate-round1.log"` matches verbatim.
 
-- [ ] **E8** Round 2 Summary = `[SP2] Summary: 0 generated, 2 cached, 0 placeholder, 0 user-provided`.
+- [ ] **E8** Round 2 Summary = `[SP2] Summary: 0 generated, 3 cached, 0 placeholder, 0 user-provided`.
   Evidence: `grep "Summary:" "$DECK/generate-round2.log"` matches verbatim.
 
 - [ ] **E9** `run.sh build` completes and `dist/index.html` exists.
