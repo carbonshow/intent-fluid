@@ -833,6 +833,34 @@ layout: two-cols-header
 class: two-columns
 ```
 
+> **CRITICAL**: `validate-slides.sh` requires both `left` and `right` objects
+> in the frontmatter with at least a `pattern` field. Without them, Check 10
+> will FAIL. See complete example below.
+
+**Complete frontmatter example** (bullets × table):
+```yaml
+---
+layout: two-cols-header
+class: two-columns
+left:
+  pattern: bullets
+  items:
+    - First claim
+    - Second claim
+    - Third claim
+right:
+  pattern: table
+  columns:
+    - Metric
+    - Value
+  rows:
+    - - DAU
+      - 39.6 万
+    - - MAU
+      - 125 万
+---
+```
+
 > Uses Slidev's `two-cols-header` built-in (NOT plain `two-cols`). `two-cols-header` has three slots — `default` (top header, holds the `# title`), `::left::`, and `::right::`. Plain `two-cols` only has `::left::` / `::right::` and would push the `# title` into the left column, which is wrong for heterogeneous comparisons.
 
 **When to use**:

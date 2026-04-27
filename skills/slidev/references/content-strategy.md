@@ -126,6 +126,23 @@ How densely each slide should be populated:
 
 If unclear, default to `standard`.
 
+**Choosing verbosity** — use this table to pick based on audience and purpose:
+
+| Scenario | Verbosity | Why |
+|----------|-----------|-----|
+| Executive brief, board update, 5-min pitch | `concise` | Time-poor audience; every word must earn its place |
+| Conference keynote, inspirational talk | `concise` | Impact > information density; audience follows the speaker |
+| Standard internal presentation, sprint review | `standard` | Balanced — enough detail to follow, not so much it overwhelms |
+| Workshop with hands-on exercises | `standard` | Slides guide but don't replace the activity |
+| GM/VP report with data + reasoning + asks | `text-heavy` | Decision-makers need the argument chain visible on the slide |
+| Lecture slides that double as handout | `text-heavy` | Students will re-read independently; slides must stand alone |
+| Technical deep-dive, architecture review | `text-heavy` | Peers expect detailed evidence, not just headlines |
+| Playbook, onboarding guide, SOP | `text-heavy` | Reference material; completeness > brevity |
+
+**Rule of thumb**: if the audience will *read the slides later without the speaker*,
+use `text-heavy`. If the speaker *is* the content and slides are visual support,
+use `concise`. Everything else is `standard`.
+
 **Coupling with `maxLength`**: verbosity controls how much of each field Claude
 fills (target fill-ratio: concise 30-50%, standard 50-75%, text-heavy 75-100%).
 `maxLength` itself is a hard ceiling and does NOT scale with verbosity —

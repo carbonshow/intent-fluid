@@ -170,6 +170,38 @@ Combined with CSS utilities (`text-sm`, `compact-table`, `max-h-*`,
 - If text drops below ~11px effective size, split instead — unreadable text is
   worse than an extra slide
 
+**6. `two-columns` requires `left:` and `right:` objects in frontmatter**
+
+The `two-columns` layout uses Slidev's `two-cols-header` built-in. For
+`validate-slides.sh` Check 10 to pass, **both `left` and `right` must be
+declared as objects in the slide frontmatter** with at least a `pattern` field.
+Without them, validation will FAIL with "two-columns missing 'left' object".
+
+```yaml
+---
+layout: two-cols-header
+class: two-columns
+left:
+  pattern: bullets
+  items:
+    - First point
+    - Second point
+right:
+  pattern: table
+  columns:
+    - Col A
+    - Col B
+  rows:
+    - - R1A
+      - R1B
+    - - R2A
+      - R2B
+---
+```
+
+The 6 available patterns are: `text`, `bullets`, `code`, `image`, `table`,
+`metric`. See `references/layout-catalog.md` for each pattern's fields.
+
 ---
 
 ## Workflow
@@ -199,6 +231,30 @@ When run, the script copies the starter template, substitutes title/date/author,
 the `public/fonts/` directory, symlinks the shared runner's `node_modules` into
 the target directory (so Slidev can find Mermaid, themes, and other plugins),
 and ensures the runner is ready.
+
+#### Converting an Existing Document
+
+When the user provides an existing document (Obsidian note, markdown file, etc.)
+to convert into slides, perform these additional steps before proceeding to Step 2:
+
+1. **Asset inventory** — scan the source document for image/video references
+   (`![[...]]` wikilinks, `![](...)` markdown images, `<img>` tags). For each:
+   - Locate the file on disk (check `./assets/`, Obsidian attachment folder, etc.)
+   - If found: note the absolute path for later migration to `public/`
+   - If not found: note it as missing — add a placeholder comment in the slide
+     (`<!-- TODO: add <filename> to public/ -->`)
+2. **Media migration** — after initializing the deck (Step 3), copy all found
+   assets into `<target_dir>/public/`. In slides, reference them as `/<filename>`
+   (relative to `public/`).
+3. **Path conversion rules**:
+   - Obsidian wikilink `![[image.png]]` → `<img src="/image.png" ... />`
+   - Markdown `![alt](path/to/img.png)` → copy to `public/`, use `<img src="/img.png" ... />`
+   - Videos (`.mov`, `.mp4`) cannot be embedded in Slidev slides directly;
+     note them as presenter-only references or link externally.
+4. **Content mapping** — each major section (H2) in the source typically maps
+   to a section-divider + 2-6 content slides. Tables map to `data-table`,
+   bullet lists to `content-bullets`, standalone images to inline `<img>` with
+   sizing (see "Using Existing Images" below).
 
 ### Step 2: Content Strategy & Style Decisions
 
@@ -527,3 +583,67 @@ Static test suite: `bash scripts/test-sp2-static.sh`.
 ### Troubleshooting
 
 See `references/image-generation.md` §11.
+
+---
+
+## Using Existing Images (without SP2)
+
+When the source material already contains screenshots, concept art, data charts,
+or exported diagrams, use them directly instead of generating images via SP2.
+
+### Setup
+
+1. Copy image files into `<target_dir>/public/` (any subdirectory is fine,
+   e.g., `public/screenshots/`, `public/charts/`)
+2. Reference them in slides as `/<filename>` or `/<subdir>/<filename>`
+
+### Frontmatter for existing images
+
+When using `image-focus` or `image-text-split` layouts with existing images,
+set `image_path` in the slide frontmatter to suppress SP2 generation:
+
+```yaml
+image_path: public/my-screenshot.png
+image_prompt: "description for accessibility and fallback"
+```
+
+Both fields are still needed for validation. `image_prompt` serves as the
+alt-text source and SP2 fallback if the file is missing.
+
+### Image sizing (inline approach)
+
+For most existing images (data charts, cost tables, concept sketches), avoid
+the `image-focus` layout — it fills the entire slide. Instead, use a standard
+layout with an inline `<img>` and Tailwind sizing classes:
+
+```markdown
+---
+layout: default
+class: skeleton-list content-narrative
+---
+
+# Slide Title
+
+<div class="flex justify-center mt-4">
+  <img src="/chart.png" alt="description" class="max-h-72 object-contain rounded shadow" />
+</div>
+```
+
+### Image sizing tiers
+
+| Tier | CSS class | Height | Use for |
+|------|-----------|--------|---------|
+| Small | `max-h-48` | 192px | Supplementary inline icon/badge |
+| Medium | `max-h-72` | 288px | Data charts, cost tables, concept sketches |
+| Large | `max-h-96` | 384px | Detailed diagrams, wide screenshots |
+| Full | `image-focus` layout | ~500px+ | Hero photos, branding, full-bleed images |
+
+Always pair with `object-contain` to prevent cropping. Add `rounded shadow`
+for a polished look on light backgrounds.
+
+### When to use which approach
+
+- **Data table screenshot** → Medium (`max-h-72`) inline `<img>`, not `image-focus`
+- **UI concept art / mockup** → Large (`max-h-96`) or `image-text-split` layout
+- **Hero photo / branding** → `image-focus` layout (full slide)
+- **Small comparison images** → `two-columns` layout with `image` pattern
