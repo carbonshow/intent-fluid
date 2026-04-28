@@ -1,7 +1,7 @@
 {
   "name": "intent-fluid",
   "description": "Transforming human intent into autonomous execution with AI Skills.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": { 
     "name": "carbonshow"
   },
