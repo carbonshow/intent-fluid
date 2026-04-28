@@ -41,7 +41,7 @@
 Director Agent drives Analyze → Research → Design → Implement → QA in a closed loop. Not a one-shot generator — it iterates until quality converges. Auto-detects stagnation, oscillation, and Pareto frontiers to reach highest quality in minimum iterations.
 
 **👥 Expert Review Panel**
-Automatically assembles 3-5 domain experts for parallel design review. Each expert evaluates independently — security, performance, maintainability — with veto power. Multi-perspective synthesis eliminates blind spots.
+Automatically assembles 3-5 domain experts for parallel design review. Each expert evaluates independently — security, performance, maintainability — with veto power. Multi-perspective synthesis eliminates blind spots. High-risk decisions can optionally use expert-redteam-review for adversarial arbitration.
 
 **✅ Rigorous Quality Assurance**
 Three-tier acceptance criteria (L1→L2→L3) with progressive escalation. Output integrity validation auto-detects truncation and recovers. Optimization directives are closed-loop tracked — every improvement proposed is verified next round.
@@ -92,6 +92,7 @@ git clone https://github.com/carbonshow/intent-fluid.git
 |-------|-------------|
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
 | [slidev](skills/slidev/) | Lightweight Markdown-based presentations — intelligently analyzes content, auto-selects layouts (text, diagrams, tables, images), generates Mermaid flowcharts, and applies adaptive density controls to prevent overflow. A faster, code-native alternative to heavy slide tools. |
+| [expert-redteam-review](skills/expert-redteam-review/) | Expert panel + red-team review workflow for complex decisions — scopes the decision, assembles domain experts, challenges assumptions, supports rebuttals, and produces judge arbitration with minimum validation actions. |
 
 ### Creating a New Skill
 
