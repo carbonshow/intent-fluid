@@ -9,7 +9,7 @@ The role library is not a fixed cast. It is a set of review lenses plus a protoc
 3. **Cap serious reviews at 3-5 experts**: more usually adds synthesis noise.
 4. **Include an execution lens**: complex decisions need someone to inspect delivery, testing, operations, or maintenance.
 5. **Construct domain experts when needed**: do not force a generic role onto a specialized field.
-6. **Ask before pretending**: if domain success criteria are unclear, ask the user to confirm the panel.
+6. **Confirm before full vertical review**: for L2/L3 vertical-domain work, propose the domain-specific panel and ask the user to confirm or adjust it before running the full review, unless the user has already approved the panel.
 
 ## Universal Review Lenses
 
@@ -49,7 +49,7 @@ Algorithm:
 5. Add one execution or implementation expert.
 6. Add one evidence or risk expert when claims are uncertain.
 7. Cap the panel at 5 experts.
-8. If confidence is low, ask the user to confirm or adjust the proposed panel.
+8. For L2/L3 vertical-domain work, present the proposed panel and ask the user to confirm or adjust it before running the full review. For L1, ask when confidence is low or the user's domain knowledge could materially improve role selection.
 
 Role card format:
 
@@ -64,9 +64,9 @@ Role card format:
 - What This Expert Must Not Do:
 ```
 
-## Confidence Gate
+## Panel Confirmation Gate
 
-Ask the user to confirm the panel when:
+For L2/L3 vertical-domain work, ask the user to confirm or adjust the proposed panel before running the full review. This prevents the review from locking onto the wrong domain standard. For L1, ask when:
 - The domain has specialized success criteria the agent cannot infer.
 - Regulatory, financial, medical, legal, safety, or other high-stakes expertise is central.
 - The panel would otherwise rely mostly on `[unknown]` or generic judgment.
@@ -75,13 +75,14 @@ Ask the user to confirm the panel when:
 Suggested question:
 
 ```markdown
-I can construct a domain-specific expert panel, but I need to confirm the domain's evaluation standard. Which success criteria matter most here?
-A. Growth or return
-B. Risk control
-C. User or reader experience
-D. Feasibility and execution
-E. Long-term impact
-F. Other
+I propose this domain-specific expert panel before running the full review:
+- {expert_1}: {lens_1}
+- {expert_2}: {lens_2}
+- {expert_3}: {lens_3}
+- {expert_4}: {lens_4}
+- {expert_5}: {lens_5}
+
+Please confirm, remove, or adjust these roles. If the domain's success criteria differ from my assumptions, tell me which criteria matter most before I run the L2/L3 review.
 ```
 
 ## Examples
