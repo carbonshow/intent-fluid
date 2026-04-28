@@ -1,0 +1,44 @@
+{
+  "skill_name": "expert-redteam-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this high-risk architecture migration plan with an expert panel and red-team challenge: migrate a monolith payment service to event-driven microservices next quarter. Give me a decision package with a judge ruling.",
+      "expected_output": "Selects L2 or L3, uses independent expert lenses, identifies payment-specific failure modes, classifies red-team findings, gives a clear recommendation, and requires a human gate if execution is proposed.",
+      "files": [],
+      "assertions": [
+        "Selects an L2 or L3 review level or otherwise explicitly treats the task as high-risk/gated.",
+        "Uses multiple distinct expert lenses relevant to payment migration.",
+        "Includes red-team findings with severity or blocker/must-fix distinction.",
+        "Provides a judge ruling or clear arbitration, not only a summary.",
+        "Includes minimum validation actions and a human gate or approval requirement before execution."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Help me assemble an expert panel and red team to evaluate a xianxia web novel series outline with cultivation system, long-serialization pacing, reader retention, and cliche risks.",
+      "expected_output": "Constructs vertical-domain expert role cards from genre success criteria and failure modes rather than relying only on generic roles.",
+      "files": [],
+      "assertions": [
+        "Constructs domain-specific expert roles rather than only generic product/architecture roles.",
+        "Each proposed role includes a clear review lens or failure modes to catch.",
+        "Covers cultivation-system coherence, long-serialization pacing, reader retention, and cliche/fatigue risk.",
+        "Includes or proposes a red-team/adversarial role focused on genre failure modes.",
+        "For vertical-domain requests, proposes the domain-specific panel and asks the user to confirm or adjust it before running a full L2/L3 review."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I run an orchestration workflow called surge. Should expert-redteam-review become a hard dependency, and how should it integrate with design/QA phases?",
+      "expected_output": "Keeps expert-redteam-review independent, makes surge integration optional, avoids hard dependency, defines minimum input/output packages and veto/severity mapping.",
+      "files": [],
+      "assertions": [
+        "States that expert-redteam-review should not become a hard dependency of surge.",
+        "Frames integration as optional and non-blocking when the skill is unavailable.",
+        "Defines concrete use criteria for invoking it during design or QA.",
+        "Provides a minimal input/output package or equivalent integration contract.",
+        "Maps severe findings or vetoes into surge design/QA handling without changing surge core state/scripts."
+      ]
+    }
+  ]
+}

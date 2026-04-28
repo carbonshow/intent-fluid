@@ -171,6 +171,65 @@ After viewing the synthesis report, the Director presents:
 - **Veto is advisory** — the user CAN select a vetoed solution if they explicitly acknowledge the flagged risks
 - Multiple experts may veto the same solution for different reasons; all reasons are listed
 
+## Optional Adversarial Decision Review
+
+If an `expert-redteam-review` skill is available and the task meets high-risk decision criteria, the Director MAY use it as an optional checkpoint after surge has concrete candidate options or after QA exposes a design-rooted risk. If unavailable, continue with surge's native expert-review flow.
+
+Use this optional checkpoint only when one or more are true:
+- The user explicitly asks for an expert panel, red-team challenge, rebuttal, judge, or adversarial arbitration.
+- Candidate solutions are high-risk and differ on architecture, data, security, compliance, production rollout, or irreversible direction.
+- Native expert reviews disagree severely and the Director needs arbitration rather than another scoring pass.
+- QA finds P0/P1 issues caused by design-level assumptions rather than implementation defects.
+- The task has one-way-door characteristics: production release, data migration, security/privacy/compliance exposure, broad refactor, external publication, or financial exposure.
+
+Do not use it for routine delivery iteration, low-risk changes, work that has already converged, token-constrained low-risk cases, or tasks where implementation is the only remaining step.
+
+### Non-Dependency Rules
+
+- `expert-redteam-review` is an optional enhancement, not a surge dependency.
+- Do not change state schema, trace schema, scripts, task directory layout, or convergence rules to require it.
+- If the skill is missing, disabled, or unsuitable, continue with this native expert-review process.
+- The surge Director remains responsible for state updates, checkpoint decisions, and convergence.
+
+### Minimum Input Package
+
+Pass summaries and paths, not full artifacts:
+
+```markdown
+## Surge Context Summary
+- task_id:
+- current_phase: design / qa / convergence
+- iteration:
+- deliverable_type:
+- decision_point:
+- candidate_options:
+- current_recommendation:
+- known_constraints:
+- acceptance_criteria:
+- open_risks:
+- relevant_file_paths:
+```
+
+Rules:
+- State the exact decision point under review.
+- Pass candidate option summaries, not full designs.
+- Pass file paths for source artifacts so details can be read on demand.
+- Do not ask the red team to attack the whole project if only one decision is under review.
+
+### Output Mapping Back to surge
+
+If the optional checkpoint returns a decision package, map it back as suggestions:
+
+| expert-redteam-review Output | Suggested surge Handling |
+|---|---|
+| P0 blocking issue | Treat like a veto: return to design or ask for explicit user override. |
+| P1 must-fix issue | Add to design constraints or acceptance criteria before implementation continues. |
+| P2 residual risk | Record as residual risk and monitor during QA. |
+| P3 improvement | Add to optimization backlog only if useful. |
+| Minimum validation action | Add to acceptance criteria, QA plan, or checkpoint notes. |
+
+A P0 is not a permanent ban. The user can override it, but must explicitly acknowledge the flagged risk.
+
 ### Error Handling
 
 - If an expert subagent fails (timeout, malformed output), the Director retries once
