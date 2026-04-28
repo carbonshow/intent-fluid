@@ -1,0 +1,23 @@
+{
+  "skill_name": "expert-redteam-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this high-risk architecture migration plan with an expert panel and red-team challenge: migrate a monolith payment service to event-driven microservices next quarter. Give me a decision package with a judge ruling.",
+      "expected_output": "Selects L2 or L3, uses independent expert lenses, identifies payment-specific failure modes, classifies red-team findings, gives a clear recommendation, and requires a human gate if execution is proposed.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Help me assemble an expert panel and red team to evaluate a xianxia web novel series outline with cultivation system, long-serialization pacing, reader retention, and cliche risks.",
+      "expected_output": "Constructs vertical-domain expert role cards from genre success criteria and failure modes rather than relying only on generic roles.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I run an orchestration workflow called surge. Should expert-redteam-review become a hard dependency, and how should it integrate with design/QA phases?",
+      "expected_output": "Keeps expert-redteam-review independent, makes surge integration optional, avoids hard dependency, defines minimum input/output packages and veto/severity mapping.",
+      "files": []
+    }
+  ]
+}
