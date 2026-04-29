@@ -93,6 +93,7 @@ git clone https://github.com/carbonshow/intent-fluid.git
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
 | [slidev](skills/slidev/) | Lightweight Markdown-based presentations — intelligently analyzes content, auto-selects layouts (text, diagrams, tables, images), generates Mermaid flowcharts, and applies adaptive density controls to prevent overflow. A faster, code-native alternative to heavy slide tools. |
 | [expert-redteam-review](skills/expert-redteam-review/) | Expert panel + red-team review workflow for complex decisions — scopes the decision, assembles domain experts, challenges assumptions, supports rebuttals, and produces judge arbitration with minimum validation actions. |
+| [domain-sensemaking](skills/domain-sensemaking/) | Structured research workflow for unfamiliar domains — frames the problem, generates and ranks exploration frontiers, builds concept/claim/evidence graphs, checks convergence, then synthesizes a traceable conclusion. Supports Learning, Research/Engineering, and Consulting/Decision modes. |
 
 ### Creating a New Skill
 
