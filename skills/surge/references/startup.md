@@ -51,6 +51,10 @@ The initialization script will automatically generate the directory structure an
 ├── context.md          ← Manually write PRD + background knowledge to this file
 ├── state.md            ← Initial state (see schema below)
 ├── test_cases.md       ← QA evolving test suite
+├── epistemic-ledger.md ← Hypotheses, claims, evidence, confidence
+├── falsification.md    ← High-risk disconfirmation checks
+├── convergence-audit.md← Evidence behind stop/convergence decisions
+├── platform-capabilities.md ← Host capabilities and fallbacks
 └── iterations/         ← Stores phase outputs for each iteration
 ```
 
@@ -88,6 +92,7 @@ notes: ""
 expert_roles: []               # Current task's expert role list, set at design Checkpoint 2
 design_checkpoint: null        # Design phase progress tracking
 expert_review_summary: null    # Path to latest expert review synthesis report
+trace_file: null                # Absolute path to trace.jsonl, set by Director after init
 ```
 
 Parse `max_iterations` and `parallel_agent_limit` from user input during Step 3 (Topology confirmation) or config.json to override defaults 5 and 10 respectively.
@@ -333,6 +338,18 @@ Options:
 ```
 
 After the user confirms (option A) or finishes modifications, the Director writes `topology.md`, `deliverables.md`, and `acceptance.md` in sequence, then proceeds to Rules Loading and the Main Iteration Loop.
+
+### Epistemic and Platform Setup
+
+After Step 5 and before the Main Iteration Loop:
+
+1. Record available host capabilities and fallbacks in `platform-capabilities.md` using `references/platform-adapter.md`.
+2. If Node.js is available, run:
+   ```bash
+   node <surge_skill_dir>/scripts/audit-task.js init-artifacts "{task_dir}"
+   ```
+   This is idempotent and creates any missing audit artifacts.
+3. For high-impact, ambiguous, document/strategy, market/domain, or architecture-heavy tasks, treat `epistemic-ledger.md` as a required downstream input. For low-risk tasks, keep the artifact initialized and record skipped checks in `convergence-audit.md` if needed.
 
 ---
 

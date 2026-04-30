@@ -78,7 +78,7 @@ When all parallel agents are completed, the Director should execute a lightweigh
 - If output is code: Include necessary comments, ensuring core logic is clear.
 - If output is document/config: Ensure complete structure and accurate content.
 - **Special Requirements for Document Output: Evidence Grading and Numerical Self-Check**
-  - **Evidence Grading Labels**: All key quantitative conclusions MUST explicitly label the evidence type (e.g., `[Citation:Source]`, `[Theoretical Derivation]`, `[Analogy Inference]`, `[Engineering Intuition]`, `[Actual Measurement:with experimental methods and records]`).
+  - **Evidence Grading Labels**: All key quantitative conclusions MUST explicitly label the evidence type (e.g., `[Citation:Source]`, `[Theoretical Derivation]`, `[Analogy Inference]`, `[Engineering Intuition]`, `[Actual Measurement:with experimental methods and records]`). When possible, also link the conclusion to a row in `epistemic-ledger.md`.
   - **Numerical Self-Check Checklist**: For calculation logic involving weighted averages, matrix summations, percentage conversions, etc., a manual verification process MUST be attached at the end of the document or independently executed during the reasoning process to ensure "the sum of the parts equals the whole."
 
 ### Edge Case Discovery
@@ -126,6 +126,7 @@ The output document must include the following sections (format as you see fit):
 - **Serial Mode**: Index/content written to `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_implement.md`.
 - **Parallel Mode**: Written to `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_implement_{module_name}.md`, Director will merge into `iter_{NN}_implement.md`.
 - memory_draft update: If implementation complexity exceeds expectations or reusable components are found, append to `{surge_root}/tasks/{task_id}/memory_draft.md`, format: `[{timestamp}] [implement] {content}`
+- epistemic-ledger update: If implementation discovers or relies on a material assumption, verification output, or high-confidence behavior claim, update `{surge_root}/tasks/{task_id}/epistemic-ledger.md`.
 
 ## Tools Allowed
 

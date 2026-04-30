@@ -121,6 +121,13 @@ The Director consolidates findings from all subagents in the current layer and s
   - 2: Nice to have, lower priority.
   - 1: Can be ignored, almost no impact on the solution.
 
+For mandatory or deep research, extend the scoring notes with:
+
+- **Uncertainty Reduction**: Which hypothesis, ambiguity, or risk this direction can reduce.
+- **Verifiability**: Whether available sources or experiments can actually test the claim.
+- **Source Independence**: Whether evidence is independent or just repeated from the same upstream source.
+- **Exploration Cost**: Whether the value justifies another layer.
+
 **After scoring**: The Director backfills the `relevance` and `importance` fields in the frontmatter of all raw material files written during this layer's expansion (use Edit tool to update the two lines).
 
 **Present to user**:
@@ -203,6 +210,10 @@ The summary MUST include the following sections:
   | 001 | iter_{NN}_research/001_search_xxx.md | search | Direction A | "query..." | 4 | 5 |
 
 - **Technical Solution Candidates**: Each with brief description, rating, credibility, applicable scenarios, and references to source material files (e.g., "-> 001_search_xxx.md, 003_fetch_yyy.md").
+
+- **Claim/Evidence Mapping**: Key claims discovered or changed, each mapped to `epistemic-ledger.md` row IDs and source material files.
+
+- **Opposing Evidence and Gaps**: Contradictions, negative evidence, weak sources, or unresolved evidence gaps. If none were found, state how they were searched for.
 
 - **Resolved Ambiguities**: Issue description, research conclusion, and source file references.
 

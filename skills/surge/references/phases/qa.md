@@ -106,6 +106,18 @@ Based on the results of Stage 1 and 2, give a three-value conclusion:
 | Medium | Improvement will noticeably increase quality but won't affect core functionality |
 | Low | Marginal improvement; negligible impact whether applied or not |
 
+#### Stage 3.5: Epistemic Review
+
+Before finalizing the conclusion, review the epistemic artifacts:
+
+1. Read `epistemic-ledger.md`. High-confidence claims must have durable supporting evidence.
+2. Check whether P0/P1 claims have predictions or observables.
+3. Read `falsification.md` when high-risk triggers apply. If a required falsification gate is missing, mark it as a QA issue with the relevant deviation level.
+4. Check Goodhart risk: whether the output appears optimized for passing the rubric while losing user value, evidence quality, or real-world correctness.
+5. Update `convergence-audit.md` with concrete evidence for pass/fail convergence checks.
+
+When Node.js is available, the Director may run `node <surge_skill_dir>/scripts/audit-task.js check-convergence {task_dir}` after QA output is written. QA should still perform the reasoning review; the script is a deterministic backstop.
+
 #### Stage 4: Test Suite Evolution Suggestions
 
 **After each QA round, propose test suite evolution suggestions based on the cognition accumulated in this round.** The test suite should gradually improve with iterations — limited cognition and basic tests initially; more comprehensive test coverage as iterations deepen.
@@ -161,6 +173,7 @@ Write the acceptance results into the output document, which must include the fo
 - **Details of Pass/Partial Pass/Fail Items**: Each containing acceptance criteria, verification result or failure reason; Partial Pass and Fail items MUST include deviation level.
 - **Overall Deviation Level**: Take the highest level and explain the reason (if all pass, state no deviation).
 - **Quality Evaluation**: Multi-dimension scoring (Insufficient/Basic/Good/Excellent) + intra-tier positioning description, including basis of judgment; From Round 2 onwards, MUST include cross-round comparison.
+- **Epistemic Review**: Ledger evidence status, falsification status, unresolved gaps, and Goodhart risk.
 - **Optimization Gradients** (Only when Pass-Optimizable): Improvement directions and expected benefits (High/Medium/Low) for non-"Excellent" dimensions.
 - **Regression Warning** (If any): Degraded dimensions, level changes, and root cause analysis.
 - **Suggestions**: Specific improvement suggestions for failed items.

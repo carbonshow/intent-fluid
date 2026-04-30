@@ -16,6 +16,8 @@ These rules codify stable constraints validated during surge execution, using th
 - NEVER let expert review subagents access `state.md`; they receive only the review package defined in `references/expert-review.md`.
 - NEVER default to "Code Quality Reviewer" as the universal expert for document-type deliverables; use "Logical Consistency Reviewer" instead (see `references/expert-review.md`).
 - NEVER proceed past a SEVERE_TRUNCATION validation result (file missing/empty, ≥3 required sections absent, or conclusion missing) without at least one recovery attempt; truncated output propagates errors to all downstream phases and wastes subsequent iterations.
+- NEVER claim high confidence for a P0/P1 design, research, or strategy conclusion without durable supporting evidence recorded in `epistemic-ledger.md`.
+- NEVER claim external research was performed when the platform lacked browsing and no user-provided source material was inspected; record the limitation in `platform-capabilities.md` or the research output.
 
 ## ALWAYS
 
@@ -36,6 +38,7 @@ These rules codify stable constraints validated during surge execution, using th
 - ALWAYS include the end-marker instruction (`--- END OF {PHASE} OUTPUT ---`) when retrying a phase after truncation detection, so the Director can detect if the retried output was also truncated.
 - ALWAYS escalate non-trivial ambiguities (impact scope covers P0 requirements or ≥3 downstream phases) to the user after the Analyze phase completes, before proceeding to Research or Design. Silently filling ambiguities with assumptions on core project direction (product identity, KPI targets, budget, key creative/technical decisions, timeline) is prohibited.
 - ALWAYS execute the Research phase in the first iteration when `deliverable_type` is `"document"` or `"mixed"` and the task involves strategy, marketing, market analysis, or domain-specific expertise. The agent's pre-trained knowledge is not a substitute for current external evidence.
+- ALWAYS update `convergence-audit.md` before declaring convergence, including concrete evidence for the stop decision and any residual risks accepted by the user.
 
 ## PREFER
 

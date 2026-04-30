@@ -28,6 +28,7 @@ For each phase, scan for the presence of required conceptual content. Do not dem
 | Required Content | How to Detect |
 |---|---|
 | Functional Requirements List | Section listing requirements with priorities (P0/P1/P2) |
+| Problem Reframe and Initial Hypotheses | Section identifying the current framing and 3-7 material hypotheses or assumptions |
 | Non-Functional Requirements | Section present (even if "None identified") |
 | Ambiguities & Questions | Section present |
 | Risk Warnings | Section present |
@@ -50,7 +51,9 @@ This phase is Director-orchestrated. Raw material files are validated incrementa
 | Research Conclusion Summary | 2-3 sentence summary present in `iter_{NN}_research.md` |
 | Research Tree Overview | Tree structure with node statuses present |
 | Source Materials Index | Table referencing raw material files |
+| Claim/Evidence Mapping | Links key findings to `epistemic-ledger.md` rows or states that no material claims were added |
 | Technical Solution Candidates | At least one candidate listed |
+| Opposing Evidence and Gaps | Section lists contradictions, negative evidence, or explicitly says none found with method |
 | Resolved Ambiguities | Section present (even if "None") — feeds forward to design |
 | Remaining Uncertainties | Section present (even if "None") — design needs to know what's unresolved |
 | User Decision Records | Section present (pruning decisions listed) |
@@ -66,6 +69,8 @@ This phase is Director-orchestrated with multiple outputs. Validate each output 
 | `iter_{NN}_expert_review_{slug}.md` | Expert identity, solution ratings with scores, recommendation, design constraints |
 | `iter_{NN}_expert_synthesis.md` | Rating matrix, consensus points, divergence points, veto items (if any) |
 | `iter_{NN}_design.md` | Selected solution & reasons, detailed design (module division), task packages JSON block with `estimated_output_size` per package |
+
+For high-risk design choices, also check that assumptions, predictions/observables, invalidation conditions, and residual risks are recorded in `epistemic-ledger.md` or `falsification.md`.
 
 **Key truncation heuristic**: Task packages JSON block absent or malformed (no closing `]`).
 
@@ -90,10 +95,22 @@ This phase is Director-orchestrated with multiple outputs. Validate each output 
 | Details of Pass/Partial/Fail items | Itemized breakdown present |
 | Overall Deviation Level | Highest deviation level stated with reason (even if "no deviation") — critical for Director's rollback decision |
 | Quality Evaluation | Multi-dimension scoring table with tier ratings |
+| Epistemic Review | Check of high-confidence claims, opposing evidence, falsification triggers, and Goodhart risk |
 | Optimization Gradients (if Pass-Optimizable) | Present when conclusion is Pass-Optimizable |
 | Test Suite Evolution Suggestions | Present (even if "No new suggestions") |
 
 **Key truncation heuristic**: Acceptance Conclusion missing = definitely truncated. Quality Evaluation missing but Conclusion present = partial truncation.
+
+### epistemic artifacts
+
+These files are created during startup and validated when the task reaches QA or convergence:
+
+| File | Required Content |
+|---|---|
+| `epistemic-ledger.md` | Markdown table with ID, Type, Statement, Prediction / Observable, Supporting Evidence, Confidence, Decision Impact |
+| `falsification.md` | Markdown table for high-risk disconfirmation checks; may be empty if no trigger applies |
+| `convergence-audit.md` | Markdown table with Check, Status, Evidence; passing checks require substantive evidence |
+| `platform-capabilities.md` | Capability/fallback table for host execution |
 
 ### retro
 

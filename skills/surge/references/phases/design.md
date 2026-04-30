@@ -40,6 +40,7 @@ Prepare **summaries only** (not full designs) for each candidate:
 - High-level architecture sketch
 - Key technology choices
 - Primary tradeoffs and risks
+- Key assumptions, predictions/observables, and invalidation conditions
 
 If technical constraints are extremely strong and only one solution is feasible, explain the reason and proceed with a single candidate.
 
@@ -130,6 +131,7 @@ The Director may delegate this to a design subagent for complex domains.
 
 **Output sections** (included in `iter_{NN}_design.md`):
 - **Selected Solution & Reasons**: Which solution was chosen and why
+- **Assumptions, Predictions, and Invalidation Conditions**: Important claims that must be recorded in `epistemic-ledger.md`, plus any falsification checks required before convergence.
 - **Detailed Design**:
   - Module division (responsibilities, inputs/outputs, dependencies)
   - Key interface definitions
@@ -250,6 +252,7 @@ When triggered by a Level 2 rollback:
 - **memory_draft**: Append to `{surge_root}/tasks/{task_id}/memory_draft.md`
   - Format: `[{timestamp}] [design] {content}`
   - Record rejected solution rationale; mark candidate SKILL if reusable patterns found
+- **epistemic-ledger.md / falsification.md**: Update for selected-solution assumptions, high-risk claims, expert vetoes, and residual risks.
 
 ## Tools Allowed
 
