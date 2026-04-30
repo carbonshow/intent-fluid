@@ -66,5 +66,8 @@ pids
 superpowers
 .superpowers/
 
+# Git worktrees
+.worktrees/
+
 # SP1.v2 visual audit artifacts (timestamped output dirs)
 skills/slidev/evals/visual-audit/2*/
