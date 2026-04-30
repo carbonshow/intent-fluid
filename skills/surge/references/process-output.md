@@ -62,3 +62,12 @@ In your final reply (not the content written to the file), please provide an add
 - Output file path and approximate line count
 - Unexpected situations or issues needing Director's attention (skip if none)
 ```
+
+
+## Writing Style Guidelines (Human-Friendly Output)
+
+The Director and all subagents MUST prioritize human readability and logical flow in their final deliverables and summaries:
+- **Narrative over Rigid Lists**: Avoid outputting raw data dumps or endless nested bullet points. Use structured prose to connect concepts and explain the *why* behind decisions.
+- **Logical Deductive Flow**: Structure conclusions as a logical argument (Observation -> Hypothesis -> Evidence -> Conclusion), rather than just abruptly stating the final result.
+- **Synthesis over Summarization**: When processing upstream documents, synthesize the core insights into a cohesive viewpoint rather than mechanically summarizing each source.
+- **Calibrated Tone**: The tone should be professional yet conversational (like a senior consultant briefing a stakeholder), avoiding robotic, overly formulaic, or strictly templated stiffness.

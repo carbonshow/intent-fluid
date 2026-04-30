@@ -275,3 +275,13 @@ Historical Output Files (Available for review):
 | B) Continue optimizing | User specifies optimization direction; Director treats as unconverged, injects user direction as optimization directive, continues iteration |
 | C) Adjust acceptance criteria | Display current `acceptance.md`, update file after user modification, `acceptance_modifications` +1, then re-run QA with updated criteria |
 | D) Review deliverables before deciding | Director presents key deliverable content summary (read and summarize the main output files), user decides after review |
+
+### Oscillation Handling via Double-Loop Learning (双环学习)
+
+If `quality_history` shows the same dimension oscillating (e.g., Basic→Good→Basic) for 3 consecutive rounds, do NOT simply lock the dimension or blindly ask the user what to do. This indicates a systemic conflict in the acceptance criteria or underlying assumptions.
+
+**Director Action (Frame Review)**:
+1. Suspend standard iteration.
+2. Analyze the conflicting constraints (e.g., "Requirement A demands extreme performance, but Requirement B demands heavy encryption").
+3. Draft a proposed `acceptance_v2.md` that resolves the conflict by adjusting thresholds, removing mutually exclusive constraints, or redefining success.
+4. Present the analysis and the `acceptance_v2.md` draft to the user for confirmation: *"I detected an architectural conflict causing quality oscillation. Instead of continuing to iterate, I suggest we revise the acceptance criteria. Here is the proposed change..."*
