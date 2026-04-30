@@ -1,7 +1,7 @@
 ---
 name: expert-redteam-review
 description: Use when a user asks to evaluate a complex, high-impact, ambiguous, cross-functional, or hard-to-reverse decision; mentions expert panel, red team, adversarial review, rebuttal, judge, arbitration, risk review, challenge assumptions, poke holes, or wants stronger decision quality than a normal review.
-version: "1.0.0"
+version: "1.0.3"
 author: carbonshow
 tags: [decision-quality, expert-review, red-team, orchestration, risk]
 ---
