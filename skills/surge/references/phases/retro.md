@@ -43,6 +43,7 @@ Write to `{surge_root}/tasks/{task_id}/retro.md`, which must include the followi
 - **Process Assumption Audit**: Review which process steps encoded assumptions about model limitations, and whether those assumptions held true during this execution. For each major process step (analyze, research, design, implement, QA), evaluate: (1) Did this step produce genuinely new value, or did it mostly confirm what was already known? (2) Could the model have handled this directly without the structured process? (3) Were any steps purely ceremonial with no impact on output quality? Record findings as concrete recommendations (e.g., "research phase was skipped in rounds 2-3 with no quality impact — consider making it optional by default for code deliverables"). This audit is inspired by the principle: "Every component in a harness encodes an assumption about what the model can't do on its own, and those assumptions are worth stress testing."
 - **QA Calibration Findings**: Review all QA reports across iterations. Were there patterns of over-leniency (issues identified but dismissed) or over-strictness (blocking on marginal improvements)? Did the Evaluator Calibration Review (if triggered) surface accurate warnings? Record confirmed calibration patterns in the format: `[CALIBRATION: {pattern}]` (e.g., `[CALIBRATION: QA consistently rates Robustness one tier higher than warranted for this project type]`). These will be persisted to `memory_draft.md` for use as Calibration Hints in future tasks.
 - **Process Experience Review**: Synthesize `memory_draft.md`, evaluate the value of each record, decide whether to formalize.
+- **Epistemic Audit Review**: Review `epistemic-ledger.md`, `falsification.md`, and `convergence-audit.md`. Identify unsupported high-confidence claims, over-heavy audit steps, missing falsification checks, and any Goodhart pattern.
 - **Formalized Experience**: Memory update entries, RULES entries (NEVER/ALWAYS/PREFER format), Candidate SKILLs (name and brief description) — note if none for any category.
 - **Improvement Suggestions for surge itself**: Process issues or areas for improvement discovered during this execution.
 
@@ -121,6 +122,13 @@ Include a note in `retro.md` pointing to these visualization files.
    [What is output, and where is it written]
    ```
 4. Note at the end of the retro report: `[Pending Review] Candidate SKILL draft generated: {file path}`
+
+**Promotion Ladder**:
+1. Single observation: keep it in `memory_draft.md`.
+2. Repeated pattern: create a proposal or candidate rule.
+3. Accepted proposal: add a pressure scenario, regression check, or audit script test.
+4. Validated change: update references, scripts, rules, or `SKILL.md`.
+5. Durable change: require user review before applying to shared rules or skills.
 
 ## Error Handling
 

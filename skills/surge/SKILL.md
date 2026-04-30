@@ -33,6 +33,7 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **state.md Field Omission**: When updating state.md, ALWAYS use the `scripts/state.sh` script rather than manual editing to avoid missing fields like plateau_count, quality_history, optimization_directives. The correct argument order is `state.sh <subcommand> <state_file> <field> [value]` (subcommand first, then file). A common error is passing the file first, which produces the confusing message `Error: state file does not exist: set`.
 - **Output Truncation**: After every subagent returns, run Output Integrity Validation (step 5) before Process Output. Never assume output is complete. → `references/output-validation.md`
 - **Design Checkpoint Stale State**: `design_checkpoint` must be reset to `null` when entering the design phase. → `references/state-schema.md` §design_checkpoint
+- **Epistemic Artifacts Drift**: `epistemic-ledger.md`, `falsification.md`, and `convergence-audit.md` are runtime evidence controls. If a phase creates or changes high-impact claims, assumptions, or convergence decisions, update these artifacts before moving on. Use `scripts/audit-task.js` where available. → `references/epistemic-audit.md`
 
 ### Important — Quality or convergence issues if violated
 
@@ -57,6 +58,7 @@ You are the sole holder of global state, responsible for orchestrating a profess
   - **Document/strategy deliverables** (`deliverable_type: "document"` or `"mixed"` where the task involves market analysis, strategy, campaigns, or domain expertise): Research is MANDATORY in the first iteration — market/domain/competitive research cannot be replaced by the agent's pre-existing knowledge. May be skipped in subsequent lightweight iterations if QA confirms the evidence base is sufficient.
   - **Scope control**: When research IS executed, limit depth to Layer 2 in the first round. Deeper research should be guided by user pruning.
 - **Over-Formatting**: Phase templates list required sections, but do not demand precise markdown formatting. Let the subagent choose how to express the content.
+- **Platform Capability Assumptions**: surge supports Claude, Cursor, and Gemini. Do not make a host-specific feature such as parallel subagents, WebSearch/WebFetch, or a special question UI the only valid path. Record available capabilities and fallbacks in `platform-capabilities.md`. → `references/platform-adapter.md`
 
 ## Core Flow
 
@@ -164,6 +166,8 @@ Before each major action, the Director MUST print a status line to the user. Thi
 
 **Rules Loading**: After Startup completes and before entering the Main Iteration Loop, the Director MUST read `{surge_root}/rules.md` into active context. This file contains NEVER/ALWAYS/PREFER constraints that act as guardrails throughout execution. If the file does not exist (e.g., `init.sh` was skipped), copy from `assets/rules.md` first.
 
+**Epistemic Audit Setup**: `init.sh` creates `epistemic-ledger.md`, `falsification.md`, `convergence-audit.md`, and `platform-capabilities.md`. After Startup, record available host capabilities in `platform-capabilities.md`. For high-impact or ambiguous tasks, use the ledger and falsification files as first-class phase inputs, not as retro-only notes. See `references/epistemic-audit.md` and `references/platform-adapter.md`.
+
 ### Main Iteration Loop
 
 Each iteration executes 5 Phases sequentially. The QA conclusion dictates whether to continue:
@@ -263,6 +267,11 @@ Core principles:
 1. Append valuable experiences to `memory_draft.md`.
 2. If continuing iteration, show an iteration summary to the user for confirmation before proceeding.
 
+**Before Declaring Convergence**:
+1. Update `convergence-audit.md` with concrete evidence for the stop decision.
+2. Run `node <surge_skill_dir>/scripts/audit-task.js check-convergence <task_dir>` when Node.js is available. If unavailable, apply the checklist in `references/epistemic-audit.md` manually.
+3. If audit issues remain, either resolve them, record user-accepted residual risk, or continue iteration.
+
 ### Process Experience Extraction
 
 After each iteration, review the events of the round and append valuable experiences to `memory_draft.md`:
@@ -301,10 +310,14 @@ After retro finishes:
 | `references/output-structure.md` | Directory structure, file naming rules | When confirming paths |
 | `references/process-output.md` | Per-phase process summary requirements, format examples, subagent cooperation instructions | After every subagent return (step 6) |
 | `references/token-budget.md` | Context window management rules, estimation heuristics | When assembling subagent prompts (especially iteration ≥ 3) |
+| `references/epistemic-audit.md` | Ledger, falsification, convergence, and Goodhart audit protocol | When claims, evidence, or convergence decisions matter |
+| `references/platform-adapter.md` | Claude/Cursor/Gemini capability mapping and fallbacks | Startup and any platform-specific execution uncertainty |
+| `references/experiment-design.md` | Baseline/treatment validation for workflow, prompt, rule, or skill changes | When `surge` is used to improve agent processes |
 | `assets/rules.md` | Stable constraints (NEVER/ALWAYS/PREFER) | Copied to surge_root on start; Director reads `{surge_root}/rules.md` after Startup before first iteration |
 | `scripts/init.sh` | Initializes Context Package | Startup Step 2 |
 | `scripts/state.sh` | Reads/Updates state.md fields | Every state change |
 | `scripts/merge-parallel.sh` | Merges parallel implement outputs | After parallel implement |
+| `scripts/audit-task.js` | Initializes and checks epistemic runtime artifacts | Startup, QA, convergence, and retro |
 | `references/expert-review.md` | Expert role library, subagent prompt template, synthesis report format | Design phase Steps 3-5 |
 | `references/output-validation.md` | Output integrity checks, severity classification, recovery procedures (completion/scoped/splitting retry) | After every subagent return (step 7) |
 | `docs/TRACE_SPEC.md` (repo root) | Trace protocol specification, event schema, integration guide | When emitting trace events |

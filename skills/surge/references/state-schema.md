@@ -183,6 +183,8 @@ trace_file: null                       # string? — Path to trace.jsonl for exe
 - **Update Timing**: Set by the Director after `init.sh` completes, pointing to `{task_dir}/trace.jsonl`. Immutable after creation.
 - **Description**: Absolute path to the JSONL trace file for execution flow tracking. Used by the framework-level `trace.sh`, `trace-export.sh`, and `dashboard.sh` scripts. See `docs/TRACE_SPEC.md` for the trace protocol specification.
 
+> `init.sh` MUST include this field in generated `state.md`. If an older task lacks it, set it before emitting trace events.
+
 ---
 
 ## Field Relationships

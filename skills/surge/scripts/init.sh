@@ -110,6 +110,7 @@ notes: ""
 expert_roles: []
 design_checkpoint: null
 expert_review_summary: null
+trace_file: null
 EOF
     echo "  ✓ Generated state.md"
 else
@@ -148,6 +149,76 @@ else
     echo "  - test_cases.md already exists, skipping"
 fi
 
+# Create epistemic audit artifacts (skip if exists)
+if [[ ! -f "${TASK_DIR}/epistemic-ledger.md" ]]; then
+    cat > "${TASK_DIR}/epistemic-ledger.md" << 'EOF'
+# Epistemic Ledger
+
+This file tracks hypotheses, claims, evidence, confidence, and decision impact for the surge task.
+
+| ID | Type | Statement | Prediction / Observable | Supporting Evidence | Opposing Evidence | Confidence | Delta | Decision Impact | Owner Phase |
+|---|---|---|---|---|---|---|---|---|---|
+EOF
+    echo "  ✓ Created epistemic-ledger.md"
+else
+    echo "  - epistemic-ledger.md already exists, skipping"
+fi
+
+if [[ ! -f "${TASK_DIR}/falsification.md" ]]; then
+    cat > "${TASK_DIR}/falsification.md" << 'EOF'
+# Falsification Checks
+
+Use this file when high-impact claims, architecture choices, expert vetoes, or contested document claims need explicit disconfirmation checks.
+
+| Claim ID | What Would Prove It Wrong | Search / Test Performed | Result | Residual Risk | Decision |
+|---|---|---|---|---|---|
+EOF
+    echo "  ✓ Created falsification.md"
+else
+    echo "  - falsification.md already exists, skipping"
+fi
+
+if [[ ! -f "${TASK_DIR}/convergence-audit.md" ]]; then
+    cat > "${TASK_DIR}/convergence-audit.md" << 'EOF'
+# Convergence Audit
+
+Convergence requires more than polished output. Record concrete evidence for each passing check.
+
+| Check | Status | Evidence |
+|---|---|---|
+| Acceptance criteria passed at current eval level | fail | |
+| High-confidence claims have evidence | fail | |
+| Important opposing evidence handled | fail | |
+| Optimization directives executed or retired | fail | |
+| Remaining gaps are low impact or user-accepted | fail | |
+| Quality is not being optimized at the expense of user value | fail | |
+| Stop rule is explicit | fail | |
+EOF
+    echo "  ✓ Created convergence-audit.md"
+else
+    echo "  - convergence-audit.md already exists, skipping"
+fi
+
+if [[ ! -f "${TASK_DIR}/platform-capabilities.md" ]]; then
+    cat > "${TASK_DIR}/platform-capabilities.md" << 'EOF'
+# Platform Capabilities
+
+Record the available execution path for this task. Keep the artifact contract stable across Claude/Cursor/Gemini; only the execution mechanism changes.
+
+| Capability | Preferred Path | Fallback Path | Notes |
+|---|---|---|---|
+| Claude/Cursor/Gemini runtime | Detect available host features | Use the shared file protocol and serial execution | Do not assume host-specific tools exist. |
+| Parallel subagents | Dispatch up to parallel_agent_limit | Run serially using the same task packages | Preserve output files either way. |
+| Web search / fetch | Save raw materials per search/fetch call | Ask user for source files or URLs; mark evidence as user-provided | Do not pretend unavailable browsing happened. |
+| User question UI | Native question/checkpoint tool | Plain text prompt and wait | Core ambiguity gates still apply. |
+| File edits | Native write/edit tools | Platform editor or shell-safe file operations | Preserve task directory structure. |
+| Script execution | Bash/Node.js helpers | Manual checklist fallback | Scripts accelerate stable checks; manual fallback must keep the same fields. |
+EOF
+    echo "  ✓ Created platform-capabilities.md"
+else
+    echo "  - platform-capabilities.md already exists, skipping"
+fi
+
 echo ""
 echo "Directory Structure:"
 echo "${SURGE_ROOT}/"
@@ -160,6 +231,10 @@ echo "        ├── context.md"
 echo "        ├── memory_draft.md"
 echo "        ├── trace.jsonl"
 echo "        ├── test_cases.md"
+echo "        ├── epistemic-ledger.md"
+echo "        ├── falsification.md"
+echo "        ├── convergence-audit.md"
+echo "        ├── platform-capabilities.md"
 echo "        └── iterations/"
 echo "            └── .gitkeep"
 echo ""

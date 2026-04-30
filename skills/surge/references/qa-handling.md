@@ -229,6 +229,8 @@ Historical Output Files (Available for review):
 
 4. **Check acceptance criteria coverage**: Verify the QA actually tested each acceptance criterion with concrete evidence (not just "verified ✓" without explanation). Shallow verification is a known QA failure mode.
 
+5. **Check epistemic audit state**: Read `convergence-audit.md` and run `scripts/audit-task.js check-convergence` if available. Unresolved high-confidence evidence gaps, required-but-missing falsification checks, or weak convergence evidence must be shown in the Completion Review.
+
 ### Output
 
 - If no calibration concerns: Proceed to Completion Review Checkpoint normally.

@@ -22,6 +22,7 @@ The Director will provide the following file contents in the prompt:
 2. Output an analysis document, which must include the following sections (format as you see fit):
 
    - **Functional Requirements List**: Each requirement should include priority (P0/P1/P2) and PRD source citation.
+   - **Problem Reframe & Initial Hypotheses**: State the current interpretation of the task, 3-7 material hypotheses or assumptions, and what observable would change each one.
    - **Non-Functional Requirements**: Performance, security, compatibility, etc. (Note if none).
    - **Ambiguities & Questions to Clarify**: Each item should include its impact scope and suggested clarification method.
    - **Risk Warnings**: Each item should include type (technical/requirement/resource) and severity (High/Medium/Low).
@@ -36,6 +37,7 @@ The Director will provide the following file contents in the prompt:
 ## Output Contract
 
 - Write to file: `{surge_root}/tasks/{task_id}/iterations/iter_{NN}_analyze.md`
+- Epistemic ledger update: Add P0/P1 assumptions, hypotheses, or high-impact requirement interpretations to `{surge_root}/tasks/{task_id}/epistemic-ledger.md`.
 - memory_draft update: If requirement ambiguities or risks are found, append them to `{surge_root}/tasks/{task_id}/memory_draft.md` in the format: `[{timestamp}] [analyze] {content}`
 
 ## Tools Allowed
