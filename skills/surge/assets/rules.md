@@ -49,3 +49,5 @@ These rules codify stable constraints validated during surge execution, using th
 - PREFER streamlined expert review during lightweight iterations: only dispatch experts relevant to QA-flagged optimization dimensions, skip Checkpoints 1 and 2.
 - PREFER completion retry (dispatching a subagent to append only missing sections) over full retry when the existing output covers ≥60% of required sections, to avoid discarding valid work.
 - PREFER proactive task splitting for phases that truncated in a previous iteration, rather than waiting for truncation to recur and then recovering.
+
+- **PREFER Narrative and Synthesis**: Avoid outputting raw data dumps or endless nested bullet points. Use structured prose to connect concepts, explain the *why* behind decisions, and construct logical deductive flows (Observation -> Hypothesis -> Evidence -> Conclusion). Maintain a professional yet conversational tone.
