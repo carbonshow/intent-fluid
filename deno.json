@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "lint": "deno lint",
+    "check": "deno check scripts/*.ts",
+    "validate:skill": "bash scripts/validate-skill.sh",
+    "trace": "deno run --allow-read --allow-write scripts/trace.ts",
+    "trace:export": "deno run --allow-read --allow-write scripts/trace-export.ts"
+  },
+  "fmt": {
+    "include": ["scripts/**/*.ts", "deno.json"]
+  },
+  "lint": {
+    "include": ["scripts/**/*.ts"]
+  }
+}
