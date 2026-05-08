@@ -156,7 +156,7 @@ importance: 5
 | Phase | Output File | Description |
 |-------|-------------|-------------|
 | analyze | `iter_{NN}_analyze.md` | Requirements analysis report |
-| research | `iter_{NN}_research.md` + `iter_{NN}_research/` | Tech research summary (by summary subagent) + raw materials directory (by search subagents during Director loop); optional, skippable |
+| research | `iter_{NN}_research.md` + `iter_{NN}_research/` | Tech research summary with claim/evidence mapping and triangulation assessment (by summary subagent) + raw materials directory (by search subagents during Director loop); optional, skippable |
 | design | `iter_{NN}_design.md` | Architecture design doc, incl. parallel task list |
 | design (expert review) | `iter_{NN}_expert_review_{role_slug}.md` | Individual expert review from each panel member |
 | design (synthesis) | `iter_{NN}_expert_synthesis.md` | Consolidated expert review synthesis report |

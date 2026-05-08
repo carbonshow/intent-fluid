@@ -17,6 +17,7 @@ These rules codify stable constraints validated during surge execution, using th
 - NEVER default to "Code Quality Reviewer" as the universal expert for document-type deliverables; use "Logical Consistency Reviewer" instead (see `references/expert-review.md`).
 - NEVER proceed past a SEVERE_TRUNCATION validation result (file missing/empty, ≥3 required sections absent, or conclusion missing) without at least one recovery attempt; truncated output propagates errors to all downstream phases and wastes subsequent iterations.
 - NEVER claim high confidence for a P0/P1 design, research, or strategy conclusion without durable supporting evidence recorded in `epistemic-ledger.md`.
+- NEVER treat repeated search results, LLM agreement, reposts, SEO articles, or citations that share the same upstream source as independent evidence or as a confidence boost.
 - NEVER claim external research was performed when the platform lacked browsing and no user-provided source material was inspected; record the limitation in `platform-capabilities.md` or the research output.
 
 ## ALWAYS
@@ -34,6 +35,7 @@ These rules codify stable constraints validated during surge execution, using th
 - ALWAYS ask the user when unable to auto-recommend 3+ expert roles from the PRD; don't proceed with fewer than 3 experts without user consent.
 - ALWAYS select the universal expert role based on `deliverable_type`, not on project type signals.
 - ALWAYS persist every WebSearch/WebFetch result to an individual file in `iter_{NN}_research/` during the research phase, with YAML frontmatter (seq, type, query, direction, layer, timestamp, relevance, importance). Raw content must be saved in full without truncation. The summary document (`iter_{NN}_research.md`) references these files instead of inlining full content.
+- ALWAYS run the Research Triangulation Gate for P0/P1 or high-impact factual, market, scientific, legal, security, domain, or architecture claims before marking them High confidence or passing them to design as settled premises.
 - ALWAYS validate subagent output integrity after every phase dispatch — read the output file and check against the phase's required-section checklist in `references/output-validation.md` — before proceeding to Process Output or the next phase.
 - ALWAYS include the end-marker instruction (`--- END OF {PHASE} OUTPUT ---`) when retrying a phase after truncation detection, so the Director can detect if the retried output was also truncated.
 - ALWAYS escalate non-trivial ambiguities (impact scope covers P0 requirements or ≥3 downstream phases) to the user after the Analyze phase completes, before proceeding to Research or Design. Silently filling ambiguities with assumptions on core project direction (product identity, KPI targets, budget, key creative/technical decisions, timeline) is prohibited.

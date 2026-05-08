@@ -23,7 +23,7 @@ This is a one-line announcement before the action, NOT a summary after the actio
 | Phase | Required Process Content |
 |-------|--------------------------|
 | analyze | Number of key requirements, ambiguities, and high-risk items identified (list IDs and 1-sentence descriptions). |
-| research | **Key findings from web search/fetch** (source URLs, core conclusions), pruning decisions at each layer, and **number of raw material files saved** (with directory path). Note: because research is Director-orchestrated with per-layer user interaction, progress is shown incrementally during the phase — the post-phase summary covers the final summary document only. |
+| research | **Key findings from web search/fetch** (source URLs, core conclusions), pruning decisions at each layer, **triangulation status for high-impact claims**, and **number of raw material files saved** (with directory path). Note: because research is Director-orchestrated with per-layer user interaction, progress is shown incrementally during the phase — the post-phase summary covers the final summary document only. |
 | design | Checkpoint 4 (Design Confirmation) serves as the process summary. No separate post-phase summary needed — the 4 checkpoints provide transparency throughout the phase. |
 | implement | Module name completed by each subagent, output file paths, lines of code, **edge cases discovered** (if any). |
 | qa | Number of Passed/Partial/Failed items, quality score changes, P0 issue list. |

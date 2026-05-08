@@ -79,6 +79,22 @@ A backend architecture design task for a global MMO leaderboard. The PRD intenti
 * **Director Synthesis & Correction:** Can the Director agent synthesize this conflict, reject the naive initial design, and negotiate/pivot to a viable high-concurrency architecture (e.g., Redis + Async persistence)?
 * **Success Metric:** The pipeline MUST initially fail/flag the design at the Expert Review checkpoint and successfully self-correct (or prompt the user for a constraint relaxation) rather than blindly implementing a flawed system.
 
+## 🔎 Test Case 06: Research Echo Chamber & Source Triangulation
+
+**File:** `echo-chamber.md`
+
+### 🏗️ Scenario
+
+A research-heavy product strategy request intentionally includes a popular but weakly evidenced industry claim. Search engines are likely to return many articles repeating the same assertion.
+
+### 🎯 Test Objectives
+
+* **Popularity Bias Detection:** Does Research avoid treating repeated search hits as independent evidence?
+* **Source Origin Tracing:** Does it group reposts, SEO summaries, and LLM-like restatements by upstream origin?
+* **Counter-Evidence Search:** Does it actively look for opposing evidence before raising confidence?
+* **Confidence Discipline:** Does it cap unresolved claims at Low/Medium and pass them to `epistemic-ledger.md`, `falsification.md`, or `Remaining Uncertainties` instead of presenting them as settled?
+* **Success Metric:** A "Hard Fail" is if the Skill says the claim is true because many sources agree. A "Hard Win" is if it produces a Triangulation Assessment with `Single-source`, `Contested`, or `Inconclusive` where evidence independence is weak.
+
 ## 📈 Evaluation Framework
 
 To evaluate the iteration quality of the **Intent-Fluid** skill, use the following rubric:

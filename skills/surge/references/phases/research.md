@@ -90,6 +90,7 @@ importance: null
 In your final reply, provide:
 - What sub-directions / candidate solutions exist under this direction
 - The core point of each sub-direction (1-2 sentences)
+- Source-quality notes: which materials look primary/official, independent third-party, aggregator/repost, vendor-biased, or opposing/negative
 - Files written (path and seq number)
 ```
 
@@ -174,6 +175,34 @@ When auto-skipping, notify the user:
 
 Directions selected by the user become the input for the next layer. Return to Step 2.1 and repeat until termination.
 
+#### 2.6 Triangulation Gate (High-Impact Claims)
+
+Before ending research or summarizing a branch, the Director identifies material claims discovered or changed during research. Run this gate for any claim that:
+
+- affects a P0/P1 requirement, design premise, strategy decision, or user-facing conclusion;
+- is quantitative or factual rather than purely interpretive;
+- involves market, competitive, scientific, legal, security, privacy, financial, medical, or domain-specific uncertainty;
+- looks popular because many search results repeat it.
+
+For each triggered claim:
+
+1. **Trace upstream origin**: Group sources by the apparent original upstream source. Reposts, SEO summaries, syndicated articles, and LLM restatements that rely on the same upstream source count as one origin.
+2. **Check evidence diversity**: Prefer at least two different evidence types when available: official/primary source, empirical data or benchmark, peer-reviewed or standards material, independent expert analysis, direct product/source-code documentation, or user-provided source material.
+3. **Search for counter-evidence**: Use at least one negative/opposing query or source angle for P0/P1 and high-risk claims. If none is found, record the method used; do not write only "none found."
+4. **Assign triangulation status**:
+
+| Status | Meaning | Confidence Effect |
+|---|---|---|
+| `Unverified` | No durable source or only LLM/search-result snippets. | Confidence must be Low. |
+| `Single-source` | Durable evidence exists, but all support traces to one upstream origin. | Confidence is capped at Medium. |
+| `Corroborated` | Multiple independent origins or evidence types support the claim, and no material opposing evidence is unresolved. | May be Medium or High depending on impact and evidence quality. |
+| `Contested` | Credible opposing evidence exists. | Confidence is capped at Medium and the conflict must pass to Design/QA. |
+| `Inconclusive` | Available evidence is weak, unavailable, capability-limited, or too costly to resolve now. | Confidence is Low or Medium and the residual risk must be explicit. |
+
+5. **Update audit artifacts**: For each P0/P1 or high-impact claim, update `epistemic-ledger.md` with source file paths, opposing evidence, confidence, and a confidence delta. If the claim is `Contested`, `Inconclusive`, or still needed for a major decision, add or update a row in `falsification.md`.
+
+If browsing is unavailable and no user-provided source material exists, mark the status `Inconclusive`, record the platform limitation, and ask the user for sources when the claim affects P0/P1 decisions.
+
 ### Step 3: Termination Conditions
 
 End the research loop when any of the following conditions are met:
@@ -213,6 +242,8 @@ The summary MUST include the following sections:
 
 - **Claim/Evidence Mapping**: Key claims discovered or changed, each mapped to `epistemic-ledger.md` row IDs and source material files.
 
+- **Triangulation Assessment**: For each high-impact claim, include status (`Unverified` / `Single-source` / `Corroborated` / `Contested` / `Inconclusive`), independent upstream origins, evidence types, counter-evidence search method, confidence cap, and downstream action. If no claim triggered the gate, state why.
+
 - **Opposing Evidence and Gaps**: Contradictions, negative evidence, weak sources, or unresolved evidence gaps. If none were found, state how they were searched for.
 
 - **Resolved Ambiguities**: Issue description, research conclusion, and source file references.
@@ -225,6 +256,7 @@ The summary MUST include the following sections:
 In your final reply (not the content written to the file), please provide an additional brief process summary containing:
 - Key findings or decisions of this phase (3-5 items, one sentence each)
 - External info sources used (URLs, lit IDs, etc., if any)
+- Triangulation status for high-impact claims, including unresolved `Single-source`, `Contested`, or `Inconclusive` items
 - Output file path and approximate line count
 - Unexpected situations or issues needing Director's attention (skip if none)
 ```
@@ -266,6 +298,7 @@ importance: null
 
 - If a search subagent yields no valuable info: The Director marks `[Insufficient Info]` in the scoring table, estimates relevance and importance based on existing knowledge, lets user decide whether to continue.
 - Network access fails in subagent: The Director marks `[Network Failed]` on the corresponding item, provides best estimate based on existing knowledge.
+- If a high-impact claim has only popular repeated hits or one upstream origin: The Director marks it `Single-source` or `Inconclusive`, caps confidence, and passes it to `Remaining Uncertainties` or `falsification.md` instead of treating it as settled.
 - If an issue remains ultimately unresolved: The Director marks `[Unresolved]` in the summary, explains the paths attempted, passes to the design phase.
 
 ## Output Contract
