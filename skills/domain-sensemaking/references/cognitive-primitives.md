@@ -9,7 +9,7 @@ Use this reference when a research result must become an Agent workflow, evaluat
 | Abduction | The input is vague, surprising, or contradictory | Generate multiple candidate explanations for the observation | hypothesis rows in `frontier.csv` or `claims.csv` |
 | Operationalization | The goal or quality bar is fuzzy | Convert abstract criteria into observable checks, metrics, assertions, or failure thresholds | convergence criteria, evaluation rubric |
 | Hypothetico-deductive loop | A claim needs validation | Turn a hypothesis into predictions, then into evidence-gathering actions | round plan and verification steps |
-| Triangulation | A key claim could be wrong or biased | Check the claim against independent source types, methods, or perspectives | `source-notes/` plus claim evidence |
+| Triangulation | A key claim could be wrong, biased, or popular because many sources repeat it | Trace source origins, compare independent evidence types, look for counterevidence, and assign a triangulation status | `source-notes/` plus `claims.csv` triangulation fields |
 | Bayesian update | Evidence changes confidence but does not decide the issue | Update claim confidence continuously instead of binary pass/fail | confidence field in `claims.csv` |
 | Falsification check | A hard constraint or high-risk assumption exists | Ask what would prove the claim or plan wrong; search for counterevidence | contradiction/gap rows |
 | Metacognitive reflection | Iteration quality matters | Inspect whether the current strategy is producing new signal or just repeating itself | round decision and next frontier |
@@ -31,6 +31,30 @@ For substantial research, use this order:
 9. Skill consolidation: capture reusable lessons only after verification.
 
 Do not load every primitive into every task. Trivial fact lookup needs none. Bounded research usually needs operationalization, one validation loop, and a stop rule. Non-trivial research should use the full composition.
+
+## Triangulation Operation
+
+Triangulation is not "find three sources." It checks whether a claim survives contact with independent evidence. Multiple search results, reposts, vendor summaries, or LLM restatements that trace to the same upstream origin count as one evidence origin.
+
+Use this operation for high-impact, controversial, factual, quantitative, or decision-relevant claims:
+
+1. Identify the exact claim and why it matters to the user's decision or understanding.
+2. Trace upstream origins. Group sources that repeat the same original report, benchmark, paper, vendor post, dataset, or anecdote.
+3. Classify source roles: primary, independent-analysis, replication, aggregator, vendor, opposing, user-provided, or unknown.
+4. Seek at least one opposing or complicating source angle when the claim could materially change the conclusion.
+5. Assign a triangulation status in `claims.csv`.
+
+| Status | Meaning | Confidence Rule |
+|---|---|---|
+| `unverified` | No durable source, or only LLM/search-result snippets. | Low only. |
+| `single-origin` | Support exists, but all support traces to one upstream origin. | Capped at medium. |
+| `corroborated` | Multiple independent origins or evidence types support the claim, and opposition is weak or explained. | May be high. |
+| `contested` | Credible opposing evidence exists. | Capped at medium until resolved or accepted as risk. |
+| `inconclusive` | Evidence is weak, unavailable, capability-limited, or too costly to resolve now. | Low or medium with explicit residual risk. |
+| `direct-data` | Direct experiment, dataset, code inspection, or measurement supports the claim. | May be high if method is adequate. |
+| `not-required` | Low-impact claim where triangulation would not affect the output. | Do not use for high-impact claims. |
+
+High confidence requires `corroborated` or `direct-data`. If the status is `single-origin`, `contested`, or `inconclusive`, write the confidence cap and downstream implication instead of smoothing over the uncertainty.
 
 ## Embedding In Agent Loop
 
@@ -77,7 +101,7 @@ Not every task needs all 8 primitives in the single-task loop:
 | Task complexity | Active primitives | Skippable |
 |---|---|---|
 | Trivial (lookup) | None | All |
-| Bounded (clear scope) | 2, 3, 5, 8 | 1 (already framed), 4 (single source ok), 6 (low risk), 7 (one pass) |
+| Bounded (clear scope) | 2, 3, 5, 8 | 1 (already framed), 4 only for low-impact claims, 6 (low risk), 7 (one pass) |
 | Non-trivial | All 1-8 | None -- but budget each by impact |
 
 ## Mapping To Workspace Files
@@ -87,8 +111,8 @@ Not every task needs all 8 primitives in the single-task loop:
 | `problem-card.md` | abduction seed, operationalized target output |
 | `frontier.csv` | candidate hypotheses, concepts, methods, evidence, and decisions |
 | `rounds/round-XX.md` | hypothetico-deductive loop and metacognitive reflection |
-| `source-notes/source-XXX.md` | triangulation and reusable evidence capture |
-| `claims.csv` | Bayesian confidence and evidence ledger |
+| `source-notes/source-XXX.md` | triangulation, source-origin tracing, and reusable evidence capture |
+| `claims.csv` | Bayesian confidence, triangulation status, and evidence ledger |
 | `contradictions.csv` | falsification checks, gaps, assumptions |
 | `convergence.csv` | satisficing stop and decision readiness |
 | `final-synthesis.md` | reader-calibrated answer, not raw research state |
@@ -101,4 +125,5 @@ Not every task needs all 8 primitives in the single-task loop:
 | Claim pile | Many claims, no reasoning chain | Use final synthesis to connect premise -> evidence -> inference -> answer |
 | False convergence | Checklist says pass but evidence is thin | Run `check-convergence --workspace` and fix lint issues |
 | Unverifiable authority | External papers appear only in final prose | Create `source-notes/` and cite source ids in `claims.csv` |
+| Popularity echo | Many sources repeat the same claim, so confidence rises without source independence | Trace upstream origins and cap status at `single-origin` or `inconclusive` |
 | Over-processing | Simple question gets a full research pipeline | Use triage: skip primitives not needed for the decision |

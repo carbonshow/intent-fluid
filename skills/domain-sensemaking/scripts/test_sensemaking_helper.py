@@ -133,6 +133,12 @@ def test_init_creates_workspace() -> None:
         assert (workspace / "visual-map.md").exists()
         assert (workspace / "final-synthesis.md").exists()
         assert (workspace / "rounds/round-01.md").exists()
+        claims_header = (workspace / "claims.csv").read_text(encoding="utf-8").splitlines()[0]
+        assert "triangulation_status" in claims_header
+        assert "confidence_constraint" in claims_header
+        sources_header = (workspace / "sources.csv").read_text(encoding="utf-8").splitlines()[0]
+        assert "upstream_origin" in sources_header
+        assert "source_role" in sources_header
 
 
 def test_lint_workspace_flags_missing_audit_trail() -> None:
@@ -145,7 +151,46 @@ def test_lint_workspace_flags_missing_audit_trail() -> None:
         assert "missing_rounds" in codes
         assert "empty_frontier_priority" in codes
         assert "high_confidence_claim_without_source_id" in codes
+        assert "missing_triangulation_status" in codes
         assert "external_citation_without_source_notes" in codes
+
+
+def test_lint_caps_high_confidence_when_triangulation_is_weak() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        workspace = make_bad_workspace(Path(tmp))
+        notes_dir = workspace / "source-notes"
+        notes_dir.mkdir()
+        (notes_dir / "source-001-example.md").write_text("# Source Note source-001\n", encoding="utf-8")
+        write_csv(
+            workspace / "claims.csv",
+            [
+                "claim",
+                "supporting_evidence",
+                "opposing_evidence",
+                "confidence",
+                "decision_relevance",
+                "triangulation_status",
+                "confidence_constraint",
+            ],
+            [
+                {
+                    "claim": "Popular claim repeated by many articles",
+                    "supporting_evidence": "source-001",
+                    "opposing_evidence": "",
+                    "confidence": "high",
+                    "decision_relevance": "Core decision",
+                    "triangulation_status": "single-origin",
+                    "confidence_constraint": "medium max",
+                }
+            ],
+        )
+
+        result = run_helper("lint-workspace", str(workspace), "--format", "json")
+
+        assert result.returncode == 1, result.stdout + result.stderr
+        data = json.loads(result.stdout)
+        codes = {issue["code"] for issue in data["issues"]}
+        assert "high_confidence_exceeds_triangulation" in codes
 
 
 def test_check_convergence_uses_workspace_gate() -> None:
@@ -250,6 +295,9 @@ def test_new_source_creates_note_and_index() -> None:
         assert len(notes) == 1
         note_text = notes[0].read_text(encoding="utf-8")
         assert "Example Paper" in note_text
+        assert "Upstream origin:" in note_text
+        assert "Source role:" in note_text
+        assert "Independence note:" in note_text
         index_text = (workspace / "sources.csv").read_text(encoding="utf-8")
         assert "source-001" in index_text
 
@@ -371,6 +419,7 @@ def main() -> int:
     tests = [
         test_init_creates_workspace,
         test_lint_workspace_flags_missing_audit_trail,
+        test_lint_caps_high_confidence_when_triangulation_is_weak,
         test_check_convergence_uses_workspace_gate,
         test_select_frontier_creates_round_from_top_priority,
         test_new_source_creates_note_and_index,

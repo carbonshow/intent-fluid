@@ -45,6 +45,8 @@ All paths above are relative to this skill's directory. Resolve them against the
 
 - Treat LLM output as candidate structure or hypotheses, not evidence.
 - Separate `source`, `claim`, `evidence`, and `inference`.
+- Treat repeated search hits, reposts, vendor narratives, and LLM agreement as popularity signals, not independent evidence.
+- For high-impact, controversial, factual, quantitative, or decision-relevant claims, record a triangulation status before assigning high confidence.
 - Preserve question evolution. Do not silently replace the initial question with a cleaner one.
 - Prefer a small explicit knowledge graph over a long reading list.
 - Rank the next frontier before continuing exploration.
@@ -126,6 +128,7 @@ For substantial research, expect at least two rounds unless convergence is obvio
 When you inspect a nontrivial source, create a source note instead of relying on chat memory:
 
 - `source_id`, title, URL/path, source type, access date, and reliability.
+- Upstream origin, source role, and independence note, especially when many sources repeat the same claim.
 - Key points in your own words, preserving enough detail to reuse later.
 - Claims supported or contradicted by the source.
 - Concepts, methods, cases, or examples discovered.
@@ -137,7 +140,7 @@ When you inspect a nontrivial source, create a source note instead of relying on
 Maintain three working tables and **write them to `relations.csv`, `claims.csv`, and `contradictions.csv`** as you go. Update these files incrementally after each exploration round, not just at the end:
 
 - Concept relation table: `A`, `relation`, `B`, `note`.
-- Claim-evidence table: `claim`, `supporting_evidence`, `opposing_evidence`, `confidence`.
+- Claim-evidence table: `claim`, `supporting_evidence`, `opposing_evidence`, `confidence`, `decision_relevance`, `triangulation_status`, `confidence_constraint`.
 - Contradiction/gap table: `type`, `content`, `next_action`.
 
 Use relation labels such as `is-a`, `part-of`, `depends-on`, `causes`, `enables`, `contrasts-with`, `evolves-from`, `used-for`, and `failure-mode-of`.
@@ -165,7 +168,7 @@ Update `convergence.csv` with the current status of each check, then run `check-
 - The question is now specific enough to answer.
 - The main concept/variable/claim graph has no critical isolated nodes.
 - Key disagreements can be explained.
-- Important claims have enough evidence or are explicitly marked uncertain.
+- Important claims have enough independent evidence, direct data, or explicit uncertainty and confidence constraints.
 - A decision, explanation, experiment, or next action can be derived.
 - New exploration mostly repeats known nodes or does not change the conclusion.
 

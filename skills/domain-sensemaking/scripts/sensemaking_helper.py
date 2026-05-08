@@ -36,9 +36,34 @@ SOURCES_FIELDS = [
     "source_type",
     "accessed",
     "reliability",
+    "upstream_origin",
+    "source_role",
+    "independence_note",
     "linked_round",
     "linked_frontier",
 ]
+
+CLAIMS_FIELDS = [
+    "claim",
+    "supporting_evidence",
+    "opposing_evidence",
+    "confidence",
+    "decision_relevance",
+    "triangulation_status",
+    "confidence_constraint",
+]
+
+TRIANGULATION_STATUSES = {
+    "unverified",
+    "single-origin",
+    "corroborated",
+    "contested",
+    "inconclusive",
+    "direct-data",
+    "not-required",
+}
+
+HIGH_CONFIDENCE_TRIANGULATION_STATUSES = {"corroborated", "direct-data"}
 
 REQUIRED_WORKSPACE_FILES = [
     "problem-card.md",
@@ -187,7 +212,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         "frontier.csv": ",".join(FRONTIER_FIELDS) + "\n",
         "sources.csv": ",".join(SOURCES_FIELDS) + "\n",
         "relations.csv": "a,relation,b,note\n",
-        "claims.csv": "claim,supporting_evidence,opposing_evidence,confidence,decision_relevance\n",
+        "claims.csv": ",".join(CLAIMS_FIELDS) + "\n",
         "contradictions.csv": "type,content,likely_cause,next_action,resolution\n",
         "convergence.csv": convergence_csv(),
         "visual-map.md": visual_map(args),
@@ -462,6 +487,9 @@ URL or path: {citation_target}
 Source type: {args.source_type}
 Accessed: {args.accessed}
 Reliability: {args.reliability}
+Upstream origin: {args.upstream_origin}
+Source role: {args.source_role}
+Independence note: {args.independence_note}
 
 ## Why This Source Was Read
 
@@ -499,8 +527,15 @@ Use in synthesis as: {citation}
 def append_source_index(workspace: Path, row: dict[str, Any]) -> None:
     index_path = workspace / "sources.csv"
     exists = index_path.exists()
+    fields = SOURCES_FIELDS
+    if exists:
+        with index_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.reader(handle)
+            existing_header = next(reader, [])
+            if existing_header:
+                fields = existing_header
     with index_path.open("a", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=SOURCES_FIELDS)
+        writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
         if not exists:
             writer.writeheader()
         writer.writerow(row)
@@ -527,6 +562,9 @@ def cmd_new_source(args: argparse.Namespace) -> int:
             "source_type": args.source_type,
             "accessed": args.accessed,
             "reliability": args.reliability,
+            "upstream_origin": args.upstream_origin,
+            "source_role": args.source_role,
+            "independence_note": args.independence_note,
             "linked_round": args.linked_round,
             "linked_frontier": args.linked_frontier,
         },
@@ -765,11 +803,43 @@ def lint_workspace(workspace: Path) -> list[dict[str, str]]:
                 )
             confidence = str(row.get("confidence", "")).strip().lower()
             evidence = str(row.get("supporting_evidence", ""))
+            triangulation_status = str(row.get("triangulation_status", "")).strip().lower()
             if confidence == "high" and "source-" not in evidence:
                 issues.append(
                     issue(
                         "high_confidence_claim_without_source_id",
                         "High-confidence claim should cite at least one durable source note id.",
+                        claims_path,
+                        detail=f"row {index}: {row.get('claim', '')}",
+                    )
+                )
+            if triangulation_status and triangulation_status not in TRIANGULATION_STATUSES:
+                issues.append(
+                    issue(
+                        "invalid_triangulation_status",
+                        "Triangulation status is not recognized.",
+                        claims_path,
+                        detail=f"row {index}: {triangulation_status}",
+                    )
+                )
+            if confidence == "high" and is_blank(triangulation_status):
+                issues.append(
+                    issue(
+                        "missing_triangulation_status",
+                        "High-confidence claims need a triangulation status.",
+                        claims_path,
+                        detail=f"row {index}: {row.get('claim', '')}",
+                    )
+                )
+            if (
+                confidence == "high"
+                and triangulation_status
+                and triangulation_status not in HIGH_CONFIDENCE_TRIANGULATION_STATUSES
+            ):
+                issues.append(
+                    issue(
+                        "high_confidence_exceeds_triangulation",
+                        "High confidence requires corroborated or direct-data triangulation.",
                         claims_path,
                         detail=f"row {index}: {row.get('claim', '')}",
                     )
@@ -1169,6 +1239,27 @@ def build_parser() -> argparse.ArgumentParser:
         default="medium",
         choices=["high", "medium", "low"],
         help="Initial reliability assessment.",
+    )
+    source_parser.add_argument("--upstream-origin", default="", help="Original upstream source or origin chain if known.")
+    source_parser.add_argument(
+        "--source-role",
+        default="unknown",
+        choices=[
+            "primary",
+            "independent-analysis",
+            "replication",
+            "aggregator",
+            "vendor",
+            "opposing",
+            "user-provided",
+            "unknown",
+        ],
+        help="Role this source plays in source triangulation.",
+    )
+    source_parser.add_argument(
+        "--independence-note",
+        default="",
+        help="Why this source is independent, dependent, biased, or unclear.",
     )
     source_parser.add_argument("--linked-round", default="", help="Round file or label.")
     source_parser.add_argument("--linked-frontier", default="", help="Frontier node(s) this source informs.")
