@@ -49,6 +49,22 @@ Rules:
 - Document/strategy deliverables should link key quantitative or factual claims to source materials.
 - Code deliverables should link behavior claims to build output, tests, source files, or QA artifacts when relevant.
 
+## Source Independence and Triangulation Rules
+
+Search popularity is not evidence. Multiple search results, LLM agreement, reposts, SEO pages, and syndicated articles that trace to the same upstream source count as one evidence origin.
+
+Research claims that affect P0/P1 decisions, high-impact design premises, or factual/quantitative conclusions must carry a triangulation status in the research summary:
+
+| Status | When to Use | Confidence Rule |
+|---|---|---|
+| `Unverified` | No durable source, or only LLM/search-result snippets. | Low only. |
+| `Single-source` | Support exists but traces to one upstream origin. | Capped at Medium. |
+| `Corroborated` | Independent origins or evidence types support the claim, with no unresolved material opposition. | May be Medium or High. |
+| `Contested` | Credible opposing evidence exists. | Capped at Medium until resolved or accepted as risk. |
+| `Inconclusive` | Evidence is weak, unavailable, capability-limited, or too costly to resolve now. | Low or Medium with explicit residual risk. |
+
+Record the status in `epistemic-ledger.md` through the supporting evidence, opposing evidence, confidence, and delta fields. When a contested or inconclusive claim is still needed for a major decision, add a `falsification.md` row.
+
 ## Falsification Gate
 
 Use `falsification.md` when any of these triggers appear:

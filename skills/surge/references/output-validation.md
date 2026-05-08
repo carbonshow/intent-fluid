@@ -52,13 +52,14 @@ This phase is Director-orchestrated. Raw material files are validated incrementa
 | Research Tree Overview | Tree structure with node statuses present |
 | Source Materials Index | Table referencing raw material files |
 | Claim/Evidence Mapping | Links key findings to `epistemic-ledger.md` rows or states that no material claims were added |
+| Triangulation Assessment | For high-impact claims, lists triangulation status, independent upstream origins, evidence types, counter-evidence method, confidence cap, and downstream action; or explicitly states no claim triggered the gate with a reason |
 | Technical Solution Candidates | At least one candidate listed |
 | Opposing Evidence and Gaps | Section lists contradictions, negative evidence, or explicitly says none found with method |
 | Resolved Ambiguities | Section present (even if "None") — feeds forward to design |
 | Remaining Uncertainties | Section present (even if "None") — design needs to know what's unresolved |
 | User Decision Records | Section present (pruning decisions listed) |
 
-**Key truncation heuristic**: Summary doc exists but Source Materials Index or Candidates section is missing. Raw materials directory empty at this point indicates a systemic failure in the research loop (search subagents failed to persist).
+**Key truncation heuristic**: Summary doc exists but Source Materials Index, Triangulation Assessment, or Candidates section is missing. Raw materials directory empty at this point indicates a systemic failure in the research loop (search subagents failed to persist).
 
 ### design
 
