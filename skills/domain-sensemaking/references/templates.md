@@ -136,6 +136,9 @@ URL or path:
 Source type: web / paper / report / dataset / interview / internal-doc / observation / other
 Accessed:
 Reliability: high / medium / low
+Upstream origin:
+Source role: primary / independent-analysis / replication / aggregator / vendor / opposing / user-provided / unknown
+Independence note:
 
 ## Why This Source Was Read
 
@@ -207,9 +210,9 @@ Exploration purpose:
 ## Claim-Evidence Table
 
 ```markdown
-| Claim | Supporting evidence | Opposing evidence | Confidence | Decision relevance |
-|---|---|---|---|---|
-|  |  |  | high / medium / low |  |
+| Claim | Supporting evidence | Opposing evidence | Confidence | Decision relevance | Triangulation status | Confidence constraint |
+|---|---|---|---|---|---|---|
+|  |  |  | high / medium / low |  | unverified / single-origin / corroborated / contested / inconclusive / direct-data / not-required |  |
 ```
 
 Confidence guidance:
@@ -217,6 +220,18 @@ Confidence guidance:
 - `high`: multiple reliable sources or direct data support the claim; counterevidence is weak or explained.
 - `medium`: plausible and supported, but limited by source quality, sample size, or unresolved assumptions.
 - `low`: useful hypothesis, but evidence is thin, indirect, outdated, or mostly inferred.
+
+Triangulation guidance:
+
+- `corroborated`: independent origins or evidence types support the claim.
+- `direct-data`: direct experiment, dataset, code inspection, or measurement supports the claim.
+- `single-origin`: many sources repeat one upstream origin; confidence is capped at medium.
+- `contested`: credible opposing evidence exists; confidence is capped at medium until resolved.
+- `inconclusive`: evidence is weak, unavailable, capability-limited, or too costly to resolve now.
+- `unverified`: no durable evidence; keep confidence low.
+- `not-required`: low-impact claim where triangulation would not change the output.
+
+High confidence requires `corroborated` or `direct-data`. Repeated search hits, reposts, vendor narratives, or LLM agreement do not by themselves raise confidence.
 
 ## Coverage Matrix
 
@@ -276,7 +291,7 @@ Before accepting convergence, run the helper with `--workspace` so the checklist
 | Required files | problem card, reader brief, frontier, sources, relations, claims, contradictions, convergence, visual map, final synthesis |
 | Audit trail | `rounds/round-XX.md` exists and records frontier choices |
 | Frontier | rows with scores have computed priority |
-| Claims | evidence, confidence, decision relevance, source ids for high-confidence claims |
+| Claims | evidence, confidence, decision relevance, source ids and triangulation status for high-confidence claims |
 | Sources | external citations in final synthesis have source notes |
 | Final synthesis | required reader-facing sections are present |
 
