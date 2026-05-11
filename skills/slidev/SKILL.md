@@ -9,7 +9,6 @@ description: >
 version: "2.0.0"
 author: carbonshow
 tags: [presentation, slidev, slides, export, markdown]
-platforms: [claude, cursor, gemini]
 trace:
   steps: [prepare, strategize, develop, validate, review, export]
   topology: linear
