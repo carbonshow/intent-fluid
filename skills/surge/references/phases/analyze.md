@@ -19,7 +19,9 @@ The Director will provide the following file contents in the prompt:
 
 1. Carefully read the PRD to understand the core objectives and constraints.
 
-2. Output an analysis document, which must include the following sections (format as you see fit):
+2. Output an analysis document. Start with `## Reader Summary`, then include the detailed sections below (format the details as you see fit):
+
+   - **Reader Summary**: Bottom-line interpretation of the PRD, the main evidence basis, material risks, whether user clarification is required, and the next action.
 
    - **Functional Requirements List**: Each requirement should include priority (P0/P1/P2) and PRD source citation.
    - **Problem Reframe & Initial Hypotheses**: State the current interpretation of the task, 3-7 material hypotheses or assumptions, and what observable would change each one.

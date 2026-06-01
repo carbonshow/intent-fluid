@@ -51,6 +51,8 @@ The initialization script will automatically generate the directory structure an
 ├── context.md          ← Manually write PRD + background knowledge to this file
 ├── state.md            ← Initial state (see schema below)
 ├── test_cases.md       ← QA evolving test suite
+├── current-brief.md    ← User-facing latest task state and next action
+├── decision-log.md     ← Append-only user decisions and overrides
 ├── epistemic-ledger.md ← Hypotheses, claims, evidence, confidence
 ├── falsification.md    ← High-risk disconfirmation checks
 ├── convergence-audit.md← Evidence behind stop/convergence decisions
@@ -59,6 +61,10 @@ The initialization script will automatically generate the directory structure an
 ```
 
 Then, write the PRD and background knowledge provided by the user into `{surge_root}/tasks/{task_id}/context.md`.
+
+Update `current-brief.md` after the startup negotiation completes. Append to
+`decision-log.md` whenever the user confirms task topology, deliverable paths,
+acceptance criteria, phase skips, expert veto overrides, or convergence choices.
 
 > ⚠️ **Path Resolution**: After determining `surge_root` and `task_id`, the Director MUST resolve the task directory to an **absolute path** and use it for ALL subsequent file operations (state.sh calls, file reads/writes, subagent prompts). Subagent execution (especially `npm run build`, `cd` commands) can change the working directory, causing relative paths to break silently.
 >
@@ -451,4 +457,4 @@ Options:
 
 ### Post-Resume
 
-After the user confirms, the Director enters the Main Iteration Loop at the determined phase. All normal rules apply (Phase Invocation Flow, Output Validation, Process Output, etc.).
+After the user confirms, the Director enters the Main Iteration Loop at the determined phase. All normal rules apply (Phase Invocation Flow, Output Validation, user-facing briefing, etc.).

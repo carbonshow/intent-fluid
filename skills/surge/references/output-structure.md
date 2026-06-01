@@ -26,6 +26,8 @@ This document defines the directory structure and file naming conventions for su
 ├── deliverables.md         ← Deliverables negotiation result (Step 4)
 ├── acceptance.md           ← Tiered acceptance criteria (Step 5)
 ├── test_cases.md           ← Independently accumulated evolving test suite
+├── current-brief.md        ← User-facing resumable briefing, overwritten after each phase
+├── decision-log.md         ← Append-only user decision and override record
 ├── memory_draft.md         ← Process experience records (append mode)
 ├── epistemic-ledger.md     ← Hypotheses, claims, evidence, confidence, decision impact
 ├── falsification.md        ← High-risk disconfirmation checks
@@ -164,6 +166,8 @@ importance: 5
 | implement (parallel sub) | `iter_{NN}_implement_{module}.md` | Independent report for each parallel module |
 | qa | `iter_{NN}_qa.md` | QA acceptance report, incl. three-value conclusion |
 | retro | `retro.md` | Retro report (not in iterations/, directly in task root) |
+| current brief | `current-brief.md` | User-facing latest task state and next action; overwritten after startup and each phase |
+| decision log | `decision-log.md` | Append-only user decisions, skipped phases, overrides, veto acknowledgements, and acceptance criteria changes |
 | trace | `trace.jsonl` | Execution trace events in JSONL format (append-only, see `docs/TRACE_SPEC.md`) |
 | trace export | `execution_dag.mmd` | Mermaid DAG visualization (generated post-retro by `scripts/trace-export.sh`) |
 | trace export | `execution_summary.md` | Markdown execution summary table (generated post-retro by `scripts/trace-export.sh`) |

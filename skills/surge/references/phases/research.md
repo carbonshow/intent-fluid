@@ -133,15 +133,20 @@ For mandatory or deep research, extend the scoring notes with:
 
 **Present to user**:
 
-```
-Research Tree — Layer {Depth}
----
+Use a pruning briefing, not a raw process dump. Keep numeric scoring in the
+Director's notes and raw material frontmatter. The user-facing table should
+show priority and evidence state in plain language.
 
-| # | Direction | Relevance | Importance | Reason |
-|---|-----------|-----------|------------|--------|
-| 1 | ... | *****  | ****  | [1-sentence explanation] |
-| 2 | ... | ***  | ***** | ... |
-| 3 | ... | **  | **  | ... |
+```
+## Bottom Line
+
+[One sentence explaining what this layer has clarified.]
+
+| # | Direction | Priority | Evidence State | Recommendation | Why |
+|---|---|---|---|---|---|
+| 1 | ... | High | Corroborated | Deepen | [1-sentence explanation] |
+| 2 | ... | Medium | Single-source | Stop unless needed | ... |
+| 3 | ... | Low | Inconclusive | Prune | ... |
 
 Parent Direction: {Name of current expanding parent node, Root shows "---"}
 Completed Depth: {Current Layer}/{Max Explored Depth}
@@ -152,7 +157,7 @@ Completed Depth: {Current Layer}/{Max Explored Depth}
 The Director presents the following options to the user (via direct message, NOT via subagent):
 
 > Please select the directions to research deeper, or:
-> - **A) Check numbers**: Enter the direction numbers to deepen (e.g., `1,3`)
+> - **A) Choose directions**: Enter the direction numbers to deepen (e.g., `1,3`)
 > - **B) Continue all**: Deepen research into all directions
 > - **C) All sufficient, next phase**: End research, summarize existing results
 > - **D) Add direction**: Add a new research direction not in the table
@@ -166,7 +171,7 @@ The Director presents the following options to the user (via direct message, NOT
 When auto-skipping, notify the user:
 
 ```
-[Auto-Continue] Direction "{Direction Name}" has only {N} high-scoring sub-directions, automatically deepening research.
+Auto-continue: Direction "{Direction Name}" has only {N} high-priority sub-directions, so research will deepen without asking for another pruning decision.
 ```
 
 **If the above conditions are not met, the Director MUST wait for user confirmation.**
@@ -228,6 +233,8 @@ Write a structured summary to: {task_dir}/iterations/iter_{NN}_research.md
 
 The summary MUST include the following sections:
 
+- **Reader Summary**: Bottom line, evidence basis, material risks or unresolved evidence gaps, decision or next action.
+
 - **Research Conclusion Summary**: 2-3 sentences summarizing core findings.
 
 - **Research Tree Overview**: The complete research tree structure, marking the status of each node (researched/pruned by user/auto-skipped, etc.).
@@ -253,12 +260,13 @@ The summary MUST include the following sections:
 - **User Decision Records**: Pruning decisions made during research.
 
 ## Process Output Requirement
-In your final reply (not the content written to the file), please provide an additional brief process summary containing:
-- Key findings or decisions of this phase (3-5 items, one sentence each)
-- External info sources used (URLs, lit IDs, etc., if any)
+In your final reply (not the content written to the file), please provide the information the Director needs for a user-facing briefing:
+- Bottom line of this phase (1-2 sentences)
+- Evidence basis: key external info sources used (URLs, lit IDs, etc., if any)
 - Triangulation status for high-impact claims, including unresolved `Single-source`, `Contested`, or `Inconclusive` items
+- Material risks or uncertainties that affect design
+- Whether a user decision is needed
 - Output file path and approximate line count
-- Unexpected situations or issues needing Director's attention (skip if none)
 ```
 
 After the summary subagent returns, the Director validates the output per `references/output-validation.md` (research phase checklist).
