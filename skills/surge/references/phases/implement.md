@@ -101,6 +101,7 @@ Common sources of findings:
 
 The output document must include the following sections (format as you see fit):
 
+- **Reader Summary**: What was produced, evidence or verification basis, material limitations, whether user or Director action is needed, and next action.
 - **Implementation Overview**: Briefly describe what was implemented and what method was adopted.
 - **Output Mode Declaration**: Actual Files / Document
 - **File List** (Actual File Mode): Path, functional description, and status of each file.

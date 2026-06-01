@@ -36,6 +36,7 @@ Read through the entire Context Package to understand the complete execution tra
 
 Write to `{surge_root}/tasks/{task_id}/retro.md`, which must include the following sections (format as you see fit):
 
+- **Reader Summary**: What was delivered, convergence basis, residual risks, and recommended follow-up.
 - **Basic Task Info**: Task ID, completion time, final status (completed / terminated early / partially completed).
 - **Goal Achievement**: Compared to the original requirement, explain what was achieved, what was not, and why.
 - **Execution Trajectory**: Number of iterations, phases completed per round, deviations, and main issues.

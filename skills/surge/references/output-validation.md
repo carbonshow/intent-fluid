@@ -1,6 +1,6 @@
 # Output Validation & Recovery Reference
 
-After every subagent returns, the Director reads this document to validate output integrity before proceeding to Process Output or the next phase.
+After every subagent returns, the Director reads this document to validate output integrity before proceeding to the user-facing briefing or the next phase.
 
 ---
 
@@ -14,8 +14,10 @@ Perform these checks on every subagent output, regardless of phase.
 | S2 | **Non-empty** | Verify meaningful content beyond title/frontmatter | < 10 lines of actual content |
 | S3 | **No abrupt ending** | Inspect last ~20 lines for completeness | Last line is an incomplete sentence, an unclosed ``` block, or an unfinished list item |
 | S4 | **No stall pattern** | Check that output contains task-specific analysis, not just role preamble or repeated boilerplate | Content is >80% template/boilerplate with no substantive analysis |
+| S5 | **Reader Summary for canonical phase reports** | For analyze/research summary/design/implement/qa/retro outputs, inspect the top ~40 lines for `Reader Summary` or an equivalent bottom-line summary. Raw research materials and individual expert reviews are exempt. | Missing summary is a readability defect; prepend a concise summary before using the file downstream |
 
 S1–S3 are **hard signals** (high confidence of truncation). S4 is a **soft signal** (suggestive, not conclusive).
+S5 is a **readability signal**: it does not prove truncation, but it blocks user-facing handoff until repaired.
 
 ---
 
@@ -217,8 +219,8 @@ If splitting also fails, proceed to User Escalation (§D).
 Present the situation to the user with clear options:
 
 ```
-⚠️ [{phase}] Output Validation Failed — Escalation Required
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[{phase}] Output Validation Failed - Escalation Required
+
 Attempts made:
   1. {First attempt type}: {result}
   2. {Second attempt type}: {result}
