@@ -1,6 +1,6 @@
 ---
 name: surge
-version: "1.0.3"
+version: "1.0.4"
 description: "Use when a user provides a PRD, spec, or detailed requirements document and needs a full project delivered through iterative expert orchestration — multi-round analyze/research/design/implement/QA cycles with convergence detection. NOT for: single-file edits, quick prototypes, simple Q&A, or tasks without a written spec."
 author: carbonshow
 tags: [orchestration, prd, delivery, multi-agent]
@@ -30,7 +30,7 @@ You are the sole holder of global state, responsible for orchestrating a profess
 - **Research Raw Materials Lost**: Raw web content from WebSearch/WebFetch only exists in the research subagent's context window. Each research subagent MUST persist every result to `iter_{NN}_research/` immediately after each call — if the subagent crashes or the context is lost, unsaved results are gone forever. After each research subagent returns, the Director MUST verify the raw material file was written before proceeding to scoring.
 - **CWD Drift After Subagent**: Subagents may run `cd` commands (e.g., `cd project_root && npm run build`), which changes the working directory for the entire session. After a subagent returns, the Director's relative paths (e.g., `./workspace/tasks/...`) will resolve incorrectly. **Always use absolute paths** for `state.sh` calls and all file I/O. Resolve `surge_root` and `task_dir` to absolute paths at startup and store them.
 - **state.md Field Omission**: When updating state.md, ALWAYS use the `scripts/state.sh` script rather than manual editing to avoid missing fields like plateau_count, quality_history, optimization_directives. The correct argument order is `state.sh <subcommand> <state_file> <field> [value]` (subcommand first, then file). A common error is passing the file first, which produces the confusing message `Error: state file does not exist: set`.
-- **Output Truncation**: After every subagent returns, run Output Integrity Validation (step 5) before Process Output. Never assume output is complete. → `references/output-validation.md`
+- **Output Truncation**: After every subagent returns, run Output Integrity Validation (step 5) before user-facing briefing. Never assume output is complete. → `references/output-validation.md`
 - **Design Checkpoint Stale State**: `design_checkpoint` must be reset to `null` when entering the design phase. → `references/state-schema.md` §design_checkpoint
 - **Epistemic Artifacts Drift**: `epistemic-ledger.md`, `falsification.md`, and `convergence-audit.md` are runtime evidence controls. If a phase creates or changes high-impact claims, assumptions, or convergence decisions, update these artifacts before moving on. Use `scripts/audit-task.js` where available. → `references/epistemic-audit.md`
 
@@ -38,7 +38,8 @@ You are the sole holder of global state, responsible for orchestrating a profess
 
 - **QA Never Converges**: QA tends to give "Pass-Optimizable" rather than "Pass-Converged". If all acceptance criteria have passed and the quality evaluation has no "Insufficient" items, lean towards declaring convergence. **Specific rule**: When ALL quality dimensions are ≥ Good AND all acceptance criteria at the current evaluation level pass, the Director SHOULD declare convergence and enter retro, regardless of the QA's three-value output. → `references/qa-handling.md` §Director Override
 - **Parallel Implement Missing Context**: Each subagent MUST receive `deliverables.md` + its own task package + `context.md`. None can be missing.
-- **Missing Process Output**: After a subagent returns, you MUST show a process summary to the user (key findings, info sources, output paths). Don't just say "done" and skip to the next step—users need to see intermediate content to judge the direction, and need progress indicators to confirm the agent is still working. **This is a mandatory obligation for the Director after every Phase—not optional. Violating this rule is equivalent to a process interruption.**
+- **Missing User-Facing Briefing**: After a phase completes, you MUST show a concise user-facing briefing and update `current-brief.md`. Do not dump raw process logs, trace events, or full phase artifacts into the conversation. Users need the bottom line, evidence basis, risks, decision needed, and next action. → `references/user-facing-output.md`
+- **Decision Log Drift**: Any user decision that changes route, scope, risk acceptance, expert panel, phase skip, acceptance criteria, or convergence MUST be appended to `decision-log.md` before the next phase starts. This file is the durable record of why surge moved in a particular direction.
 - **Research Popularity Bias**: Repeated search hits, LLM agreement, or multiple articles repeating the same upstream source are NOT independent evidence. For high-impact factual, market, scientific, legal, security, or architecture claims discovered in Research, the Director MUST run the Triangulation Gate in `references/phases/research.md` before allowing High confidence or passing the claim into Design as a settled premise.
 - **Quality Oscillation**: If `quality_history` shows the same dimension bouncing back and forth for 3 consecutive rounds (e.g., Basic→Good→Basic), the optimization direction for that dimension has internal conflicts. Do not blindly continue optimizing; lock that dimension or ask the user to rule on priorities.
 - **Optimization Directives Fail**: If the same optimization directive is marked as "Unexecuted" by QA for two consecutive rounds, do not inject it a third time. Explain the situation to the user during the Iteration Review and request guidance.
@@ -119,7 +120,7 @@ bash <repo_root>/scripts/trace.sh <task_dir>/trace.jsonl surge <type> <step> <ro
 | Startup steps 1-5 complete | `step_start` / `step_end` | `startup` | Writing state.md, topology.md, etc. |
 | Before dispatching each subagent | `agent_dispatch` | current phase | Reading phase template + assembling prompt |
 | After subagent returns | `agent_return` | current phase | Output Integrity Validation (step 5) |
-| After validation result | `step_end` | current phase | Process Output (step 6) |
+| After validation result | `step_end` | current phase | User-facing briefing (step 6) |
 | QA conclusion processing | `decision` | `qa` | Updating state.md fields |
 | Convergence check | `checkpoint` | `qa` | Deciding continue/stop |
 | Error/retry | `error` | current phase | Phase Failure Handling |
@@ -150,19 +151,21 @@ The Director should store the returned event ID (printed to stdout by `trace.sh`
 
 Before each major action, the Director MUST print a status line to the user. This provides real-time progress indication during long-running operations and is emitted alongside the trace event.
 
-**Format**: `{emoji} [{step}] {status_description}`
+**Format**: `Status: [{step}] {status_description}`
+
+Status lines are transient progress signals. Do not copy them into durable phase reports or `current-brief.md`.
 
 **Mandatory status announcements:**
 
 | Moment | Status Line |
 |--------|-------------|
-| Before dispatching subagent | `⚡ [analyze] Dispatching subagent — analyzing requirements...` |
-| Subagent returned, validating | `🔍 [analyze] Subagent returned — validating output integrity...` |
-| Validation passed, showing output | `📋 [analyze] Validation passed — processing results...` |
-| QA decision made | `🎯 [qa] Conclusion: Pass-Optimizable — evaluating convergence...` |
-| Starting new iteration | `🔄 [iter 2] Starting iteration 2 (full cycle)...` |
-| Convergence detected | `✅ [convergence] All criteria met — preparing completion review...` |
-| Error/retry | `⚠️ [implement] SEVERE_TRUNCATION detected — retrying with scope reduction...` |
+| Before dispatching subagent | `Status: [analyze] Dispatching subagent to analyze requirements.` |
+| Subagent returned, validating | `Status: [analyze] Subagent returned; validating output integrity.` |
+| Validation passed, showing output | `Status: [analyze] Validation passed; preparing user briefing.` |
+| QA decision made | `Status: [qa] Conclusion is Pass-Optimizable; evaluating convergence.` |
+| Starting new iteration | `Status: [iter 2] Starting iteration 2 as a full cycle.` |
+| Convergence detected | `Status: [convergence] Criteria met; preparing completion review.` |
+| Error/retry | `Status: [implement] Severe truncation detected; retrying with scope reduction.` |
 
 **Rules Loading**: After Startup completes and before entering the Main Iteration Loop, the Director MUST read `{surge_root}/rules.md` into active context. This file contains NEVER/ALWAYS/PREFER constraints that act as guardrails throughout execution. If the file does not exist (e.g., `init.sh` was skipped), copy from `assets/rules.md` first.
 
@@ -187,8 +190,8 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 4. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_dispatch {phase} "$ROUND" subagent:{phase} '{...}'` — store the returned event ID.
 5. Dispatch the subagent via the Agent tool.
 6. **[MANDATORY] Emit trace event**: `bash <repo_root>/scripts/trace.sh "$TRACE_FILE" surge agent_return {phase} "$ROUND" subagent:{phase} '{...}'` — include `parent_id` from step 4 and `validation_result`.
-7. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to Process Output on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
-8. **[MANDATORY] After validation passes, show a process summary to the user** (see "Process Output" below). **Do NOT proceed to the next Phase without showing a progress summary.**
+7. **[MANDATORY] Output Integrity Validation**: Read the expected output file(s) and validate against the phase's required-section checklist in `references/output-validation.md`. Classify as PASS / MINOR_TRUNCATION / SEVERE_TRUNCATION. If not PASS, execute the corresponding recovery strategy (see `references/output-validation.md`) before proceeding. Do NOT skip to the user-facing briefing on a non-PASS result. **For multi-output phases (design, research)**: validate each output file independently; for research, raw materials are validated incrementally during the Director loop — only the summary document goes through post-phase validation.
+8. **[MANDATORY] After validation passes, show a user-facing phase briefing** (see "Process Output" below). **Do NOT proceed to the next Phase without updating `current-brief.md` and showing the briefing.**
 
 > The files under `references/phases/` are prompt templates. They should be read via the Read tool and injected into the subagent prompt, **NOT invoked via the Skill tool**.
 
@@ -196,7 +199,7 @@ Each iteration executes 5 Phases sequentially. The QA conclusion dictates whethe
 After the Analyze subagent returns and output is validated, the Director MUST check the "Ambiguities & Questions to Clarify" section:
 1. **If any ambiguity has impact scope covering P0 requirements or ≥3 phases**: Present ALL such ambiguities to the user via AskUserQuestion, including the analyze agent's suggested clarification method. Wait for user response.
 2. **Inject user answers**: Write confirmed answers into `context.md` (append as "## User Clarifications" section), so all downstream phases reference them.
-3. **If ALL ambiguities are minor** (impact limited to a single non-critical module): The Director may proceed with stated assumptions, but MUST list those assumptions in the process summary shown to the user and get acknowledgment.
+3. **If ALL ambiguities are minor** (impact limited to a single non-critical module): The Director may proceed with stated assumptions, but MUST list those assumptions in the user-facing briefing and get acknowledgment.
 4. **If no ambiguities**: Proceed normally.
 
 This gate applies to EVERY iteration's analyze phase, not just the first round.
@@ -219,9 +222,9 @@ If obvious dead links or naming conflicts are found, dispatch an agent to fix th
 
 ### Process Output
 
-> Complete per-phase content requirements, format examples, and subagent prompt cooperation instructions are in `references/process-output.md`.
+> Complete per-phase briefing requirements, format examples, and subagent prompt cooperation instructions are in `references/process-output.md`. The user-facing briefing contract is in `references/user-facing-output.md`.
 
-After each subagent returns, the Director **MUST** present a brief process summary to the user (key findings, info sources, output paths). This is mandatory — not optional. If the subagent's response omits the summary, the Director extracts key information from the output files directly.
+After each phase completes, the Director **MUST** present a concise user-facing briefing and update `current-brief.md`. This is mandatory — not optional. If the subagent's response omits the needed information, the Director extracts the bottom line, evidence basis, risks, decision need, and next action from the output files directly. Append route-changing user decisions to `decision-log.md`.
 
 ### Token Budget Guidelines
 
@@ -308,7 +311,8 @@ After retro finishes:
 | `references/qa-handling.md` | QA 3-value logic, convergence, Director Override, deviations, test evolution, lightweight paths, directive verification | After QA results |
 | `references/state-schema.md` | state.md field definitions and update rules | When updating state |
 | `references/output-structure.md` | Directory structure, file naming rules | When confirming paths |
-| `references/process-output.md` | Per-phase process summary requirements, format examples, subagent cooperation instructions | After every subagent return (step 6) |
+| `references/process-output.md` | Per-phase briefing requirements, format examples, subagent cooperation instructions | After every phase validation (step 6) |
+| `references/user-facing-output.md` | Briefing layer, symbol policy, `current-brief.md`, and `decision-log.md` rules | Before showing progress or decisions to the user |
 | `references/token-budget.md` | Context window management rules, estimation heuristics | When assembling subagent prompts (especially iteration ≥ 3) |
 | `references/epistemic-audit.md` | Ledger, source triangulation, falsification, convergence, and Goodhart audit protocol | When claims, evidence, or convergence decisions matter |
 | `references/platform-adapter.md` | Claude/Cursor/Gemini capability mapping and fallbacks | Startup and any platform-specific execution uncertainty |

@@ -133,6 +133,50 @@ else
     echo "  - memory_draft.md already exists, skipping"
 fi
 
+# Create user-facing briefing artifacts (skip if exists)
+if [[ ! -f "${TASK_DIR}/current-brief.md" ]]; then
+    cat > "${TASK_DIR}/current-brief.md" << 'EOF'
+# Current Brief
+
+## Bottom Line
+
+Context package initialized. The Director should update this file after startup and after every phase.
+
+## Basis
+
+- The task directory and runtime control files have been created.
+
+## Risks and Uncertainties
+
+- None recorded yet.
+
+## Decision Needed
+
+Startup negotiation is still pending.
+
+## Next Action
+
+Confirm task topology, deliverables, and acceptance criteria.
+EOF
+    echo "  ✓ Created current-brief.md"
+else
+    echo "  - current-brief.md already exists, skipping"
+fi
+
+if [[ ! -f "${TASK_DIR}/decision-log.md" ]]; then
+    cat > "${TASK_DIR}/decision-log.md" << 'EOF'
+# Decision Log
+
+Append user decisions, skipped phases, overrides, veto acknowledgements, and acceptance criteria changes.
+
+| Time | Phase | Decision | Options Considered | Rationale | Impact |
+|---|---|---|---|---|---|
+EOF
+    echo "  ✓ Created decision-log.md"
+else
+    echo "  - decision-log.md already exists, skipping"
+fi
+
 # Create empty trace.jsonl for execution tracing (skip if exists)
 if [[ ! -f "${TASK_DIR}/trace.jsonl" ]]; then
     touch "${TASK_DIR}/trace.jsonl"
@@ -229,6 +273,8 @@ echo "    └── ${TASK_ID}/"
 echo "        ├── state.md"
 echo "        ├── context.md"
 echo "        ├── memory_draft.md"
+echo "        ├── current-brief.md"
+echo "        ├── decision-log.md"
 echo "        ├── trace.jsonl"
 echo "        ├── test_cases.md"
 echo "        ├── epistemic-ledger.md"

@@ -236,7 +236,7 @@ Historical Output Files (Available for review):
 - If no calibration concerns: Proceed to Completion Review Checkpoint normally.
 - If calibration concerns found: Add `[CALIBRATION WARNING]` tags to the Completion Review display:
   ```
-  ⚠️ Calibration Warnings:
+  Calibration Warnings:
   - [CALIBRATION WARNING: QA may be too lenient — dismissed 4 identified issues as "acceptable"]
   - [CALIBRATION WARNING: Robustness jumped Basic→Excellent in one round without major implementation changes]
   ```

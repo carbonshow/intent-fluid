@@ -169,6 +169,7 @@ If the directive comes with an intensity label (like `[REFINEMENT-ONLY]` or `[RE
 
 Write the acceptance results into the output document, which must include the following sections (format as you see fit):
 
+- **Reader Summary**: Delivery verdict first, then blocker vs non-blocking issues, evidence basis, residual risk, and next action.
 - **Acceptance Conclusion**: Three-value judgment (Fail / Pass-Optimizable / Pass-Converged), including Pass/Partial Pass/Fail item counts and evaluation level.
 - **Details of Pass/Partial Pass/Fail Items**: Each containing acceptance criteria, verification result or failure reason; Partial Pass and Fail items MUST include deviation level.
 - **Overall Deviation Level**: Take the highest level and explain the reason (if all pass, state no deviation).

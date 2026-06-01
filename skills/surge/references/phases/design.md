@@ -130,6 +130,7 @@ Produce detailed design for the **selected solution**, incorporating all accepte
 The Director may delegate this to a design subagent for complex domains.
 
 **Output sections** (included in `iter_{NN}_design.md`):
+- **Reader Summary**: Selected solution, evidence basis, accepted risks, user decision status, and next implementation action.
 - **Selected Solution & Reasons**: Which solution was chosen and why
 - **Assumptions, Predictions, and Invalidation Conditions**: Important claims that must be recorded in `epistemic-ledger.md`, plus any falsification checks required before convergence.
 - **Detailed Design**:
@@ -140,7 +141,7 @@ The Director may delegate this to a design subagent for complex domains.
 
 ### Step 7: Design Confirmation [Checkpoint 4]
 
-Present the full design summary to the user. Highlight any points where the design **diverges** from expert recommendations (with rationale).
+Present a user-facing design briefing, not the full design document inline. The briefing must state the selected solution, why alternatives lost, accepted expert constraints, material risks, and any points where the design **diverges** from expert recommendations (with rationale). Link to `iter_{NN}_design.md` for details.
 
 **User options**:
 - **A) Approve** — design is finalized
@@ -148,7 +149,7 @@ Present the full design summary to the user. Highlight any points where the desi
 
 **State update**: `design_checkpoint` ← `"design_confirmed"`
 
-> **NOTE**: This checkpoint serves as the process summary. There is no separate post-phase summary step.
+> **NOTE**: This checkpoint serves as the phase briefing. There is no separate post-phase briefing step.
 
 ### Step 8: Parallelizable Module Identification
 
