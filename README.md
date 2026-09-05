@@ -90,10 +90,21 @@ git clone https://github.com/carbonshow/intent-fluid.git
 
 | Skill | Description |
 |-------|-------------|
+| [ai-native-software-dev](skills/ai-native-software-dev/) | General AI-native software delivery workflow for brownfield systems, greenfield products, and authorized reference reconstruction. Combines an evidence-driven development kernel with risk tiers, conditional lifecycle modules, and extensible domain packs. |
 | [surge](skills/surge/) | Autonomous delivery system — iterative analyze/research/design/implement/QA cycles driven by a Director Agent. Provide a PRD to activate. |
 | [slidev](skills/slidev/) | Lightweight Markdown-based presentations — intelligently analyzes content, auto-selects layouts (text, diagrams, tables, images), generates Mermaid flowcharts, and applies adaptive density controls to prevent overflow. A faster, code-native alternative to heavy slide tools. |
 | [expert-redteam-review](skills/expert-redteam-review/) | Expert panel + red-team review workflow for complex decisions — scopes the decision, assembles domain experts, challenges assumptions, supports rebuttals, and produces judge arbitration with minimum validation actions. |
 | [domain-sensemaking](skills/domain-sensemaking/) | Structured research workflow for unfamiliar domains — frames the problem, generates and ranks exploration frontiers, builds concept/claim/evidence graphs, checks convergence, then synthesizes a traceable conclusion. Supports Learning, Research/Engineering, and Consulting/Decision modes. |
+
+### AI-Native Software Development
+
+`ai-native-software-dev` is an evidence-driven workflow for non-trivial software delivery. It uses one adaptable development kernel while providing dedicated paths for taking over large existing codebases, building products from zero, and independently reconstructing authorized product behavior. Risk tiers, conditional lifecycle modules, and composable domain packs keep the workflow lightweight for ordinary work while adding stronger controls for security-, data-, financial-, scientific-, or safety-sensitive systems.
+
+Ask your agent to use the skill, or invoke it explicitly where skill invocation is supported:
+
+```text
+$ai-native-software-dev Take over this repository and add CSV export without changing its authorization behavior.
+```
 
 ### Creating a New Skill
 
