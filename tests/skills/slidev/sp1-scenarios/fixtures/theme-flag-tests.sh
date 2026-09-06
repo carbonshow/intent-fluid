@@ -4,7 +4,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+SKILL_ROOT="$REPO_ROOT/skills/slidev"
 NEW_PRES="$SKILL_ROOT/scripts/new-presentation.sh"
 
 PASS=0; FAIL=0

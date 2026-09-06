@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # grader-tests.sh — Unit tests for grader.js against an sp1-style fixture.
-# Run from repo root: bash skills/slidev/evals/sp1-scenarios/fixtures/grader-tests.sh
+# Run from repo root: bash tests/skills/slidev/sp1-scenarios/fixtures/grader-tests.sh
 # Exit 0 = all pass, 1 = any fail.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)/skills/slidev"
-VALID_SLIDES="$SKILL_ROOT/evals/sp1-scenarios/fixtures/valid.md"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+SKILL_ROOT="$REPO_ROOT/skills/slidev"
+VALID_SLIDES="$SCRIPT_DIR/valid.md"
 GRADER="$SKILL_ROOT/scripts/lib/grader.js"
 
 PASS=0; FAIL=0

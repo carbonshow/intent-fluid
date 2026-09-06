@@ -41,17 +41,17 @@ Each scenario's full details — chosen theme rationale, outline, expectation-by
 - **Script extensions**:
   - `new-presentation.sh --theme <name>` (6 themes + validation)
   - `validate-slides.sh` Check 10 (schema-aware)
-  - `scripts/lib/parse-catalog.py` (catalog parser)
-  - `scripts/test-sp1-static.sh` (10 static checks)
+  - `skills/slidev/scripts/lib/parse-catalog.py` (catalog parser)
+  - `skills/slidev/scripts/test-sp1-static.sh` (10 static checks)
 - **Test fixtures**: 5 Check 10 fixtures + runner, theme-flag test runner
-- **Scenario fixtures**: 3 scenarios × (scenario.md + filled result.md) under `evals/sp1-scenarios/`
-- **Troubleshooting**: `references/troubleshooting.md` — SP1 theme & schema sections
+- **Scenario fixtures**: 3 scenarios × (scenario.md + filled result.md) under `tests/skills/slidev/sp1-scenarios/`
+- **Troubleshooting**: `skills/slidev/references/troubleshooting.md` — SP1 theme & schema sections
 
 ## Pending (operator)
 
 One last item from spec §9.5 DoD remains for the human operator:
 
-- **Manual `run.sh dev` + PDF export smoke test**: pick one generated deck, run `scripts/run.sh dev <path>/slides.md` to render in browser, then `scripts/run.sh export <path>/slides.md` to produce a PDF. Verify visually.
+- **Manual `run.sh dev` + PDF export smoke test**: pick one generated deck, run `skills/slidev/scripts/run.sh dev <path>/slides.md` to render in browser, then `skills/slidev/scripts/run.sh export <path>/slides.md` to produce a PDF. Verify visually.
 
 This can only be done by a human with a browser; it wasn't automated because it requires visual judgement of how the deck looks, not just whether it parses.
 
@@ -59,7 +59,7 @@ This can only be done by a human with a browser; it wasn't automated because it 
 
 - **Theme inference works**: all three scenarios picked the most-fit theme from theme-library.md on the first attempt. No scenarios fell through to the `tech-dark` default fallback.
 - **Layout discipline holds**: all three decks are 100% Check-10-clean (0 FAIL / 0 WARN). Subagents used schema-override sparingly (once, for a justified case in Scenario 1).
-- **review-presentation.sh has a known counting artifact**: it counts each per-slide `---` frontmatter boundary as a separate "slide", which inflates empty-slides and no-heading counts. All three scenarios scored 82/100 (Good) because of this, not because of real content defects. ~~Candidate follow-up for a later maintenance pass (not blocking SP1).~~ **Fixed 2026-04-23** — parser rewritten as a BODY ↔ FM state machine (mirrors `scripts/lib/slides-parser.js`); regression guarded by `evals/sp1-scenarios/fixtures/review-count-tests.sh` (9 tests). Starter/fixture decks now score 95–100 (Excellent).
+- **review-presentation.sh has a known counting artifact**: it counts each per-slide `---` frontmatter boundary as a separate "slide", which inflates empty-slides and no-heading counts. All three scenarios scored 82/100 (Good) because of this, not because of real content defects. ~~Candidate follow-up for a later maintenance pass (not blocking SP1).~~ **Fixed 2026-04-23** — parser rewritten as a BODY ↔ FM state machine (mirrors `scripts/lib/slides-parser.js`); regression guarded by `tests/skills/slidev/sp1-scenarios/fixtures/review-count-tests.sh` (9 tests). Starter/fixture decks now score 95–100 (Excellent).
 
 ## What's next (SP2-5)
 
@@ -84,7 +84,7 @@ During DoD visual verification of v1, the user flagged that slide 7 (diagram-pri
 
 ### What changed
 
-**New `assets/themes/_skeleton.css`** — shared design system + geometric skeletons:
+**New `skills/slidev/assets/themes/_skeleton.css`** — shared design system + geometric skeletons:
 
 - **Typography scale**: Perfect Fourth 1.333× with body=18px; 7 steps (`--text-caption` → `--text-hero`)
 - **Spacing scale**: 0.5rem base; 6 steps (`--space-1` through `--space-6` = 8/16/24/32/48/64px)
@@ -101,7 +101,7 @@ During DoD visual verification of v1, the user flagged that slide 7 (diagram-pri
 
 **Catalog templates updated** — every layout's `class:` now prefixed with its skeleton class (e.g. `skeleton-list agenda`); body content wrapped in `.content` / `.data-body` / `.content-body` as required by the skeleton.
 
-**New `scripts/audit-visual.sh`** — Playwright-driven visual audit. 6 themes × 15 layouts = 90 PNG screenshots, each checked against 4 geometric assertions (no overflow, vertical centering ≤30% deviation, h1 font-size in [35,140]px, three-metrics row alignment).
+**New `skills/slidev/scripts/audit-visual.sh`** — Playwright-driven visual audit. 6 themes × 15 layouts = 90 PNG screenshots, each checked against 4 geometric assertions (no overflow, vertical centering ≤30% deviation, h1 font-size in [35,140]px, three-metrics row alignment).
 
 ### Verification
 

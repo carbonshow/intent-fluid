@@ -14,7 +14,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+SKILL_ROOT="$REPO_ROOT/skills/slidev"
 REVIEW="$SKILL_ROOT/scripts/review-presentation.sh"
 
 PASS=0; FAIL=0
@@ -63,7 +64,7 @@ run_case "starter template (8 slides, all headed)" \
 # 2) SP2 fixture — 4 slides; every slide has a `# heading`; no empty slides.
 #    Pre-fix: slide_count=7, empty=0, no_heading=3.
 run_case "SP2 fixture deck (4 slides, all headed)" \
-         "$SKILL_ROOT/evals/sp2-scenarios/fixtures/minimal-deck/slides.md" \
+         "$REPO_ROOT/tests/skills/slidev/sp2-scenarios/fixtures/minimal-deck/slides.md" \
          4 0 0
 
 # 3) Check-10 valid fixture — 5 slides; slide 4 (big-statement) is the only one

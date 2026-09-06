@@ -7,8 +7,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SKILL_ROOT/../.." && pwd)"
 THEMES_DIR="$SKILL_ROOT/assets/themes"
-FIXTURE="$SKILL_ROOT/evals/sp2-scenarios/fixtures/minimal-deck"
+FIXTURE="$REPO_ROOT/tests/skills/slidev/sp2-scenarios/fixtures/minimal-deck"
 GEN="$SKILL_ROOT/scripts/generate-images.sh"
 VAL="$SKILL_ROOT/scripts/validate-slides.sh"
 

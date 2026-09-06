@@ -70,4 +70,4 @@ superpowers
 .worktrees/
 
 # SP1.v2 visual audit artifacts (timestamped output dirs)
-skills/slidev/evals/visual-audit/2*/
+tests/skills/slidev/visual-audit/2*/

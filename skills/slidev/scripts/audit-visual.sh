@@ -7,7 +7,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SKILL_ROOT/../.." && pwd)"
 RUNNER="$SKILL_ROOT/assets/runner"
+OUTPUT_ROOT="$REPO_ROOT/tests/skills/slidev/visual-audit"
 
 if ! NODE_PATH="$RUNNER/node_modules" node -e "require('playwright')" 2>/dev/null; then
   echo "Playwright not installed. Install with:"
@@ -16,4 +18,4 @@ if ! NODE_PATH="$RUNNER/node_modules" node -e "require('playwright')" 2>/dev/nul
   exit 2
 fi
 
-NODE_PATH="$RUNNER/node_modules" node "$SCRIPT_DIR/lib/audit-visual.js" "$SKILL_ROOT"
+NODE_PATH="$RUNNER/node_modules" node "$SCRIPT_DIR/lib/audit-visual.js" "$SKILL_ROOT" "$OUTPUT_ROOT"

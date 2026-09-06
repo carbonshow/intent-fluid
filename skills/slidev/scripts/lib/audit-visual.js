@@ -9,8 +9,8 @@
  *   4. Assert: no overflow, roughly centered, h1 font-size in range,
  *      three-metrics row alignment
  *
- * Usage: node audit-visual.js <skill_root>
- * Output: <skill_root>/evals/visual-audit/<timestamp>/{png, report.json}
+ * Usage: node audit-visual.js <skill_root> [output_root]
+ * Output: <output_root>/<timestamp>/{png, report.json}
  * Exit 0 = all pass, 1 = any fail
  */
 
@@ -226,10 +226,11 @@ ${demo.body}
 
 async function main() {
   const skillRoot = process.argv[2] || path.resolve(__dirname, '../..');
+  const outputRoot = process.argv[3] || path.join(os.tmpdir(), 'slidev-visual-audit');
   const onlyArg = process.argv.indexOf('--only');
   const only = onlyArg >= 0 ? process.argv[onlyArg + 1] : null;  // format: "theme/layout"
   const ts = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
-  const outDir = path.join(skillRoot, 'evals', 'visual-audit', ts);
+  const outDir = path.join(outputRoot, ts);
   fs.mkdirSync(outDir, { recursive: true });
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sp1v2-audit-'));
 

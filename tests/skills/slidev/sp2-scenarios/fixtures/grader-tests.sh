@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # grader-tests.sh — Unit tests for grader.js against the sp2 minimal-deck fixture.
-# Run from repo root: bash skills/slidev/evals/sp2-scenarios/fixtures/grader-tests.sh
+# Run from repo root: bash tests/skills/slidev/sp2-scenarios/fixtures/grader-tests.sh
 # Exit 0 = all pass, 1 = any fail.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)/skills/slidev"
-FIXTURE="$SKILL_ROOT/evals/sp2-scenarios/fixtures/minimal-deck"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+SKILL_ROOT="$REPO_ROOT/skills/slidev"
+FIXTURE="$SCRIPT_DIR/minimal-deck"
 GRADER="$SKILL_ROOT/scripts/lib/grader.js"
 PARSER="$SKILL_ROOT/scripts/lib/slides-parser.js"
 VAL="$SKILL_ROOT/scripts/validate-slides.sh"

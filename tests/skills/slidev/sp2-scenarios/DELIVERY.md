@@ -74,16 +74,16 @@ Legend: ✅ passed
 
 ## Artifacts
 
-- **3 scenarios × 2 files** under `evals/sp2-scenarios/{01,02,03}/`:
+- **3 scenarios × 2 files** under `tests/skills/slidev/sp2-scenarios/{01,02,03}/`:
   - `scenario.md` — self-contained runnable procedure (YAML, commands, 10 expectations)
   - `result.md` — filled by subagent with exact command output evidence
-- **1 smoke fixture**: `evals/sp2-scenarios/fixtures/minimal-deck/` (used by `test-sp2-static.sh`)
-- **Static regression suite**: `scripts/test-sp2-static.sh` (17 checks)
+- **1 smoke fixture**: `tests/skills/slidev/sp2-scenarios/fixtures/minimal-deck/` (used by `test-sp2-static.sh`)
+- **Static regression suite**: `skills/slidev/scripts/test-sp2-static.sh` (17 checks)
 - **Image generation pipeline**:
-  - `scripts/generate-images.js` — prompt assembly, Gemini REST, content-hash cache, SVG placeholder fallback
-  - `scripts/build-deck.sh` — `validate → generate → build` wrapper
-  - `scripts/gemini-client.js`, `slides-parser.js`, `theme-colors.js`, `placeholder-svg.js`
-- **6 `image-style.txt` theme files**: `assets/themes/<name>.image-style.txt`
+  - `skills/slidev/scripts/lib/generate-images.js` — prompt assembly, Gemini REST, content-hash cache, SVG placeholder fallback
+  - `skills/slidev/scripts/build-deck.sh` — `validate → generate → build` wrapper
+  - `skills/slidev/scripts/lib/gemini-client.js`, `slides-parser.js`, `theme-colors.js`, `placeholder-svg.js`
+- **6 `image-style.txt` theme files**: `skills/slidev/assets/themes/<name>.image-style.txt`
 - **SKILL.md**: SP2 section (Step 5 — image generation, `--mock` flag, build flow)
 
 ## Observations from scenario runs

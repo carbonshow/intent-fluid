@@ -11,12 +11,18 @@ The SP5 eval suite provides three composable tools for automated deck quality me
 
 ## Quick Start
 
+The commands below assume the repository root as the current directory:
+
+```bash
+SKILL_ROOT="$PWD/skills/slidev"
+```
+
 ### Grade a deck for a specific scenario
 
 ```bash
-bash scripts/eval-deck.sh <deck-dir> <scenario-id>
+bash "$SKILL_ROOT/scripts/eval-deck.sh" <deck-dir> <scenario-id>
 # e.g.:
-bash scripts/eval-deck.sh /tmp/my-deck sp2-01
+bash "$SKILL_ROOT/scripts/eval-deck.sh" /tmp/my-deck sp2-01
 ```
 
 This produces:
@@ -28,13 +34,13 @@ This produces:
 Pass `--mock <scenario>` to also run `generate-images.sh` before grading:
 
 ```bash
-bash scripts/eval-deck.sh /tmp/my-deck sp2-01 --mock success
+bash "$SKILL_ROOT/scripts/eval-deck.sh" /tmp/my-deck sp2-01 --mock success
 ```
 
 ### Compare two deck runs
 
 ```bash
-bash scripts/eval-deck.sh --compare /tmp/deck-v1/report.json /tmp/deck-v2/report.json
+bash "$SKILL_ROOT/scripts/eval-deck.sh" --compare /tmp/deck-v1/report.json /tmp/deck-v2/report.json
 ```
 
 Produces `diff.md` alongside report-b.json. Exit 0 = no FAILs; exit 1 = at least one FAIL.
@@ -46,7 +52,7 @@ Produces `diff.md` alongside report-b.json. Exit 0 = no FAILs; exit 1 = at least
 ### grader.js
 
 ```bash
-node scripts/lib/grader.js <deck-dir>
+node "$SKILL_ROOT/scripts/lib/grader.js" <deck-dir>
 # Output: JSON to stdout
 ```
 
@@ -83,7 +89,7 @@ Fields emitted:
 ### comparator.js
 
 ```bash
-node scripts/lib/comparator.js <report-a.json> <report-b.json>
+node "$SKILL_ROOT/scripts/lib/comparator.js" <report-a.json> <report-b.json>
 # Output: diff.md to stdout
 # Exit 0 = no FAILs, exit 1 = at least one FAIL
 ```
@@ -105,7 +111,7 @@ Change rules:
 ### analyzer.js
 
 ```bash
-node scripts/lib/analyzer.js <scenario-id> <report.json>
+node "$SKILL_ROOT/scripts/lib/analyzer.js" <scenario-id> <report.json>
 # Output: pre-filled result.md to stdout
 ```
 
@@ -130,10 +136,10 @@ After SP5 ships, the updated scenario procedure is:
 ## Running the static test suite
 
 ```bash
-bash scripts/test-sp5-static.sh
+bash "$SKILL_ROOT/scripts/test-sp5-static.sh"
 ```
 
-Expected: `SP5 static tests: 12 passed, 0 failed`
+Expected: `SP5 static tests: 13 passed, 0 failed`
 
 ---
 
@@ -141,8 +147,8 @@ Expected: `SP5 static tests: 12 passed, 0 failed`
 
 ```bash
 # SP2 fixture (minimal-deck)
-bash evals/sp2-scenarios/fixtures/grader-tests.sh
+bash tests/skills/slidev/sp2-scenarios/fixtures/grader-tests.sh
 
 # SP1 fixture (valid.md)
-bash evals/sp1-scenarios/fixtures/grader-tests.sh
+bash tests/skills/slidev/sp1-scenarios/fixtures/grader-tests.sh
 ```

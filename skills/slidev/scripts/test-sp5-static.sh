@@ -7,7 +7,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-FIXTURE="$SKILL_ROOT/evals/sp2-scenarios/fixtures/minimal-deck"
+REPO_ROOT="$(cd "$SKILL_ROOT/../.." && pwd)"
+FIXTURE="$REPO_ROOT/tests/skills/slidev/sp2-scenarios/fixtures/minimal-deck"
 GRADER="$SKILL_ROOT/scripts/lib/grader.js"
 COMPARATOR="$SKILL_ROOT/scripts/lib/comparator.js"
 ANALYZER="$SKILL_ROOT/scripts/lib/analyzer.js"

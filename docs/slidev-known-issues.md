@@ -8,7 +8,7 @@
 
 **Status**: Fixed
 **Severity**: Medium
-**File**: `scripts/validate-slides.sh` lines 284-291
+**File**: `skills/slidev/scripts/validate-slides.sh` lines 284-291
 
 **Problem**: The `char_count()` function strips HTML tags via `re.sub(r"<[^>]+>", "")` but does **not** strip markdown formatting (`**bold**`, `*italic*`, `` `code` ``). A 40-character Chinese sentence wrapped in `**...**` counts as 44 characters. In CJK-heavy text-heavy decks, this produces false WARN results that cannot be resolved by shortening content.
 
@@ -22,7 +22,7 @@
 
 **Status**: Fixed
 **Severity**: High
-**File**: `SKILL.md` Step 1
+**File**: `skills/slidev/SKILL.md` Step 1
 
 **Problem**: The workflow assumes creating presentations from scratch. The most common real-world scenario is converting an existing structured document (Obsidian note, Google Doc, markdown file) into slides. Missing:
 - Asset inventory step (which images/videos exist, where are they stored)
@@ -38,7 +38,7 @@
 
 **Status**: Fixed
 **Severity**: High
-**File**: `SKILL.md` SP2 section, `references/layout-catalog.md`
+**File**: `skills/slidev/SKILL.md` SP2 section, `skills/slidev/references/layout-catalog.md`
 
 **Problem**: SP2 documentation focuses entirely on AI-generated images via Gemini. No guidance exists for the basic case of using existing screenshots, concept art, data charts, or exported diagrams. Specific gaps:
 - `image_path` override is mentioned once in layout-catalog but under-documented
@@ -54,7 +54,7 @@
 
 **Status**: Fixed
 **Severity**: Medium
-**File**: `SKILL.md` Critical Gotchas, `references/layout-catalog.md`
+**File**: `skills/slidev/SKILL.md` Critical Gotchas, `skills/slidev/references/layout-catalog.md`
 
 **Problem**: The `two-columns` layout requires `left:` and `right:` objects with `pattern:` fields in the slide frontmatter for validation to pass. This requirement is buried in layout-catalog.md prose and a single sentence in SKILL.md Step 3 (line ~291). First-time users will write two-columns slides without the frontmatter objects, get FAIL from validate-slides.sh, and have no clear error message pointing to the fix.
 
@@ -68,7 +68,7 @@
 
 **Status**: Fixed
 **Severity**: Medium
-**File**: `references/content-design.md`
+**File**: `skills/slidev/references/content-design.md`
 
 **Problem**: Only two image size extremes exist:
 - `image-focus`: full-slide image (too large for data charts, cost tables, concept sketches)
@@ -84,7 +84,7 @@ No layout or guidance for the most common case: a **medium-sized image** (~288-3
 
 **Status**: Fixed
 **Severity**: Low
-**File**: `references/content-strategy.md` §6
+**File**: `skills/slidev/references/content-strategy.md` §6
 
 **Problem**: The three verbosity levels (concise / standard / text-heavy) are defined with fill-ratio targets but no guidance on when to pick each. Users default to `standard` even when their content (e.g., GM report with detailed reasoning, lecture handout) clearly needs `text-heavy`. No mapping to audience types, purposes, or common presentation scenarios.
 

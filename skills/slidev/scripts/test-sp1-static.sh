@@ -6,10 +6,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SKILL_ROOT/../.." && pwd)"
 THEMES_DIR="$SKILL_ROOT/assets/themes"
 THEME_LIB="$SKILL_ROOT/references/theme-library.md"
 CATALOG="$SKILL_ROOT/references/layout-catalog.md"
-FIXTURES="$SKILL_ROOT/evals/sp1-scenarios/fixtures"
+FIXTURES="$REPO_ROOT/tests/skills/slidev/sp1-scenarios/fixtures"
 NEW_PRES="$SKILL_ROOT/scripts/new-presentation.sh"
 
 PASS=0; FAIL=0

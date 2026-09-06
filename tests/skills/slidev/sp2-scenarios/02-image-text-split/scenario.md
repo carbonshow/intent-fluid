@@ -255,7 +255,7 @@ rm -rf "$DECK"
 
 ## Scoring
 
-Same thresholds as scenario 01. See `evals/sp2-scenarios/DELIVERY.md`.
+Same thresholds as scenario 01. See `tests/skills/slidev/sp2-scenarios/DELIVERY.md`.
 
 ## Cleanup
 

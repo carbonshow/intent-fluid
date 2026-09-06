@@ -34,6 +34,7 @@ Run from the repository root.
 set -o pipefail
 cd "$(git rev-parse --show-toplevel)"
 SKILL_ROOT="$PWD/skills/slidev"
+TEST_ROOT="$PWD/tests/skills/slidev"
 DECK=/tmp/sp2-scenario-01-image-focus
 rm -rf "$DECK"
 ```
@@ -51,7 +52,7 @@ rm -rf "$DECK"
 2) **Copy the user-override hero image** from the existing smoke fixture:
    ```bash
    mkdir -p "$DECK/public"
-   cp "$SKILL_ROOT/evals/sp2-scenarios/fixtures/minimal-deck/public/hero.jpg" \
+   cp "$TEST_ROOT/sp2-scenarios/fixtures/minimal-deck/public/hero.jpg" \
       "$DECK/public/hero.jpg"
    sha256sum "$DECK/public/hero.jpg" | tee "$DECK/hero.sha256.before"
    ```
@@ -239,7 +240,7 @@ rm -rf "$DECK"
 
 - Per-scenario pass threshold: ≥ 8/10 expectations ✅
 - Aggregate with 02 and 03: ≥ 27/30 (≥ 90%)
-- See `evals/sp2-scenarios/DELIVERY.md` for final tally.
+- See `tests/skills/slidev/sp2-scenarios/DELIVERY.md` for final tally.
 
 ## Cleanup
 
